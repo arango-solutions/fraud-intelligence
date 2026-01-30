@@ -7,7 +7,7 @@ This Product Requirements Document (PRD) details the specifications for **Subsys
 | Document Details |  |
 | --- | --- |
 | **Subsystem Name** | Identity Intelligence & Resolution Engine |
-| **Parent Project** | SBI "Antigravity" Fraud Defense Demo |
+| **Parent Project** | Fraud Intelligence Demo |
 | **Status** | Draft |
 | **Primary Tech Stack** | `arango-entity-resolution`, ArangoDB GAE (WCC) |
 

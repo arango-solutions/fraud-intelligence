@@ -4,10 +4,10 @@ This is an expanded and detailed update for **Sections 3 and 4** of the Data Gen
 
 ## 3. Data Strategy & Requirements
 
-### 3.1 Data Source Decision: **Custom "Antigravity" Data Generator**
+### 3.1 Data Source Decision: **Custom Fraud Intelligence Data Generator**
 
 **Decision:** We will build a custom generator extending the `arango-entity-resolution` demo script.
-**Rationale:** Public datasets (Kaggle/synthetic-fraud) lack the specific structural complexity required to demonstrate *graph* algorithms (e.g., closed loops for circular trading) and the cultural context required for the SBI demo (e.g., Indian naming conventions, "Circle Rate" vs. "Market Value").
+**Rationale:** Public datasets (Kaggle/synthetic-fraud) lack the specific structural complexity required to demonstrate *graph* algorithms (e.g., closed loops for circular trading) and the cultural context required for the banking demo (e.g., Indian naming conventions, "Circle Rate" vs. "Market Value").
 
 ### 3.2 Detailed Data Specifications
 

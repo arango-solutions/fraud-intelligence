@@ -1,15 +1,15 @@
-This Product Requirements Document (PRD) defines the **"Antigravity SBI Financial Crime Ontology"**. This ontology will serve as the semantic backbone for the generated data, the knowledge graph schema, and the fraud taxonomy for the State Bank of India (SBI) demo.
+This Product Requirements Document (PRD) defines the **"Fraud Intelligence Ontology"**. This ontology will serve as the semantic backbone for the generated data, the knowledge graph schema, and the fraud taxonomy for the fraud intelligence demo.
 
 It is designed specifically to be ingested by **ArangoRDF** to automatically generate the physical ArangoDB graph schema (Vertex and Edge collections).
 
 ---
 
-# PRD: Antigravity SBI Financial Crime Ontology
+# PRD: Fraud Intelligence Ontology
 
 | Document Details |  |
 | --- | --- |
-| **Ontology Name** | `sbi-antigravity.owl` |
-| **Base URI** | `http://www.semanticweb.org/sbi-antigravity#` |
+| **Ontology Name** | `fraud-intelligence.owl` |
+| **Base URI** | `http://www.semanticweb.org/fraud-intelligence#` |
 | **Format** | RDF/XML (OWL 2 DL) |
 | **Target Consumer** | ArangoRDF (Schema Generation), GraphRAG (Concept Mapping) |
 
@@ -151,7 +151,7 @@ These define the valid relationships in the graph. `ArangoRDF` will convert thes
 
 ## 6. Datatype Properties (Attributes)
 
-Attributes specific to the SBI/Indian context needed for the demo algorithms.
+Attributes specific to the Indian context needed for the demo algorithms.
 
 | Property URI | Domain | Type | Notes |
 | --- | --- | --- | --- |
@@ -177,10 +177,10 @@ Attributes specific to the SBI/Indian context needed for the demo algorithms.
 
 ### 7.1 Integration with Data Generator
 
-The data generator ("Antigravity Data Fabric") must produce CSV/JSON files that align with these class names.
+The data generator ("Fraud Intelligence Data Fabric") must produce CSV/JSON files that align with these class names.
 
-* *Generator:* Creates `persons.csv` (or `customers.csv`) -> *Ontology:* Maps to `sbi:Person`.
-* *Generator:* Creates `deeds.json` -> *Ontology:* Maps to `sbi:TitleDeed`.
+* *Generator:* Creates `persons.csv` (or `customers.csv`) -> *Ontology:* Maps to `fi:Person`.
+* *Generator:* Creates `deeds.json` -> *Ontology:* Maps to `fi:TitleDeed`.
 
 ### 7.2 Integration with Graph Analytics
 

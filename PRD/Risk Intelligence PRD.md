@@ -1,4 +1,4 @@
-This Product Requirements Document (PRD) defines **Subsystem 4: Risk Intelligence**, the scoring engine responsible for quantifying financial threat levels in the SBI Fraud Demo. It aggregates insights from the Schema, Entity Resolution, and Graph Analytics subsystems into concrete, numerical risk scores.
+This Product Requirements Document (PRD) defines **Subsystem 4: Risk Intelligence**, the scoring engine responsible for quantifying financial threat levels in the Fraud Intelligence Demo. It aggregates insights from the Schema, Entity Resolution, and Graph Analytics subsystems into concrete, numerical risk scores.
 
 ---
 
@@ -7,7 +7,7 @@ This Product Requirements Document (PRD) defines **Subsystem 4: Risk Intelligenc
 | Document Details |  |
 | --- | --- |
 | **Subsystem Name** | Risk Intelligence Engine |
-| **Parent Project** | SBI "Antigravity" Fraud Defense Demo |
+| **Parent Project** | Fraud Intelligence Demo |
 | **Status** | Draft |
 | **Primary Tech Stack** | ArangoDB AQL, NetworkX (prototype), `risk-management` scripts |
 
@@ -17,7 +17,7 @@ This Product Requirements Document (PRD) defines **Subsystem 4: Risk Intelligenc
 
 The Risk Intelligence subsystem is the "Quantifier" of the platform. While Subsystem 3 (Analytics) identifies *patterns* (e.g., "This is a ring"), Subsystem 4 calculates the *severity* (e.g., "Risk Score: 95/100").
 
-It implements a **Multi-Layered Risk Model** that calculates risk not just based on who a customer *is* (Direct Risk), but who they *know* (Inferred Risk) and who they *transact with* (Path Risk). This allows SBI to detect "Clean Skins"—proxies with perfect KYC records who are secretly acting on behalf of blacklisted entities.
+It implements a **Multi-Layered Risk Model** that calculates risk not just based on who a customer *is* (Direct Risk), but who they *know* (Inferred Risk) and who they *transact with* (Path Risk). This allows banks to detect "Clean Skins"—proxies with perfect KYC records who are secretly acting on behalf of blacklisted entities.
 
 ---
 
@@ -58,7 +58,7 @@ Where \(decay(e)\) depends on relationship type:
 
 
 
-* **SBI Context:** If "Brijesh" (Clean) is the brother of "Rajesh" (Hawala Broker, Risk 90), then:
+* **Indian Banking Context:** If "Brijesh" (Clean) is the brother of "Rajesh" (Hawala Broker, Risk 90), then:
   * `risk_inferred(Brijesh) = 90 * 0.8 = 72`
 
 ### 2.3 Path-Based Risk ("The Infection Vector")
@@ -78,7 +78,7 @@ risk\_path(u)=\min\big(100,\;100\cdot \alpha^{d(u,Threat)}\big)
 Where \(\alpha \in (0,1)\) is a decay factor (default \(\alpha=0.5\)).
 
 
-* **SBI Context:**
+* **Indian Banking Context:**
 * **Step 1:** Mule BankAccount (Risk 100) -> **Step 2:** Layer 1 -> **Step 3:** Layer 2 -> **Step 4:** Target BankAccount.
 * Target BankAccount is 3 hops away: `risk_path = 100 * 0.5^3 = 12.5` (low but non-zero "taint").
 
@@ -90,7 +90,7 @@ Where \(\alpha \in (0,1)\) is a decay factor (default \(\alpha=0.5\)).
 
 ### 3.1 Ontology Alignment
 
-The subsystem relies on the risk properties defined in `sbi-antigravity.owl`, with stored-field mappings defined in `PRD/PRD.md` (Canonical schema + naming).
+The subsystem relies on the risk properties defined in `fraud-intelligence.owl`, with stored-field mappings defined in `PRD/PRD.md` (Canonical schema + naming).
 
 | Concept | ArangoDB Property | Description |
 | --- | --- | --- |

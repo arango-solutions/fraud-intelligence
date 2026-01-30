@@ -1,23 +1,23 @@
-This Product Requirements Document (PRD) outlines the comprehensive plan for implementing the **State Bank of India (SBI) Fraud Detection Demo** using the "Antigravity" platform (ArangoDB + Graph Analytics AI).
+This Product Requirements Document (PRD) outlines the comprehensive plan for implementing the **Fraud Intelligence Demo** using ArangoDB and graph analytics.
 
 This plan integrates the **Agentic Workflow**, **Entity Resolution**, and **Risk Intelligence** capabilities discussed in our conversation.
 
 ---
 
-# Product Requirements Document (PRD): SBI Fraud Detection Demo ("Project Antigravity")
+# Product Requirements Document (PRD): Fraud Intelligence Demo
 
 | Document Details |  |
 | --- | --- |
-| **Project Name** | SBI "Antigravity" Fraud Defense Demo |
+| **Project Name** | Fraud Intelligence Demo |
 | **Version** | 1.0 (Draft) |
-| **Target Audience** | State Bank of India (Risk & Compliance Executives) |
+| **Target Audience** | Indian Bank Risk & Compliance Executives |
 | **Core Objective** | Demonstrate how an Agentic AI Graph platform can autonomously detect, analyze, and predict sophisticated financial fraud (Circular Trading, Benami, Hawala). |
 
 ---
 
 ## 1. Executive Summary
 
-The demo will showcase a "Future State" of fraud detection for SBI. Moving beyond static rules, it will demonstrate an **Autonomous AI Agent** that ingests unstructured data (news, deeds), resolves hidden identities (Entity Resolution), analyzes network patterns (Graph Algorithms), and propagates risk scores (Risk Intelligence) to flag complex schemes like "Circular Real Estate Trading" and "Money Mule Rings."
+The demo will showcase a "Future State" of fraud detection for banking. Moving beyond static rules, it will demonstrate an **Autonomous AI Agent** that ingests unstructured data (news, deeds), resolves hidden identities (Entity Resolution), analyzes network patterns (Graph Algorithms), and propagates risk scores (Risk Intelligence) to flag complex schemes like "Circular Real Estate Trading" and "Money Mule Rings."
 
 ---
 
@@ -191,7 +191,7 @@ The demo must tell a story through three distinct "Lenses":
 
 ### Phase 1: Data & Schema (Setup)
 
-* [ ] **Ontology Design:** Create/adapt `sbi-antigravity.owl` to include `RealEstateTransaction`, `UndervaluedTransaction`, and `BenamiTransaction` (plus real-estate fields like `circle_rate_value`).
+* [ ] **Ontology Design:** Create/adapt `fraud-intelligence.owl` to include `RealEstateTransaction`, `UndervaluedTransaction`, and `BenamiTransaction` (plus real-estate fields like `circle_rate_value`).
 * [ ] **Generator Update:** Modify `data_generator.py` to produce "Circular Loops" and "Undervalued Asset" patterns.
 * [ ] **Ingestion Pipeline:** Script to load generated data into ArangoDB.
 

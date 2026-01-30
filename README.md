@@ -1,6 +1,6 @@
-# Fraud Intelligence (Project “Antigravity”)
+# Fraud Intelligence Demo
 
-Design docs for a **State Bank of India (SBI) Fraud Detection Demo** built around **ArangoDB + Graph Analytics + agentic workflows**.
+Design docs for a **Fraud Intelligence Demo** built around **ArangoDB + Graph Analytics + agentic workflows**.
 
 ## What this is
 
@@ -18,7 +18,7 @@ This repo currently contains **Product Requirements Documents (PRDs)** describin
 - `PRD/Identity Intelligence PRD.md`: Entity resolution (“Golden Record”) requirements
 - `PRD/Risk Intelligence PRD.md`: Risk scoring and propagation requirements
 - `PRD/Ontology PRD.md`: Ontology + semantic ingestion requirements
-- `PRD/Data Generator PRD.md`: Synthetic SBI-context data generation requirements
+- `PRD/Data Generator PRD.md`: Synthetic Indian Banking context data generation requirements
 - `PRD/Visualization & User Experience PRD.md`: UI/UX “three lenses” requirements
 
 ## Status

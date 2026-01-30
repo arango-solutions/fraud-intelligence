@@ -1,4 +1,4 @@
-This Product Requirements Document (PRD) defines the **Visualization & User Experience (UX)** subsystem for the SBI Fraud Detection Demo. This layer serves as the "Narrative Interface," translating complex graph algorithms and AI reasoning into three distinct visual stories tailored for specific banking stakeholders.
+This Product Requirements Document (PRD) defines the **Visualization & User Experience (UX)** subsystem for the Fraud Intelligence Demo. This layer serves as the "Narrative Interface," translating complex graph algorithms and AI reasoning into three distinct visual stories tailored for specific banking stakeholders.
 
 ---
 
@@ -6,9 +6,9 @@ This Product Requirements Document (PRD) defines the **Visualization & User Expe
 
 | Document Details |  |
 | --- | --- |
-| **Subsystem Name** | Antigravity Demo UI ("The Lens") |
-| **Parent Project** | SBI "Antigravity" Fraud Defense Demo |
-| **Target Audience** | SBI Investigators, Data Scientists, Chief Risk Officers |
+| **Subsystem Name** | Fraud Intelligence Demo UI ("The Lens") |
+| **Parent Project** | Fraud Intelligence Demo |
+| **Target Audience** | Banking Investigators, Data Scientists, Chief Risk Officers |
 | **Primary Tech Stack** | Streamlit (Python), Plotly, PyDeck (Geospatial), ArangoDB Network (JS) |
 
 ---
@@ -26,7 +26,7 @@ The interface will be built as a unified **Web Application** (likely Streamlit) 
 
 ## 2. Lens 1: The "Investigator" View (Graph Explorer)
 
-**Target Persona:** Field Investigation Officer (FIO) at SBI.
+**Target Persona:** Field Investigation Officer (FIO) at the bank.
 **Core Question:** "Is this specific person (customer) part of a fraud ring?"
 
 ### 2.1 Feature: Interactive Network Graph
