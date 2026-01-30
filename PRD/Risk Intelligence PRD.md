@@ -27,12 +27,12 @@ It implements a **Multi-Layered Risk Model** that calculates risk not just based
 
 To flag entities that explicitly appear on regulatory bad lists or violate static rules.
 
-* **Input:** `Customer` vertices with attributes matching `Watchlist` entities.
+* **Input:** `Person` vertices with attributes matching `WatchlistEntity` entries.
 * **Logic Source:** `scripts/calculate_direct_risk.py`.
 * **Rules:**
 1. **Sanction Match:** If `Name` + `DOB` fuzzy matches a `WatchlistEntity` -> Risk = 100.
 2. **KYC Failure:** If `kyc_status` == "Failed" -> Risk = 90.
-3. **Document Anomaly:** If linked `TitleDeed` has `value` < 50% of `circle_rate` -> Risk = 75 (Tax Evasion Flag).
+3. **Document Anomaly:** If linked `TitleDeed` / `RealEstateTransaction` indicates `transaction_value` < 50% of `circle_rate_value` -> Risk = 75 (Tax Evasion Flag).
 
 
 
@@ -42,8 +42,14 @@ To calculate risk for customers who have no direct violations but are socially c
 
 * **Input:** Graph structure (`related_to` edges).
 * **Logic Source:** `scripts/calculate_inferred_risk.py`.
-* **Algorithm:** **Risk Diffusion**.
-* *Formula:* 
+* **Algorithm:** **Risk Diffusion (bounded, decayed)**.
+* **Formula (demo default, 1-hop):**
+
+\[
+risk\_inferred(u)=\min\Big(100,\max_{(u \leftrightarrow v)\in N(u)}\big(risk\_score(v)\cdot decay(e)\big)\Big)
+\]
+
+Where \(decay(e)\) depends on relationship type:
 * *Weights:*
 * `related_to` (Family): 0.8 decay factor.
 * `associated_with` (Business Partner): 0.6 decay factor.
@@ -52,7 +58,8 @@ To calculate risk for customers who have no direct violations but are socially c
 
 
 
-* **SBI Context:** If "Brijesh" (Clean) is the brother of "Rajesh" (Hawala Broker, Risk 90), Brijesh inherits an Inferred Risk of .
+* **SBI Context:** If "Brijesh" (Clean) is the brother of "Rajesh" (Hawala Broker, Risk 90), then:
+  * `risk_inferred(Brijesh) = 90 * 0.8 = 72`
 
 ### 2.3 Path-Based Risk ("The Infection Vector")
 
@@ -61,13 +68,19 @@ To quantify risk derived from the flow of funds, specifically aimed at Money Lau
 * **Input:** Transaction Graph (`transferred_to` edges).
 * **Logic Source:** `scripts/calculate_path_risk.py`.
 * **Algorithm:** **Shortest Path to Threat**.
-* Find the shortest path distance () to any node with Risk > 90.
-* *Formula:* 
+* Find the shortest path distance \(d(u,Threat)\) to any node with `risk_score >= 90`.
+* **Formula (demo default, exponential decay):**
+
+\[
+risk\_path(u)=\min\big(100,\;100\cdot \alpha^{d(u,Threat)}\big)
+\]
+
+Where \(\alpha \in (0,1)\) is a decay factor (default \(\alpha=0.5\)).
 
 
 * **SBI Context:**
-* **Step 1:** Mule Account (Risk 100) -> **Step 2:** Layer 1 -> **Step 3:** Layer 2 -> **Step 4:** Target Account.
-* Target Account is 3 hops away.  (Low but non-zero "Taint").
+* **Step 1:** Mule BankAccount (Risk 100) -> **Step 2:** Layer 1 -> **Step 3:** Layer 2 -> **Step 4:** Target BankAccount.
+* Target BankAccount is 3 hops away: `risk_path = 100 * 0.5^3 = 12.5` (low but non-zero "taint").
 
 
 
@@ -77,7 +90,7 @@ To quantify risk derived from the flow of funds, specifically aimed at Money Lau
 
 ### 3.1 Ontology Alignment
 
-The subsystem relies on the `riskScore` and `inferredRisk` properties defined in `sentries_ontology.owl`.
+The subsystem relies on the risk properties defined in `sbi-antigravity.owl`, with stored-field mappings defined in `PRD/PRD.md` (Canonical schema + naming).
 
 | Concept | ArangoDB Property | Description |
 | --- | --- | --- |

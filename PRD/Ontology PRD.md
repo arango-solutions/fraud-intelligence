@@ -25,8 +25,10 @@ To ensure seamless translation into ArangoDB via ArangoRDF, the ontology adheres
 
 1. **Classes = Collections:** Top-level OWL Classes (e.g., `Person`, `Transaction`) will map to ArangoDB Vertex Collections.
 2. **Object Properties = Edge Collections:** Properties connecting two classes (e.g., `transferred_to`) will map to ArangoDB Edge Collections.
-3. **Datatype Properties = Document Attributes:** Properties with literal values (e.g., `amount`, `circle_rate`) will map to fields within ArangoDB documents.
+3. **Datatype Properties = Document Attributes:** Properties with literal values (e.g., `amount`, `circleRate`) will map to fields within ArangoDB documents.
 4. **Taxonomy = Inferred Types:** The fraud hierarchy allows the AI to classify a node as a generic `RiskEvent` or a specific `HawalaTransaction`.
+
+**Naming note:** The ontology defines semantic URIs (often camelCase), while the physical ArangoDB documents use **snake_case** fields as defined in `PRD/PRD.md` (Canonical schema + naming). A mapping table must be maintained for ingestion/export.
 
 ---
 
@@ -138,10 +140,12 @@ These define the valid relationships in the graph. `ArangoRDF` will convert thes
 | **`associated_with`** | `Person` | `Organization` | Directors, Partners, UBOs. |
 | **`resides_at`** | `Person` | `Address` | Home address. |
 | **`accessed_from`** | `BankAccount` | `DigitalLocation` | Login/Transaction IP or Device. |
+| **`has_digital_location`** | `Person` | `DigitalLocation` | Optional direct link for ER blocking (shared device/IP). |
 | **`registered_sale`** | `RealProperty` | `RealEstateTransaction` | Link property to the sale event. |
 | **`buyer_in`** | `LegalEntity` | `RealEstateTransaction` | Party buying. |
 | **`seller_in`** | `LegalEntity` | `RealEstateTransaction` | Party selling. |
 | **`mentioned_in`** | `LegalEntity` | `Document` | GraphRAG link between graph & text. |
+| **`resolved_to`** | `Person` | `GoldenRecord` | Entity Resolution link from raw identity to canonical identity. |
 
 ---
 
@@ -158,6 +162,15 @@ Attributes specific to the SBI/Indian context needed for the demo algorithms.
 | **`transactionType`** | `Transaction` | `xsd:string` | NEFT, RTGS, UPI, IMPS. |
 | **`isBenamiSuspect`** | `RealProperty` | `xsd:boolean` | Flag for investigation. |
 
+**Recommended physical field mapping (ArangoDB):**
+
+| Ontology URI | Stored field |
+| --- | --- |
+| `riskScore` | `risk_score` |
+| `inferredRisk` | `risk_inferred` |
+| `circleRate` | `circle_rate_value` |
+| `marketValue` | `market_value` |
+
 ---
 
 ## 7. Implementation Strategy
@@ -166,7 +179,7 @@ Attributes specific to the SBI/Indian context needed for the demo algorithms.
 
 The data generator ("Antigravity Data Fabric") must produce CSV/JSON files that align with these class names.
 
-* *Generator:* Creates `customers.csv` -> *Ontology:* Maps to `sbi:Person`.
+* *Generator:* Creates `persons.csv` (or `customers.csv`) -> *Ontology:* Maps to `sbi:Person`.
 * *Generator:* Creates `deeds.json` -> *Ontology:* Maps to `sbi:TitleDeed`.
 
 ### 7.2 Integration with Graph Analytics

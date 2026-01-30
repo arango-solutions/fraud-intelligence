@@ -15,7 +15,7 @@ The generator must produce a cohesive "Digital Twin" of a regional banking ecosy
 
 #### **A. Entity Specifications (Vertex Collections)**
 
-1. **`Customer` (Person)**
+1. **`Person` (Customer)**
 * **Source Logic:** Use `Faker('en_IN')` to generate culturally accurate names (e.g., "Amitabh", "Priya", "Rajesh") rather than US-centric names found in the base script.
 * **Key Attributes:**
 * `name`: Full name.
@@ -32,7 +32,7 @@ The generator must produce a cohesive "Digital Twin" of a regional banking ecosy
 
 
 
-2. **`Account` (Financial Instrument)**
+2. **`BankAccount` (Financial Instrument)**
 * **Types:** `Savings`, `Current`, `NRE` (Non-Resident External - for Hawala scenarios).
 * **Attributes:** `account_number`, `balance`, `avg_monthly_balance`.
 
@@ -61,7 +61,7 @@ The generator must inject specific graph shapes into the random background noise
 1. **Background Noise (Normal Behavior)**
 * **Pattern:** Random, star-shaped, or small tree structures.
 * **Volume:** 90-95% of total graph.
-* **Logic:** `Person` -> `uses` -> `Account` -> `transfers_to` -> `UtilityCompany` / `Retailer`.
+* **Logic:** `Person` -> `has_account` -> `BankAccount` -> `transferred_to` -> `UtilityCompany` / `Retailer`.
 
 
 2. **Fraud Scenario 1: Circular Trading (The "Round Trip")**
@@ -73,8 +73,8 @@ The generator must inject specific graph shapes into the random background noise
 
 3. **Fraud Scenario 2: Money Mule Ring (The "Smurf")**
 * **Pattern:** Hub-and-Spoke (Inverted).
-* **Logic:** * 50 small `Mule Accounts` (low balance) receive small credits.
-* All 50 transfer to 1 central `Aggregator Account` within 24 hours.
+* **Logic:** * 50 small `Mule BankAccounts` (low balance) receive small credits.
+* All 50 transfer to 1 central `Aggregator BankAccount` within 24 hours.
 
 
 * **Shared Attribute:** All 50 Mules share the same `device_id` or `ip_address` edge.
@@ -100,7 +100,7 @@ The generator must create text artifacts that "explain" the graph anomalies.
 ### 3.3 Volume Requirements
 
 * **Scale:** Small enough for instant demo response, large enough to be visually impressive.
-* **Nodes:** ~10,000 (8k Customers, 1.5k Accounts, 500 Properties).
+* **Nodes:** ~10,000 (8k Persons, 1.5k BankAccounts, 500 RealProperties).
 * **Edges:** ~50,000 (Transactions + Relationships).
 
 

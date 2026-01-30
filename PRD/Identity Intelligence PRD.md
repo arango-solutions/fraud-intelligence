@@ -57,7 +57,7 @@ To detect rings of accounts that appear unrelated by name but share backend infr
 
 * **Technical Implementation:**
 * **Strategy:** `GraphTraversalBlockingStrategy`.
-* **Logic:** Traverse `(Person)-[HAS_DEVICE]->(Device)<-[HAS_DEVICE]-(Person)` to find candidates who share a device ID.
+* **Logic:** Traverse `(Person)-[has_digital_location]->(DigitalLocation)<-[has_digital_location]-(Person)` to find candidates who share a device ID / fingerprint.
 
 
 
@@ -68,7 +68,7 @@ To find identities that are contextually similar based on unstructured data.
 * **Requirement:** Match entities based on vector embeddings of their full profile (Name + Address + Risk Notes).
 * **Technical Implementation:**
 * **Tool:** `VectorBlockingStrategy`.
-* **Process:** Generate embeddings for Customer nodes. Perform Approximate Nearest Neighbor (ANN) search to find profiles that cluster together in vector space, catching aliases that avoid rule-based detection.
+* **Process:** Generate embeddings for `Person` nodes. Perform Approximate Nearest Neighbor (ANN) search to find profiles that cluster together in vector space, catching aliases that avoid rule-based detection.
 
 
 
@@ -120,8 +120,8 @@ The subsystem will implement the pipeline pattern defined in `arango-entity-reso
 * **Role:** Create a new node representing the resolved identity.
 * **Action:**
 * Create a `GoldenRecord` vertex.
-* Link original `Customer` nodes to `GoldenRecord` via `RESOLVED_TO` edges.
-* Aggregate risk scores: `GoldenRecord.risk_score = MAX(Customer.risk_score)`.
+* Link original `Person` nodes to `GoldenRecord` via `resolved_to` edges.
+* Aggregate risk scores: `GoldenRecord.risk_score = MAX(Person.risk_score)`.
 
 
 
@@ -131,7 +131,7 @@ The subsystem will implement the pipeline pattern defined in `arango-entity-reso
 
 ### 4.1 Interface with Subsystem 3 (Analytics Engine)
 
-* **Input:** Raw `Customer` and `Transaction` data.
+* **Input:** Raw `Person` + `BankAccount` data (plus `transferred_to` edges / transaction events).
 * **Output:** A "Resolved Graph" where transactions are essentially re-routed to the `GoldenRecord`.
 * **Benefit:** The "Circular Trading" detection algorithms (Subsystem 3) will run on the `GoldenRecord` nodes, making them immune to fraudsters splitting money across 5 aliases.
 

@@ -27,13 +27,13 @@ The interface will be built as a unified **Web Application** (likely Streamlit) 
 ## 2. Lens 1: The "Investigator" View (Graph Explorer)
 
 **Target Persona:** Field Investigation Officer (FIO) at SBI.
-**Core Question:** "Is this specific customer part of a fraud ring?"
+**Core Question:** "Is this specific person (customer) part of a fraud ring?"
 
 ### 2.1 Feature: Interactive Network Graph
 
 * **Requirement:** Render a force-directed graph of the specific sub-network surrounding a suspect entity.
 * **Visual Elements:**
-* **Nodes:** Color-coded by Type (`Person`=Blue, `Account`=Green, `Property`=Orange, `Watchlist`=Red). Sized by `risk_score`.
+* **Nodes:** Color-coded by Type (`Person`=Blue, `BankAccount`=Green, `RealProperty`=Orange, `WatchlistEntity`=Red). Sized by `risk_score`.
 * **Edges:** Directed arrows showing money flow (`transferred_to`) or relationships (`related_to`).
 
 
@@ -89,12 +89,12 @@ The view must embed interactive charts that validate the fraud findings using st
 #### **Chart A: The "Mule Hub" Detector (PageRank)**
 
 * **Type:** Bar Chart (Sorted Descending).
-* **X-Axis:** Account IDs.
+* **X-Axis:** BankAccount IDs.
 * **Y-Axis:** Influence Score (PageRank).
 * **Visual Story:**
 * Show top 20 accounts.
 * Highlight the **"Hawala Broker"** bar in **Red**.
-* *Annotation:* "Account X has 50x higher influence than average retail users despite zero salary credits."
+* *Annotation:* "BankAccount X has 50x higher influence than average retail users despite zero salary credits."
 
 
 * **Tech:** Plotly JSON export from Subsystem 3.

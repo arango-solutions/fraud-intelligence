@@ -23,7 +23,7 @@ The demo will showcase a "Future State" of fraud detection for SBI. Moving beyon
 
 ## 2. System Architecture & Subsystems
 
-The solution will be composed of four integrated subsystems.
+The solution will be composed of five integrated subsystems.
 
 ### 2.1 Subsystem 1: Knowledge Ingestion (GraphRAG & Semantics)
 
@@ -61,9 +61,71 @@ The solution will be composed of four integrated subsystems.
 * **Requirement:** Calculate three distinct risk metrics:
 * **Direct Risk:** Based on list hits (e.g., name matches a watchlist).
 * **Inferred Risk:** "Guilt by association" (connected to a fraudster).
-* **Path Risk:** Risk derived from transaction flows (Money Mule -> Account -> You).
+* **Path Risk:** Risk derived from transaction flows (Money Mule -> BankAccount -> You).
 
+### 2.5 Subsystem 5: Visualization & User Experience (UX)
 
+* **Role:** Tell the demo story for three personas (Investigator, Analyst, Executive).
+* **Requirement:** Must provide the **three “Lenses”** experience, including evidence paths and “Before/After” Entity Resolution.
+* **Reference:** See **Section 4** and `PRD/Visualization & User Experience PRD.md`.
+
+### 2.6 Canonical schema + naming (source of truth)
+
+All PRDs under `PRD/` are expansions of this document and must use the naming below. If a PRD uses an alias (e.g., “Customer”), it must map to the canonical name here.
+
+#### 2.6.1 Naming conventions
+
+* **Collections & edge collections:** lower snake_case in ArangoDB, mirroring ontology URIs where possible.
+* **Document fields:** lower snake_case in ArangoDB documents (e.g., `risk_score`, `circle_rate_value`).
+* **Ontology vs storage:** ontology URIs may be camelCase (e.g., `riskScore`) but must map to stored fields (e.g., `risk_score`) via an explicit mapping table.
+
+#### 2.6.2 Canonical vertex collections (entities)
+
+| Canonical name | Aliases used in PRDs | Description / notes |
+| --- | --- | --- |
+| `Person` | Customer, user | Bank customer / individual identity. |
+| `Organization` | Company, Shell Company | Legal entity (incl. shell/legit). |
+| `WatchlistEntity` | Watchlist | Regulatory/sanctions/defaulter list entry (seed risk). |
+| `BankAccount` | Account | Bank account / instrument. |
+| `RealProperty` | Property | Real estate asset (has circle/market value). |
+| `Address` | Location | Physical address (may include `district`, `state`, `pincode`, plus optional `lat`, `long`). |
+| `DigitalLocation` | Device, IP, fingerprint | Digital footprint (may include `ip_address`, `device_id`, `mac_address`). Can be modeled as vertices to support ER blocking/traversal. |
+| `Transaction` | Transfer | Generic money movement event. |
+| `RealEstateTransaction` | Sale | Property sale/purchase event. |
+| `Document` | Evidence, Deed, Article | Unstructured source record; specialized types include `TitleDeed`, `NewsArticle`, `KYCRecord`. |
+| `GoldenRecord` | Canonical Identity | Resolved identity produced by Entity Resolution. |
+
+#### 2.6.3 Canonical edge collections (relationships)
+
+| Edge collection | From → To | Purpose |
+| --- | --- | --- |
+| `has_account` | `Person/Organization` → `BankAccount` | Ownership / control of funds. |
+| `transferred_to` | `BankAccount` → `BankAccount` | Money movement (edge carries `amount`, `timestamp`, `txn_type`). |
+| `related_to` | `Person` ↔ `Person` | Familial/social ties (edge may carry `relation_type`). |
+| `associated_with` | `Person` → `Organization` | Directors/partners/UBOs. |
+| `resides_at` | `Person` → `Address` | Home address. |
+| `accessed_from` | `BankAccount` → `DigitalLocation` | Login/transaction IP/device. |
+| `mentioned_in` | `Person/Organization/RealProperty/BankAccount` → `Document` | GraphRAG link between graph + evidence text. |
+| `registered_sale` | `RealProperty` → `RealEstateTransaction` | Link property to a sale event. |
+| `buyer_in` | `Person/Organization` → `RealEstateTransaction` | Buying party. |
+| `seller_in` | `Person/Organization` → `RealEstateTransaction` | Selling party. |
+| `resolved_to` | `Person` → `GoldenRecord` | Identity resolution link (many persons → one golden record). |
+
+#### 2.6.4 Canonical risk fields (stored in ArangoDB)
+
+| Canonical field | Type | Meaning |
+| --- | --- | --- |
+| `risk_score` | number (0-100) | Final operational risk score. |
+| `risk_direct` | number (0-100) | Direct risk from watchlists/static rules. |
+| `risk_inferred` | number (0-100) | Risk derived from neighbors/associations. |
+| `risk_path` | number (0-100) | Risk derived from fund flow distance / taint. |
+| `risk_reasons` | array[string] | Human-readable explanations for audit/UI. |
+
+#### 2.6.5 Canonical “circle rate” fields (real estate)
+
+* `circle_rate_value`: government minimum value reference (per unit or total, but must be consistent across the dataset)
+* `market_value`: estimated/actual market value
+* `transaction_value`: value recorded on the `RealEstateTransaction` (sale price)
 
 ---
 
@@ -75,7 +137,7 @@ Open datasets (like Kaggle fraud data) lack the specific "Indian Context" and st
 
 * **Requirement:** Build a custom generator using the `arango-entity-resolution/demo/scripts/data_generator.py` as a base.
 * **Data Specifications:**
-* **Entities:** Customers (Indian names), Accounts, Properties, Companies (Shell/Legit).
+* **Entities:** `Person`, `BankAccount`, `RealProperty`, `Organization` (Shell/Legit).
 * **Attributes:** Names, PAN formats, Addresses (Indian format), "Circle Rate" vs "Market Value" for properties.
 * **Topology:**
 * *Normal:* Random, disconnected or star-shaped.
@@ -129,7 +191,7 @@ The demo must tell a story through three distinct "Lenses":
 
 ### Phase 1: Data & Schema (Setup)
 
-* [ ] **Ontology Design:** Adapt `sentries_ontology.owl` to include `RealEstateTransaction`, `CircleRate`, `BenamiEntity`.
+* [ ] **Ontology Design:** Create/adapt `sbi-antigravity.owl` to include `RealEstateTransaction`, `UndervaluedTransaction`, and `BenamiTransaction` (plus real-estate fields like `circle_rate_value`).
 * [ ] **Generator Update:** Modify `data_generator.py` to produce "Circular Loops" and "Undervalued Asset" patterns.
 * [ ] **Ingestion Pipeline:** Script to load generated data into ArangoDB.
 
