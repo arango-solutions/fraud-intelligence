@@ -1,0 +1,30 @@
+{
+  "seed": 42,
+  "size": "sample",
+  "generated_at": "2026-01-30T18:56:54.108161Z",
+  "counts": {
+    "address.csv": 200,
+    "digital_location.csv": 26,
+    "person.csv": 399,
+    "organization.csv": 30,
+    "watchlist_entity.csv": 10,
+    "bank_account.csv": 450,
+    "real_property.csv": 50,
+    "real_estate_transaction.csv": 50,
+    "document.csv": 10,
+    "transaction.csv": 0,
+    "golden_record.csv": 0,
+    "has_account.csv": 450,
+    "transferred_to.csv": 1450,
+    "related_to.csv": 100,
+    "associated_with.csv": 30,
+    "resides_at.csv": 399,
+    "accessed_from.csv": 200,
+    "has_digital_location.csv": 5,
+    "mentioned_in.csv": 10,
+    "registered_sale.csv": 50,
+    "buyer_in.csv": 50,
+    "seller_in.csv": 50,
+    "resolved_to.csv": 0
+  }
+}
