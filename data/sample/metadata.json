@@ -1,7 +1,7 @@
 {
   "seed": 42,
   "size": "sample",
-  "generated_at": "2026-01-30T18:56:54.108161Z",
+  "generated_at": "2026-01-01T00:00:42Z",
   "counts": {
     "address.csv": 200,
     "digital_location.csv": 26,

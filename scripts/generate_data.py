@@ -144,7 +144,9 @@ def main() -> None:
     if not args.force and any(out_dir.glob("*.csv")):
         raise SystemExit(f"Refusing to overwrite existing CSVs in {out_dir}. Use --force.")
 
-    now = dt.datetime.now(dt.timezone.utc)
+    # Use a deterministic "base time" so generated CSVs are stable for a given seed.
+    # This prevents `data/sample/` from changing on every run.
+    now = dt.datetime(2026, 1, 1, tzinfo=dt.timezone.utc) + dt.timedelta(seconds=args.seed)
 
     # ------------------------------------------------------------------
     # Addresses

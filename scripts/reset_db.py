@@ -5,6 +5,8 @@ import argparse
 import os
 from urllib.parse import urlparse
 
+from common import apply_config_to_env, get_arango_config, load_dotenv, sanitize_url
+
 try:
     from arango import ArangoClient  # type: ignore
 except Exception:  # pragma: no cover
@@ -68,14 +70,21 @@ def main() -> None:
         )
 
     args = parse_args()
+
+    load_dotenv()
+    cfg = get_arango_config()
+    apply_config_to_env(cfg)
+
     arango_url = env("ARANGO_URL")
     username = env("ARANGO_USERNAME")
     password = env("ARANGO_PASSWORD")
-    db_name = env("ARANGO_DB")
+    db_name = os.getenv("ARANGO_DATABASE") or os.getenv("ARANGO_DB") or ""
+    if not db_name:
+        raise SystemExit("Missing required environment variable: ARANGO_DATABASE (or ARANGO_DB)")
 
     if not is_local(arango_url) and not args.allow_remote:
         raise SystemExit(
-            f"Refusing to run against non-local ARANGO_URL={arango_url}. Use --allow-remote if you are sure."
+            f"Refusing to run against non-local ARANGO_URL={sanitize_url(arango_url)}. Use --allow-remote if you are sure."
         )
 
     client = ArangoClient(hosts=arango_url)

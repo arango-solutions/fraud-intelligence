@@ -5,10 +5,10 @@ import argparse
 import csv
 import json
 import os
-from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Tuple
-from urllib.parse import urlparse
+
+from common import apply_config_to_env, get_arango_config, load_dotenv, sanitize_url
 
 try:
     from arango import ArangoClient  # type: ignore
@@ -68,11 +68,14 @@ JSON_FIELDS = {
 }
 
 
-def env(name: str, default: Optional[str] = None) -> str:
-    v = os.getenv(name, default)
-    if v is None or v == "":
-        raise SystemExit(f"Missing required environment variable: {name}")
-    return v
+def env_any(*names: str, default: Optional[str] = None) -> str:
+    for name in names:
+        v = os.getenv(name)
+        if v is not None and v != "":
+            return v
+    if default is None:
+        raise SystemExit(f"Missing required environment variable(s): {', '.join(names)}")
+    return default
 
 
 def parse_args() -> argparse.Namespace:
@@ -175,10 +178,17 @@ def main() -> None:
     if not data_dir.exists():
         raise SystemExit(f"data-dir does not exist: {data_dir}")
 
-    arango_url = env("ARANGO_URL")
-    username = env("ARANGO_USERNAME")
-    password = env("ARANGO_PASSWORD")
-    db_name = env("ARANGO_DB")
+    # Load .env without printing secrets.
+    load_dotenv()
+    cfg = get_arango_config()
+    apply_config_to_env(cfg)
+
+    arango_url = env_any("ARANGO_URL")
+    username = env_any("ARANGO_USERNAME")
+    password = env_any("ARANGO_PASSWORD")
+    db_name = env_any("ARANGO_DATABASE", "ARANGO_DB")
+
+    print(f"mode={cfg.mode} arango={sanitize_url(arango_url)} db={db_name}")
 
     client = ArangoClient(hosts=arango_url)
     sys_db = client.db("_system", username=username, password=password)

@@ -43,7 +43,7 @@ def test_required_collections_exist_after_ingest():
     arango_url = os.getenv("ARANGO_URL")
     username = os.getenv("ARANGO_USERNAME")
     password = os.getenv("ARANGO_PASSWORD")
-    db_name = os.getenv("ARANGO_DB")
+    db_name = os.getenv("ARANGO_DATABASE") or os.getenv("ARANGO_DB")
     if not (arango_url and username and password and db_name):
         pytest.skip("ARANGO_* env vars not set")
 

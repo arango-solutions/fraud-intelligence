@@ -1,19 +1,20 @@
 // Smoke queries (Phase 1)
 // Run in arangosh after ingest, or paste into the ArangoDB UI query editor.
 
+WITH person, bank_account, real_estate_transaction, has_account, transferred_to, buyer_in, related_to
+
 // 1) Account transfer traversal
 FOR p IN person
-  LIMIT 1
   FOR a IN 1..1 OUTBOUND p has_account
     FOR b IN 1..1 OUTBOUND a transferred_to
       LIMIT 5
       RETURN { person: p._key, from_account: a._key, to_account: b._key }
 
 // 2) Social link + real estate traversal
-FOR p IN person
-  LIMIT 1
-  FOR r IN 1..1 ANY p related_to
-    FOR tx IN 1..1 OUTBOUND r buyer_in
+
+FOR buyer IN person
+  FOR tx IN 1..1 OUTBOUND buyer buyer_in
+    FOR related IN 1..1 ANY buyer related_to
       LIMIT 5
-      RETURN { person: p._key, related_person: r._key, transaction: tx._key }
+      RETURN { buyer: buyer._key, related_person: related._key, transaction: tx._key }
 
