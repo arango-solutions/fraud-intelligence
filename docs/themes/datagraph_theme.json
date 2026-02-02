@@ -1,0 +1,94 @@
+{
+  "name": "Data",
+  "description": "DataGraph theme (Phase 1 instance data).",
+  "nodeConfigMap": {
+    "Person": {
+      "background": { "color": "#3182ce", "iconName": "fa6-solid:user" },
+      "labelAttribute": "name",
+      "hoverInfoAttributes": ["name", "panNumber", "riskScore"],
+      "rules": [
+        { "name": "High Risk", "condition": "riskScore >= 80", "background": { "color": "#e53e3e" } },
+        { "name": "Medium Risk", "condition": "riskScore >= 50 && riskScore < 80", "background": { "color": "#ecc94b" } }
+      ]
+    },
+    "Organization": {
+      "background": { "color": "#38a169", "iconName": "fa6-solid:building" },
+      "labelAttribute": "name",
+      "hoverInfoAttributes": ["name", "orgType", "riskScore"],
+      "rules": [
+        { "name": "High Risk", "condition": "riskScore >= 80", "background": { "color": "#e53e3e" } }
+      ]
+    },
+    "WatchlistEntity": {
+      "background": { "color": "#e53e3e", "iconName": "fa6-solid:triangle-exclamation" },
+      "labelAttribute": "name",
+      "hoverInfoAttributes": ["name", "listingReason", "riskScore", "riskReasons"],
+      "rules": []
+    },
+    "BankAccount": {
+      "background": { "color": "#2c5282", "iconName": "fa6-solid:credit-card" },
+      "labelAttribute": "accountNumber",
+      "hoverInfoAttributes": ["accountNumber", "accountType", "balance", "avgMonthlyBalance", "riskScore"],
+      "rules": [
+        { "name": "High Risk", "condition": "riskScore >= 80", "background": { "color": "#e53e3e" } }
+      ]
+    },
+    "RealProperty": {
+      "background": { "color": "#975a16", "iconName": "fa6-solid:house" },
+      "labelAttribute": "surveyNumber",
+      "hoverInfoAttributes": ["surveyNumber", "district", "circleRateValue", "marketValue", "riskScore", "riskReasons"],
+      "rules": []
+    },
+    "Address": {
+      "background": { "color": "#718096", "iconName": "fa6-solid:location-dot" },
+      "labelAttribute": "street",
+      "hoverInfoAttributes": ["street", "district", "state", "pincode"],
+      "rules": []
+    },
+    "DigitalLocation": {
+      "background": { "color": "#319795", "iconName": "fa6-solid:desktop" },
+      "labelAttribute": "ipAddress",
+      "hoverInfoAttributes": ["ipAddress", "deviceId", "macAddress"],
+      "rules": []
+    },
+    "Transaction": {
+      "background": { "color": "#4a5568", "iconName": "fa6-solid:arrow-right-arrow-left" },
+      "labelAttribute": "_key",
+      "hoverInfoAttributes": ["amount", "timestamp", "txnType"],
+      "rules": []
+    },
+    "RealEstateTransaction": {
+      "background": { "color": "#dd6b20", "iconName": "fa6-solid:receipt" },
+      "labelAttribute": "_key",
+      "hoverInfoAttributes": ["transactionValue", "paymentMethod", "timestamp", "riskScore"],
+      "rules": []
+    },
+    "Document": {
+      "background": { "color": "#1a202c", "iconName": "fa6-solid:file-lines" },
+      "labelAttribute": "title",
+      "hoverInfoAttributes": ["docType", "title", "timestamp"],
+      "rules": []
+    },
+    "GoldenRecord": {
+      "background": { "color": "#9f7aea", "iconName": "fa6-solid:id-card" },
+      "labelAttribute": "canonicalName",
+      "hoverInfoAttributes": ["canonicalName"],
+      "rules": []
+    }
+  },
+  "edgeConfigMap": {
+    "hasAccount": { "lineStyle": { "color": "#4a5568", "thickness": 1.0 }, "arrowStyle": { "targetArrowShape": "triangle" }, "hoverInfoAttributes": ["ownershipType"], "rules": [] },
+    "transferredTo": { "lineStyle": { "color": "#2b6cb0", "thickness": 1.2 }, "arrowStyle": { "targetArrowShape": "triangle" }, "hoverInfoAttributes": ["amount", "timestamp", "txnType", "scenario"], "rules": [] },
+    "relatedTo": { "lineStyle": { "color": "#805ad5", "thickness": 1.0 }, "arrowStyle": { "targetArrowShape": "none" }, "hoverInfoAttributes": ["relationType"], "rules": [] },
+    "associatedWith": { "lineStyle": { "color": "#38a169", "thickness": 1.0 }, "arrowStyle": { "targetArrowShape": "triangle" }, "hoverInfoAttributes": ["role"], "rules": [] },
+    "residesAt": { "lineStyle": { "color": "#718096", "thickness": 1.0 }, "arrowStyle": { "targetArrowShape": "triangle" }, "hoverInfoAttributes": [], "rules": [] },
+    "accessedFrom": { "lineStyle": { "color": "#319795", "thickness": 1.0 }, "arrowStyle": { "targetArrowShape": "triangle" }, "hoverInfoAttributes": ["accessTimestamp", "accessType"], "rules": [] },
+    "hasDigitalLocation": { "lineStyle": { "color": "#319795", "thickness": 1.0 }, "arrowStyle": { "targetArrowShape": "triangle" }, "hoverInfoAttributes": [], "rules": [] },
+    "mentionedIn": { "lineStyle": { "color": "#1a202c", "thickness": 1.0 }, "arrowStyle": { "targetArrowShape": "triangle" }, "hoverInfoAttributes": ["mentionType", "confidence"], "rules": [] },
+    "registeredSale": { "lineStyle": { "color": "#dd6b20", "thickness": 1.0 }, "arrowStyle": { "targetArrowShape": "triangle" }, "hoverInfoAttributes": [], "rules": [] },
+    "buyerIn": { "lineStyle": { "color": "#2f855a", "thickness": 1.0 }, "arrowStyle": { "targetArrowShape": "triangle" }, "hoverInfoAttributes": [], "rules": [] },
+    "sellerIn": { "lineStyle": { "color": "#c53030", "thickness": 1.0 }, "arrowStyle": { "targetArrowShape": "triangle" }, "hoverInfoAttributes": [], "rules": [] },
+    "resolvedTo": { "lineStyle": { "color": "#9f7aea", "thickness": 1.0 }, "arrowStyle": { "targetArrowShape": "triangle" }, "hoverInfoAttributes": [], "rules": [] }
+  }
+}
+

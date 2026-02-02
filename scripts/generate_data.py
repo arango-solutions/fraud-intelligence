@@ -184,9 +184,9 @@ def main() -> None:
         digital_rows.append(
             {
                 "_key": key("dig", args.seed, i),
-                "ip_address": f"10.{rng.randint(0,255)}.{rng.randint(0,255)}.{rng.randint(1,254)}",
-                "device_id": key("device", args.seed, i),
-                "mac_address": rand_mac(),
+                "ipAddress": f"10.{rng.randint(0,255)}.{rng.randint(0,255)}.{rng.randint(1,254)}",
+                "deviceId": key("device", args.seed, i),
+                "macAddress": rand_mac(),
             }
         )
 
@@ -195,9 +195,9 @@ def main() -> None:
     digital_rows.append(
         {
             "_key": mule_shared_digital_key,
-            "ip_address": "10.10.10.10",
-            "device_id": f"shared_device_{args.seed}",
-            "mac_address": "aa:bb:cc:dd:ee:ff",
+            "ipAddress": "10.10.10.10",
+            "deviceId": f"shared_device_{args.seed}",
+            "macAddress": "aa:bb:cc:dd:ee:ff",
         }
     )
 
@@ -214,13 +214,13 @@ def main() -> None:
             {
                 "_key": pkey,
                 "name": faker.name(),
-                "pan_number": gen_pan(rng),
-                "aadhaar_masked": masked_aadhaar(rng),
-                "risk_score": 0,
-                "risk_direct": "",
-                "risk_inferred": "",
-                "risk_path": "",
-                "risk_reasons": "",
+                "panNumber": gen_pan(rng),
+                "aadhaarMasked": masked_aadhaar(rng),
+                "riskScore": 0,
+                "riskDirect": "",
+                "riskInferred": "",
+                "riskPath": "",
+                "riskReasons": "",
             }
         )
 
@@ -235,10 +235,10 @@ def main() -> None:
             {
                 "_key": pkey,
                 "name": short_name,
-                "pan_number": "",  # missing PAN
-                "aadhaar_masked": masked_aadhaar(rng),
-                "risk_score": 0,
-                "risk_reasons": json.dumps(["benami_variation"]),
+                "panNumber": "",  # missing PAN
+                "aadhaarMasked": masked_aadhaar(rng),
+                "riskScore": 0,
+                "riskReasons": json.dumps(["benami_variation"]),
             }
         )
 
@@ -252,8 +252,8 @@ def main() -> None:
             {
                 "_key": key("org", args.seed, i),
                 "name": faker.company(),
-                "org_type": rng.choice(org_types),
-                "risk_score": 0,
+                "orgType": rng.choice(org_types),
+                "riskScore": 0,
             }
         )
 
@@ -268,10 +268,10 @@ def main() -> None:
             {
                 "_key": key("watch", args.seed, i),
                 "name": faker.name(),
-                "listing_reason": rng.choice(reasons),
-                "risk_score": rs,
-                "risk_direct": rs,
-                "risk_reasons": json.dumps(["watchlist_seed"]),
+                "listingReason": rng.choice(reasons),
+                "riskScore": rs,
+                "riskDirect": rs,
+                "riskReasons": json.dumps(["watchlist_seed"]),
             }
         )
 
@@ -284,11 +284,11 @@ def main() -> None:
         bank_account_rows.append(
             {
                 "_key": key("acct", args.seed, i),
-                "account_number": f"{rng.randint(10**11, 10**12 - 1)}",
-                "account_type": rng.choice(account_types),
+                "accountNumber": f"{rng.randint(10**11, 10**12 - 1)}",
+                "accountType": rng.choice(account_types),
                 "balance": round(rng.uniform(5000, 5_000_000), 2),
-                "avg_monthly_balance": round(rng.uniform(5000, 2_000_000), 2),
-                "risk_score": 0,
+                "avgMonthlyBalance": round(rng.uniform(5000, 2_000_000), 2),
+                "riskScore": 0,
             }
         )
 
@@ -305,9 +305,9 @@ def main() -> None:
         person = person_rows[i % len(person_rows)]
         has_account_rows.append(
             {
-                "_from": doc_id("person", person["_key"]),
-                "_to": doc_id("bank_account", acct["_key"]),
-                "ownership_type": "Primary",
+                "_from": doc_id("Person", person["_key"]),
+                "_to": doc_id("BankAccount", acct["_key"]),
+                "ownershipType": "Primary",
             }
         )
 
@@ -320,9 +320,9 @@ def main() -> None:
         b = person_rows[i + 1]["_key"]
         related_rows.append(
             {
-                "_from": doc_id("person", a),
-                "_to": doc_id("person", b),
-                "relation_type": "Sibling",
+                "_from": doc_id("Person", a),
+                "_to": doc_id("Person", b),
+                "relationType": "Sibling",
             }
         )
 
@@ -337,10 +337,10 @@ def main() -> None:
         d = rng.choice(digital_rows)
         accessed_from_rows.append(
             {
-                "_from": doc_id("bank_account", acct["_key"]),
-                "_to": doc_id("digital_location", d["_key"]),
-                "access_timestamp": iso(now - dt.timedelta(days=rng.randint(0, 60))),
-                "access_type": rng.choice(["Login", "Transaction"]),
+                "_from": doc_id("BankAccount", acct["_key"]),
+                "_to": doc_id("DigitalLocation", d["_key"]),
+                "accessTimestamp": iso(now - dt.timedelta(days=rng.randint(0, 60))),
+                "accessType": rng.choice(["Login", "Transaction"]),
             }
         )
 
@@ -356,11 +356,11 @@ def main() -> None:
         dst = cycle_accounts[(i + 1) % 4]
         transferred_to_rows.append(
             {
-                "_from": doc_id("bank_account", src),
-                "_to": doc_id("bank_account", dst),
+                "_from": doc_id("BankAccount", src),
+                "_to": doc_id("BankAccount", dst),
                 "amount": cycle_amounts[i],
                 "timestamp": iso(cycle_ts + dt.timedelta(minutes=i * 10)),
-                "txn_type": "NEFT",
+                "txnType": "NEFT",
                 "scenario": "cycle",
             }
         )
@@ -373,19 +373,19 @@ def main() -> None:
         # Ensure shared device link (and keep it testable)
         accessed_from_rows.append(
             {
-                "_from": doc_id("bank_account", mule_key),
-                "_to": doc_id("digital_location", mule_shared_digital_key),
-                "access_timestamp": iso(mule_start + dt.timedelta(minutes=i)),
-                "access_type": "Transaction",
+                "_from": doc_id("BankAccount", mule_key),
+                "_to": doc_id("DigitalLocation", mule_shared_digital_key),
+                "accessTimestamp": iso(mule_start + dt.timedelta(minutes=i)),
+                "accessType": "Transaction",
             }
         )
         transferred_to_rows.append(
             {
-                "_from": doc_id("bank_account", mule_key),
-                "_to": doc_id("bank_account", hub_account_key),
+                "_from": doc_id("BankAccount", mule_key),
+                "_to": doc_id("BankAccount", hub_account_key),
                 "amount": round(rng.uniform(5000, 50_000), 2),
                 "timestamp": iso(mule_start + dt.timedelta(minutes=i)),
-                "txn_type": "UPI",
+                "txnType": "UPI",
                 "scenario": "mule",
             }
         )
@@ -400,11 +400,11 @@ def main() -> None:
             continue
         transferred_to_rows.append(
             {
-                "_from": doc_id("bank_account", src),
-                "_to": doc_id("bank_account", dst),
+                "_from": doc_id("BankAccount", src),
+                "_to": doc_id("BankAccount", dst),
                 "amount": round(rng.uniform(100, 200_000), 2),
                 "timestamp": iso(now - dt.timedelta(days=rng.randint(0, 60), minutes=rng.randint(0, 1440))),
-                "txn_type": rng.choice(["NEFT", "RTGS", "UPI", "IMPS"]),
+                "txnType": rng.choice(["NEFT", "RTGS", "UPI", "IMPS"]),
                 "scenario": "background",
             }
         )
@@ -431,14 +431,14 @@ def main() -> None:
         property_rows.append(
             {
                 "_key": prop_key,
-                "survey_number": f"SVY-{args.seed}-{i:06d}",
+                "surveyNumber": f"SVY-{args.seed}-{i:06d}",
                 "district": district,
                 "state": state,
                 "pincode": f"{rng.randint(400001, 400110)}",
-                "circle_rate_value": circle_rate,
-                "market_value": market_value,
-                "risk_score": risk_score,
-                "risk_reasons": risk_reasons,
+                "circleRateValue": circle_rate,
+                "marketValue": market_value,
+                "riskScore": risk_score,
+                "riskReasons": risk_reasons,
             }
         )
 
@@ -448,23 +448,23 @@ def main() -> None:
         real_estate_tx_rows.append(
             {
                 "_key": tx_key,
-                "transaction_value": tx_value,
+                "transactionValue": tx_value,
                 "timestamp": iso(now - dt.timedelta(days=rng.randint(0, 180))),
-                "payment_method": payment_method,
-                "risk_score": 45 if is_undervalued else 0,
-                "risk_reasons": json.dumps(["undervalued_transaction"]) if is_undervalued else "",
+                "paymentMethod": payment_method,
+                "riskScore": 45 if is_undervalued else 0,
+                "riskReasons": json.dumps(["undervalued_transaction"]) if is_undervalued else "",
             }
         )
         registered_sale_rows.append(
             {
-                "_from": doc_id("real_property", prop_key),
-                "_to": doc_id("real_estate_transaction", tx_key),
+                "_from": doc_id("RealProperty", prop_key),
+                "_to": doc_id("RealEstateTransaction", tx_key),
             }
         )
         buyer = rng.choice(person_rows)["_key"]
         seller = rng.choice(person_rows)["_key"]
-        buyer_in_rows.append({"_from": doc_id("person", buyer), "_to": doc_id("real_estate_transaction", tx_key)})
-        seller_in_rows.append({"_from": doc_id("person", seller), "_to": doc_id("real_estate_transaction", tx_key)})
+        buyer_in_rows.append({"_from": doc_id("Person", buyer), "_to": doc_id("RealEstateTransaction", tx_key)})
+        seller_in_rows.append({"_from": doc_id("Person", seller), "_to": doc_id("RealEstateTransaction", tx_key)})
 
     # ------------------------------------------------------------------
     # Documents (optional evidence)
@@ -476,14 +476,14 @@ def main() -> None:
         doc_type = "TitleDeed" if i < (sizes.documents // 2) else "NewsArticle"
         title = f"{doc_type} {i}"
         content = (
-            f"Sale deed for property {property_rows[i % len(property_rows)]['survey_number']}."
+            f"Sale deed for property {property_rows[i % len(property_rows)]['surveyNumber']}."
             if doc_type == "TitleDeed"
             else f"Market rumors suggest {org_rows[i % len(org_rows)]['name']} is involved in layering."
         )
         document_rows.append(
             {
                 "_key": doc_key,
-                "doc_type": doc_type,
+                "docType": doc_type,
                 "title": title,
                 "content": content,
                 "timestamp": iso(now - dt.timedelta(days=rng.randint(0, 365))),
@@ -493,18 +493,18 @@ def main() -> None:
         if doc_type == "TitleDeed":
             mentioned_in_rows.append(
                 {
-                    "_from": doc_id("real_property", property_rows[i % len(property_rows)]["_key"]),
-                    "_to": doc_id("document", doc_key),
-                    "mention_type": "Direct",
+                    "_from": doc_id("RealProperty", property_rows[i % len(property_rows)]["_key"]),
+                    "_to": doc_id("Document", doc_key),
+                    "mentionType": "Direct",
                     "confidence": 1.0,
                 }
             )
         else:
             mentioned_in_rows.append(
                 {
-                    "_from": doc_id("organization", org_rows[i % len(org_rows)]["_key"]),
-                    "_to": doc_id("document", doc_key),
-                    "mention_type": "Direct",
+                    "_from": doc_id("Organization", org_rows[i % len(org_rows)]["_key"]),
+                    "_to": doc_id("Document", doc_key),
+                    "mentionType": "Direct",
                     "confidence": 0.7,
                 }
             )
@@ -517,7 +517,7 @@ def main() -> None:
                 "_key": key("txn", args.seed, i),
                 "amount": round(rng.uniform(100, 200_000), 2),
                 "timestamp": iso(now - dt.timedelta(days=rng.randint(0, 60))),
-                "txn_type": rng.choice(["NEFT", "RTGS", "UPI", "IMPS"]),
+                "txnType": rng.choice(["NEFT", "RTGS", "UPI", "IMPS"]),
             }
         )
 
@@ -530,15 +530,15 @@ def main() -> None:
     # residences for persons
     for p in person_rows:
         addr = rng.choice(address_rows)["_key"]
-        resides_at_rows.append({"_from": doc_id("person", p["_key"]), "_to": doc_id("address", addr)})
+        resides_at_rows.append({"_from": doc_id("Person", p["_key"]), "_to": doc_id("Address", addr)})
 
     # has_digital_location for mule people (linking a few persons to shared device, useful for ER)
     for i in range(min(20, len(person_rows))):
         if i % 4 == 0:
             has_digital_location_rows.append(
                 {
-                    "_from": doc_id("person", person_rows[i]["_key"]),
-                    "_to": doc_id("digital_location", mule_shared_digital_key),
+                    "_from": doc_id("Person", person_rows[i]["_key"]),
+                    "_to": doc_id("DigitalLocation", mule_shared_digital_key),
                 }
             )
 
@@ -546,8 +546,8 @@ def main() -> None:
     for i in range(min(30, len(person_rows), len(org_rows))):
         associated_with_rows.append(
             {
-                "_from": doc_id("person", person_rows[i]["_key"]),
-                "_to": doc_id("organization", org_rows[i % len(org_rows)]["_key"]),
+                "_from": doc_id("Person", person_rows[i]["_key"]),
+                "_to": doc_id("Organization", org_rows[i % len(org_rows)]["_key"]),
                 "role": rng.choice(["Director", "Employee", "Partner"]),
             }
         )
@@ -556,41 +556,41 @@ def main() -> None:
     # Write all CSVs
     # ------------------------------------------------------------------
     outputs = [
-        ("address.csv", ["_key", "street", "city", "district", "state", "pincode", "lat", "long"], address_rows),
-        ("digital_location.csv", ["_key", "ip_address", "device_id", "mac_address"], digital_rows),
+        ("Address.csv", ["_key", "street", "city", "district", "state", "pincode", "lat", "long"], address_rows),
+        ("DigitalLocation.csv", ["_key", "ipAddress", "deviceId", "macAddress"], digital_rows),
         (
-            "person.csv",
-            ["_key", "name", "pan_number", "aadhaar_masked", "risk_score", "risk_direct", "risk_inferred", "risk_path", "risk_reasons"],
+            "Person.csv",
+            ["_key", "name", "panNumber", "aadhaarMasked", "riskScore", "riskDirect", "riskInferred", "riskPath", "riskReasons"],
             person_rows,
         ),
-        ("organization.csv", ["_key", "name", "org_type", "risk_score"], org_rows),
-        ("watchlist_entity.csv", ["_key", "name", "listing_reason", "risk_score", "risk_direct", "risk_reasons"], watchlist_rows),
-        ("bank_account.csv", ["_key", "account_number", "account_type", "balance", "avg_monthly_balance", "risk_score"], bank_account_rows),
+        ("Organization.csv", ["_key", "name", "orgType", "riskScore"], org_rows),
+        ("WatchlistEntity.csv", ["_key", "name", "listingReason", "riskScore", "riskDirect", "riskReasons"], watchlist_rows),
+        ("BankAccount.csv", ["_key", "accountNumber", "accountType", "balance", "avgMonthlyBalance", "riskScore"], bank_account_rows),
         (
-            "real_property.csv",
-            ["_key", "survey_number", "district", "state", "pincode", "circle_rate_value", "market_value", "risk_score", "risk_reasons"],
+            "RealProperty.csv",
+            ["_key", "surveyNumber", "district", "state", "pincode", "circleRateValue", "marketValue", "riskScore", "riskReasons"],
             property_rows,
         ),
         (
-            "real_estate_transaction.csv",
-            ["_key", "transaction_value", "timestamp", "payment_method", "risk_score", "risk_reasons"],
+            "RealEstateTransaction.csv",
+            ["_key", "transactionValue", "timestamp", "paymentMethod", "riskScore", "riskReasons"],
             real_estate_tx_rows,
         ),
-        ("document.csv", ["_key", "doc_type", "title", "content", "timestamp"], document_rows),
-        ("transaction.csv", ["_key", "amount", "timestamp", "txn_type"], transaction_rows),
-        ("golden_record.csv", ["_key", "canonical_name"], golden_rows),
-        ("has_account.csv", ["_from", "_to", "ownership_type"], has_account_rows),
-        ("transferred_to.csv", ["_from", "_to", "amount", "timestamp", "txn_type", "scenario"], transferred_to_rows),
-        ("related_to.csv", ["_from", "_to", "relation_type"], related_rows),
-        ("associated_with.csv", ["_from", "_to", "role"], associated_with_rows),
-        ("resides_at.csv", ["_from", "_to"], resides_at_rows),
-        ("accessed_from.csv", ["_from", "_to", "access_timestamp", "access_type"], accessed_from_rows),
-        ("has_digital_location.csv", ["_from", "_to"], has_digital_location_rows),
-        ("mentioned_in.csv", ["_from", "_to", "mention_type", "confidence"], mentioned_in_rows),
-        ("registered_sale.csv", ["_from", "_to"], registered_sale_rows),
-        ("buyer_in.csv", ["_from", "_to"], buyer_in_rows),
-        ("seller_in.csv", ["_from", "_to"], seller_in_rows),
-        ("resolved_to.csv", ["_from", "_to"], resolved_to_rows),
+        ("Document.csv", ["_key", "docType", "title", "content", "timestamp"], document_rows),
+        ("Transaction.csv", ["_key", "amount", "timestamp", "txnType"], transaction_rows),
+        ("GoldenRecord.csv", ["_key", "canonicalName"], golden_rows),
+        ("hasAccount.csv", ["_from", "_to", "ownershipType"], has_account_rows),
+        ("transferredTo.csv", ["_from", "_to", "amount", "timestamp", "txnType", "scenario"], transferred_to_rows),
+        ("relatedTo.csv", ["_from", "_to", "relationType"], related_rows),
+        ("associatedWith.csv", ["_from", "_to", "role"], associated_with_rows),
+        ("residesAt.csv", ["_from", "_to"], resides_at_rows),
+        ("accessedFrom.csv", ["_from", "_to", "accessTimestamp", "accessType"], accessed_from_rows),
+        ("hasDigitalLocation.csv", ["_from", "_to"], has_digital_location_rows),
+        ("mentionedIn.csv", ["_from", "_to", "mentionType", "confidence"], mentioned_in_rows),
+        ("registeredSale.csv", ["_from", "_to"], registered_sale_rows),
+        ("buyerIn.csv", ["_from", "_to"], buyer_in_rows),
+        ("sellerIn.csv", ["_from", "_to"], seller_in_rows),
+        ("resolvedTo.csv", ["_from", "_to"], resolved_to_rows),
     ]
 
     counts: Dict[str, int] = {}

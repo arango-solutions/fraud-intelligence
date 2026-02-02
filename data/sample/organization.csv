@@ -1,4 +1,4 @@
-_key,name,org_type,risk_score
+_key,name,orgType,riskScore
 org_42_000000,Comar-Iyengar,UtilityCompany,0
 org_42_000001,"Gole, Bala and Shenoy",Legitimate,0
 org_42_000002,"Kadakia, Sarma and Manne",Legitimate,0

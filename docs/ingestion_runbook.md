@@ -12,7 +12,8 @@ Copy `.env.example` to `.env` and set values:
 - `ARANGO_URL`
 - `ARANGO_USERNAME`
 - `ARANGO_PASSWORD`
-- `ARANGO_DB`
+- `ARANGO_DATABASE` (preferred) or `ARANGO_DB`
+- `ARANGO_DOCKER_PASSWORD` (local Docker only; defaults to `changeme`)
 
 ## Option A: local ArangoDB via Docker
 
@@ -28,6 +29,8 @@ UI: `http://localhost:8529`
 ```bash
 python scripts/generate_data.py --output data/sample --size sample --seed 42
 ```
+
+Note: CSV filenames match collection names exactly (e.g., `Person.csv`, `hasAccount.csv`).
 
 ## Ingest data (local or remote)
 

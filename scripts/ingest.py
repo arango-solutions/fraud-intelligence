@@ -16,55 +16,56 @@ except Exception as e:  # pragma: no cover
     ArangoClient = None  # type: ignore
 
 
+# Phase 1 collections (OWL conventions: PascalCase vertices, camelCase edges)
 VERTEX_COLLECTIONS = [
-    "person",
-    "organization",
-    "watchlist_entity",
-    "bank_account",
-    "real_property",
-    "address",
-    "digital_location",
-    "transaction",
-    "real_estate_transaction",
-    "document",
-    "golden_record",
+    "Person",
+    "Organization",
+    "WatchlistEntity",
+    "BankAccount",
+    "RealProperty",
+    "Address",
+    "DigitalLocation",
+    "Transaction",
+    "RealEstateTransaction",
+    "Document",
+    "GoldenRecord",
 ]
 
 EDGE_COLLECTIONS = [
-    "has_account",
-    "transferred_to",
-    "related_to",
-    "associated_with",
-    "resides_at",
-    "accessed_from",
-    "has_digital_location",
-    "mentioned_in",
-    "registered_sale",
-    "buyer_in",
-    "seller_in",
-    "resolved_to",
+    "hasAccount",
+    "transferredTo",
+    "relatedTo",
+    "associatedWith",
+    "residesAt",
+    "accessedFrom",
+    "hasDigitalLocation",
+    "mentionedIn",
+    "registeredSale",
+    "buyerIn",
+    "sellerIn",
+    "resolvedTo",
 ]
 
 
 NUMERIC_FIELDS = {
     # vertices
-    "person": {"risk_score", "risk_direct", "risk_inferred", "risk_path"},
-    "watchlist_entity": {"risk_score", "risk_direct"},
-    "bank_account": {"balance", "avg_monthly_balance", "risk_score", "risk_direct", "risk_inferred", "risk_path"},
-    "real_property": {"circle_rate_value", "market_value", "risk_score"},
-    "address": {"lat", "long"},
-    "transaction": {"amount"},
-    "real_estate_transaction": {"transaction_value", "risk_score"},
+    "Person": {"riskScore", "riskDirect", "riskInferred", "riskPath"},
+    "WatchlistEntity": {"riskScore", "riskDirect"},
+    "BankAccount": {"balance", "avgMonthlyBalance", "riskScore", "riskDirect", "riskInferred", "riskPath"},
+    "RealProperty": {"circleRateValue", "marketValue", "riskScore"},
+    "Address": {"lat", "long"},
+    "Transaction": {"amount"},
+    "RealEstateTransaction": {"transactionValue", "riskScore"},
     # edges
-    "transferred_to": {"amount"},
-    "mentioned_in": {"confidence"},
+    "transferredTo": {"amount"},
+    "mentionedIn": {"confidence"},
 }
 
 JSON_FIELDS = {
-    "person": {"risk_reasons"},
-    "watchlist_entity": {"risk_reasons"},
-    "real_property": {"risk_reasons"},
-    "real_estate_transaction": {"risk_reasons"},
+    "Person": {"riskReasons"},
+    "WatchlistEntity": {"riskReasons"},
+    "RealProperty": {"riskReasons"},
+    "RealEstateTransaction": {"riskReasons"},
 }
 
 
@@ -135,12 +136,12 @@ def ensure_schema(db) -> None:
             db.create_collection(name, edge=True)
 
     # indexes (idempotent)
-    db.collection("person").add_persistent_index(["pan_number"], sparse=True)
-    db.collection("bank_account").add_persistent_index(["account_number"], sparse=True)
-    db.collection("real_property").add_persistent_index(["survey_number"], sparse=True)
-    db.collection("address").add_persistent_index(["district", "state"])
-    db.collection("transferred_to").add_persistent_index(["timestamp"])
-    db.collection("transferred_to").add_persistent_index(["amount"])
+    db.collection("Person").add_persistent_index(["panNumber"], sparse=True)
+    db.collection("BankAccount").add_persistent_index(["accountNumber"], sparse=True)
+    db.collection("RealProperty").add_persistent_index(["surveyNumber"], sparse=True)
+    db.collection("Address").add_persistent_index(["district", "state"])
+    db.collection("transferredTo").add_persistent_index(["timestamp"])
+    db.collection("transferredTo").add_persistent_index(["amount"])
 
 
 def import_collection(db, name: str, csv_path: Path, force: bool) -> int:

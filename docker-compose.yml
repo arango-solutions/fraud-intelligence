@@ -5,7 +5,8 @@ services:
     image: arangodb/arangodb:latest
     container_name: fraud-intelligence-arangodb
     environment:
-      ARANGO_ROOT_PASSWORD: ${ARANGO_PASSWORD:-changeme}
+      # Use a dedicated local-only password to avoid AMP secrets (and `$` interpolation issues) affecting Docker.
+      ARANGO_ROOT_PASSWORD: ${ARANGO_DOCKER_PASSWORD:-changeme}
     ports:
       - "${ARANGO_PORT:-8529}:8529"
     volumes:

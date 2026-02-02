@@ -22,45 +22,45 @@
     }
   }
 
-  // Vertex collections
+  // Vertex collections (PascalCase per PRD canonical schema)
   [
-    "person",
-    "organization",
-    "watchlist_entity",
-    "bank_account",
-    "real_property",
-    "address",
-    "digital_location",
-    "transaction",
-    "real_estate_transaction",
-    "document",
-    "golden_record",
+    "Person",
+    "Organization",
+    "WatchlistEntity",
+    "BankAccount",
+    "RealProperty",
+    "Address",
+    "DigitalLocation",
+    "Transaction",
+    "RealEstateTransaction",
+    "Document",
+    "GoldenRecord",
   ].forEach(ensureCollection);
 
-  // Edge collections
+  // Edge collections (camelCase per OWL ObjectProperties)
   [
-    "has_account",
-    "transferred_to",
-    "related_to",
-    "associated_with",
-    "resides_at",
-    "accessed_from",
-    "has_digital_location",
-    "mentioned_in",
-    "registered_sale",
-    "buyer_in",
-    "seller_in",
-    "resolved_to",
+    "hasAccount",
+    "transferredTo",
+    "relatedTo",
+    "associatedWith",
+    "residesAt",
+    "accessedFrom",
+    "hasDigitalLocation",
+    "mentionedIn",
+    "registeredSale",
+    "buyerIn",
+    "sellerIn",
+    "resolvedTo",
   ].forEach(ensureEdgeCollection);
 
   // Indexes (idempotent)
-  db.person.ensureIndex({ type: "persistent", fields: ["pan_number"], sparse: true });
-  db.bank_account.ensureIndex({ type: "persistent", fields: ["account_number"], sparse: true });
-  db.real_property.ensureIndex({ type: "persistent", fields: ["survey_number"], sparse: true });
-  db.address.ensureIndex({ type: "persistent", fields: ["district", "state"] });
+  db.Person.ensureIndex({ type: "persistent", fields: ["panNumber"], sparse: true });
+  db.BankAccount.ensureIndex({ type: "persistent", fields: ["accountNumber"], sparse: true });
+  db.RealProperty.ensureIndex({ type: "persistent", fields: ["surveyNumber"], sparse: true });
+  db.Address.ensureIndex({ type: "persistent", fields: ["district", "state"] });
 
-  db.transferred_to.ensureIndex({ type: "persistent", fields: ["timestamp"] });
-  db.transferred_to.ensureIndex({ type: "persistent", fields: ["amount"] });
+  db.transferredTo.ensureIndex({ type: "persistent", fields: ["timestamp"] });
+  db.transferredTo.ensureIndex({ type: "persistent", fields: ["amount"] });
 
   print("schema bootstrap complete");
 })();

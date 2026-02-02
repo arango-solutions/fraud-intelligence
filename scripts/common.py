@@ -91,7 +91,7 @@ def get_arango_config(forced_mode: Optional[str] = None) -> ArangoConfig:
     url = _first(os.getenv("ARANGO_URL"), os.getenv("ARANGO_ENDPOINT"))
     user = _first(os.getenv("ARANGO_USERNAME"), os.getenv("ARANGO_USER"), "root")
     passwd = _first(os.getenv("ARANGO_PASSWORD"), os.getenv("ARANGO_PASS"), "")
-    db = _first(os.getenv("ARANGO_DATABASE"), os.getenv("ARANGO_DB"), "fraud_intelligence")
+    db = _first(os.getenv("ARANGO_DATABASE"), os.getenv("ARANGO_DB"), "fraud-intelligence")
 
     if mode == "LOCAL":
         port = os.getenv("ARANGO_PORT")
@@ -100,8 +100,9 @@ def get_arango_config(forced_mode: Optional[str] = None) -> ArangoConfig:
             mode="LOCAL",
             url=_first(local_url, url, default_local) or default_local,
             username=_first(local_user, user, "root") or "root",
-            password=_first(local_pass, passwd, "") or "",
-            database=_first(local_db, db, "fraud_intelligence") or "fraud_intelligence",
+            # Local Docker may use a separate password from AMP credentials.
+            password=_first(local_pass, os.getenv("ARANGO_DOCKER_PASSWORD"), passwd, "") or "",
+            database=_first(local_db, db, "fraud-intelligence") or "fraud-intelligence",
         )
 
     # REMOTE: prefer the non-LOCAL values. If user kept only ARANGO_* variables, those will be used.
@@ -110,7 +111,7 @@ def get_arango_config(forced_mode: Optional[str] = None) -> ArangoConfig:
         url=_first(url, local_url) or "",
         username=user or "root",
         password=passwd or "",
-        database=db or "fraud_intelligence",
+        database=db or "fraud-intelligence",
     )
 
 

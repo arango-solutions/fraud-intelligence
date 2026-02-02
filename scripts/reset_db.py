@@ -13,8 +13,37 @@ except Exception:  # pragma: no cover
     ArangoClient = None  # type: ignore
 
 
+# Phase 1 whitelist (PascalCase naming per PRD canonical schema)
 WHITELIST = {
-    # vertex
+    # vertex collections
+    "Person",
+    "Organization",
+    "WatchlistEntity",
+    "BankAccount",
+    "RealProperty",
+    "Address",
+    "DigitalLocation",
+    "Transaction",
+    "RealEstateTransaction",
+    "Document",
+    "GoldenRecord",
+    # edge collections
+    "hasAccount",
+    "transferredTo",
+    "relatedTo",
+    "associatedWith",
+    "residesAt",
+    "accessedFrom",
+    "hasDigitalLocation",
+    "mentionedIn",
+    "registeredSale",
+    "buyerIn",
+    "sellerIn",
+    "resolvedTo",
+}
+
+# Legacy snake_case collections (for optional cleanup)
+LEGACY_COLLECTIONS = {
     "person",
     "organization",
     "watchlist_entity",
@@ -26,7 +55,6 @@ WHITELIST = {
     "real_estate_transaction",
     "document",
     "golden_record",
-    # edges
     "has_account",
     "transferred_to",
     "related_to",
@@ -56,10 +84,12 @@ def is_local(url: str) -> bool:
 
 
 def parse_args() -> argparse.Namespace:
-    p = argparse.ArgumentParser(description="Safely reset demo collections (truncate) in ArangoDB.")
+    p = argparse.ArgumentParser(description="Safely reset Phase 1 collections (truncate) in ArangoDB.")
+    p.add_argument("--mode", choices=["LOCAL", "REMOTE"], help="Operation mode (default: infer from config)")
     p.add_argument("--execute", action="store_true", help="Actually truncate (default is dry-run)")
     p.add_argument("--confirm", action="store_true", help="Required with --execute")
-    p.add_argument("--allow-remote", action="store_true", help="Allow non-local ARANGO_URL (extra risk)")
+    p.add_argument("--confirm-remote", action="store_true", help="Required when --mode=REMOTE")
+    p.add_argument("--cleanup-legacy", action="store_true", help="Also remove legacy snake_case collections")
     return p.parse_args()
 
 
@@ -75,6 +105,11 @@ def main() -> None:
     cfg = get_arango_config()
     apply_config_to_env(cfg)
 
+    # Determine mode (explicit arg or infer from config)
+    mode = args.mode or cfg.mode
+    if mode not in {"LOCAL", "REMOTE"}:
+        mode = "LOCAL"
+
     arango_url = env("ARANGO_URL")
     username = env("ARANGO_USERNAME")
     password = env("ARANGO_PASSWORD")
@@ -82,10 +117,27 @@ def main() -> None:
     if not db_name:
         raise SystemExit("Missing required environment variable: ARANGO_DATABASE (or ARANGO_DB)")
 
-    if not is_local(arango_url) and not args.allow_remote:
-        raise SystemExit(
-            f"Refusing to run against non-local ARANGO_URL={sanitize_url(arango_url)}. Use --allow-remote if you are sure."
-        )
+    # Safety checks for REMOTE mode
+    if mode == "REMOTE":
+        if not args.confirm_remote:
+            raise SystemExit(
+                f"REMOTE mode requires --confirm-remote flag. "
+                f"Refusing to operate on remote database without explicit confirmation."
+            )
+        if is_local(arango_url):
+            raise SystemExit(
+                "REMOTE mode requires a non-local ARANGO_URL. Refusing to operate on localhost/127.0.0.1."
+            )
+        if db_name != "fraud-intelligence":
+            raise SystemExit(
+                f"REMOTE mode only allowed for database 'fraud-intelligence', "
+                f"but database is '{db_name}'. Refusing to proceed."
+            )
+
+    # For LOCAL mode, warn if URL looks remote (but allow with explicit mode=LOCAL)
+    if mode == "LOCAL" and not is_local(arango_url):
+        print(f"Warning: ARANGO_URL={sanitize_url(arango_url)} appears remote, but mode=LOCAL.")
+        print("If this is incorrect, use --mode REMOTE --confirm-remote")
 
     client = ArangoClient(hosts=arango_url)
     db = client.db(db_name, username=username, password=password)
@@ -94,23 +146,42 @@ def main() -> None:
     targets = sorted([c for c in existing if c in WHITELIST])
 
     if not targets:
-        print("No whitelisted demo collections found.")
+        print("No whitelisted Phase 1 collections found.")
         return
 
-    print("Will truncate collections:")
+    print(f"Mode: {mode}")
+    print(f"ArangoDB: {sanitize_url(arango_url)}")
+    print(f"Database: {db_name}")
+    print(f"Will truncate collections:")
     for t in targets:
         print(f"- {t} ({db.collection(t).count()} docs)")
 
+    # Legacy cleanup option
+    legacy_targets = []
+    if args.cleanup_legacy:
+        legacy_targets = sorted([c for c in existing if c in LEGACY_COLLECTIONS])
+        if legacy_targets:
+            print(f"\nWill also remove legacy collections:")
+            for t in legacy_targets:
+                print(f"- {t} ({db.collection(t).count()} docs)")
+
     if not args.execute:
-        print("Dry-run only. Re-run with --execute --confirm to truncate.")
+        print("\nDry-run only. Re-run with --execute --confirm to truncate.")
         return
 
     if not args.confirm:
         raise SystemExit("Refusing to truncate without --confirm.")
 
+    # Truncate whitelisted collections
     for t in targets:
         db.collection(t).truncate()
         print(f"truncated: {t}")
+
+    # Remove legacy collections if requested
+    if legacy_targets:
+        for t in legacy_targets:
+            db.delete_collection(t)
+            print(f"deleted legacy: {t}")
 
     print("Reset complete.")
 

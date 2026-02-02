@@ -1,4 +1,4 @@
-_key,transaction_value,timestamp,payment_method,risk_score,risk_reasons
+_key,transactionValue,timestamp,paymentMethod,riskScore,riskReasons
 retx_42_000000,29157248,2025-10-10T00:00:42Z,Mixed,45,"[""undervalued_transaction""]"
 retx_42_000001,20422249,2025-08-11T00:00:42Z,Bank Transfer,0,
 retx_42_000002,12878216,2025-12-25T00:00:42Z,Bank Transfer,0,

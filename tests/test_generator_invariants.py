@@ -16,7 +16,7 @@ def _read_csv(name: str):
 
 
 def test_cycle_exists():
-    edges = _read_csv("transferred_to")
+    edges = _read_csv("transferredTo")
     # detect a directed cycle via simple DFS on a limited subset
     adj = {}
     for e in edges:
@@ -44,7 +44,7 @@ def test_cycle_exists():
 
 
 def test_mule_hub_exists_and_shared_device():
-    edges = _read_csv("transferred_to")
+    edges = _read_csv("transferredTo")
     mule_edges = [e for e in edges if e.get("scenario") == "mule"]
     assert len(mule_edges) >= 50, "expected >= 50 mule transfers"
 
@@ -57,7 +57,7 @@ def test_mule_hub_exists_and_shared_device():
 
     mule_sources = {e["_from"] for e in mule_edges}
 
-    accessed = _read_csv("accessed_from")
+    accessed = _read_csv("accessedFrom")
     # account -> digital_location (only for mule sources)
     mule_access = [e for e in accessed if e["_from"] in mule_sources]
     assert mule_access, "expected accessed_from edges for mule accounts"
@@ -67,14 +67,14 @@ def test_mule_hub_exists_and_shared_device():
 
 
 def test_undervalued_property_exists():
-    props = _read_csv("real_property")
-    reg = _read_csv("registered_sale")
-    txs = {t["_key"]: t for t in _read_csv("real_estate_transaction")}
+    props = _read_csv("RealProperty")
+    reg = _read_csv("registeredSale")
+    txs = {t["_key"]: t for t in _read_csv("RealEstateTransaction")}
 
     # build property -> tx key
     prop_to_tx = {}
     for e in reg:
-        # _from: real_property/<key>, _to: real_estate_transaction/<key>
+        # _from: RealProperty/<key>, _to: RealEstateTransaction/<key>
         prop_key = e["_from"].split("/", 1)[1]
         tx_key = e["_to"].split("/", 1)[1]
         prop_to_tx[prop_key] = tx_key
@@ -88,8 +88,8 @@ def test_undervalued_property_exists():
         if not tx:
             continue
         try:
-            circle = float(p["circle_rate_value"])
-            txn_val = float(tx["transaction_value"])
+            circle = float(p["circleRateValue"])
+            txn_val = float(tx["transactionValue"])
         except Exception:
             continue
         if txn_val <= circle:

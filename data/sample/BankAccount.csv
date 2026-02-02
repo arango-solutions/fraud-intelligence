@@ -1,4 +1,4 @@
-_key,account_number,account_type,balance,avg_monthly_balance,risk_score
+_key,accountNumber,accountType,balance,avgMonthlyBalance,riskScore
 acct_42_000000,459436633395,Current,4438496.64,857973.59,0
 acct_42_000001,146283489802,NRE,3677982.24,763846.47,0
 acct_42_000002,530840614095,NRE,4695999.97,1146009.23,0

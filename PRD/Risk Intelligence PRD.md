@@ -94,10 +94,10 @@ The subsystem relies on the risk properties defined in `fraud-intelligence.owl`,
 
 | Concept | ArangoDB Property | Description |
 | --- | --- | --- |
-| **Total Risk** | `vertex.risk_score` | `MAX(Direct, Inferred, Path)`. The final operational score. |
-| **Direct Risk** | `vertex.risk_direct` | Static rule violations. |
-| **Inferred Risk** | `vertex.risk_inferred` | Network exposure score. |
-| **Audit Trail** | `vertex.risk_reasons` | JSON array: `["Matched RBI List", "Brother of Defaulter"]`. |
+| **Total Risk** | `vertex.riskScore` | `MAX(Direct, Inferred, Path)`. The final operational score. |
+| **Direct Risk** | `vertex.riskDirect` | Static rule violations. |
+| **Inferred Risk** | `vertex.riskInferred` | Network exposure score. |
+| **Audit Trail** | `vertex.riskReasons` | JSON array: `["Matched RBI List", "Brother of Defaulter"]`. |
 
 ### 3.2 AQL Implementation Strategy
 
@@ -108,15 +108,15 @@ Instead of external Python processing, the demo should leverage ArangoDB's AQL f
 ```aql
 FOR user IN Person
   LET high_risk_neighbors = (
-    FOR v, e IN 1..1 ANY user related_to, associated_with
-      FILTER v.risk_score > 70
-      RETURN { neighbor: v._key, risk: v.risk_score, relation: e.type }
+    FOR v, e IN 1..1 ANY user relatedTo, associatedWith
+      FILTER v.riskScore > 70
+      RETURN { neighbor: v._key, risk: v.riskScore, relation: e.type }
   )
   LET inferred = MAX(
     FOR n IN high_risk_neighbors 
     RETURN n.risk * (n.relation == 'family' ? 0.8 : 0.5)
   )
-  UPDATE user WITH { risk_inferred: inferred } IN Person
+  UPDATE user WITH { riskInferred: inferred } IN Person
 
 ```
 

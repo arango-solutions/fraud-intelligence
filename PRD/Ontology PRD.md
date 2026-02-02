@@ -24,11 +24,11 @@ The ontology provides a semantic layer that bridges the gap between raw data (tr
 To ensure seamless translation into ArangoDB via ArangoRDF, the ontology adheres to these rules:
 
 1. **Classes = Collections:** Top-level OWL Classes (e.g., `Person`, `Transaction`) will map to ArangoDB Vertex Collections.
-2. **Object Properties = Edge Collections:** Properties connecting two classes (e.g., `transferred_to`) will map to ArangoDB Edge Collections.
-3. **Datatype Properties = Document Attributes:** Properties with literal values (e.g., `amount`, `circleRate`) will map to fields within ArangoDB documents.
+2. **Object Properties = Edge Collections:** Properties connecting two classes (e.g., `transferredTo`) will map to ArangoDB Edge Collections.
+3. **Datatype Properties = Document Attributes:** Properties with literal values (e.g., `amount`, `circleRateValue`) will map to fields within ArangoDB documents.
 4. **Taxonomy = Inferred Types:** The fraud hierarchy allows the AI to classify a node as a generic `RiskEvent` or a specific `HawalaTransaction`.
 
-**Naming note:** The ontology defines semantic URIs (often camelCase), while the physical ArangoDB documents use **snake_case** fields as defined in `PRD/PRD.md` (Canonical schema + naming). A mapping table must be maintained for ingestion/export.
+**Naming note:** For Phase 1, **ArangoDB storage names match ontology naming** (PascalCase Classes, camelCase Object/Datatype properties), as defined in `PRD/PRD.md` (Canonical schema + naming).
 
 ---
 
@@ -40,7 +40,7 @@ The ontology extends the `sentries_ontology.owl` to include banking and real est
 
 * **`LegalEntity`** (Superclass)
 * **`Person`**: Individuals (Source: `Faker('en_IN')`).
-* *Attributes:* `pan_number`, `aadhaar_masked`, `risk_score`.
+* *Attributes:* `panNumber`, `aadhaarMasked`, `riskScore`.
 
 
 * **`Organization`**: Companies, Trusts, Shell Entities.
@@ -55,7 +55,7 @@ The ontology extends the `sentries_ontology.owl` to include banking and real est
 
 * **`FinancialInstrument`**
 * **`BankAccount`**: Savings, Current, NRE/NRO accounts.
-* *Attributes:* `account_number`, `balance`, `open_date`.
+* *Attributes:* `accountNumber`, `balance`, `openDate`.
 
 
 * **`DigitalWallet`**: UPI IDs, E-wallets.
@@ -66,7 +66,7 @@ The ontology extends the `sentries_ontology.owl` to include banking and real est
 
 * **`Asset`**
 * **`RealProperty`**: Land, Apartments, Commercial Buildings.
-* *Attributes:* `survey_number`, `circle_rate_value`, `market_value`, `geo_location`.
+* *Attributes:* `surveyNumber`, `circleRateValue`, `marketValue`, `geoLocation`.
 
 
 
@@ -77,7 +77,7 @@ The ontology extends the `sentries_ontology.owl` to include banking and real est
 
 
 * **`DigitalLocation`**: Metadata for tracking.
-* *Attributes:* `ip_address`, `device_id`, `mac_address`.
+* *Attributes:* `ipAddress`, `deviceId`, `macAddress`.
 
 
 
@@ -111,7 +111,7 @@ This section defines the hierarchical classification of financial crimes, enabli
 
 
 * **`TaxEvasion`**
-* **`UndervaluedTransaction`**: Transaction `amount` < `circle_rate_value` * tolerance.
+* **`UndervaluedTransaction`**: Transaction `amount` < `circleRateValue` * tolerance.
 * **`BenamiTransaction`**: Property held by a proxy (`Person`) for a beneficial owner.
 
 
@@ -134,18 +134,18 @@ These define the valid relationships in the graph. `ArangoRDF` will convert thes
 
 | Property URI | Domain (From) | Range (To) | Description |
 | --- | --- | --- | --- |
-| **`has_account`** | `LegalEntity` | `BankAccount` | Ownership of funds. |
-| **`transferred_to`** | `BankAccount` | `BankAccount` | Money movement (edges carry `amount`, `timestamp`). |
-| **`related_to`** | `Person` | `Person` | Familial/Social ties (Symmetric). |
-| **`associated_with`** | `Person` | `Organization` | Directors, Partners, UBOs. |
-| **`resides_at`** | `Person` | `Address` | Home address. |
-| **`accessed_from`** | `BankAccount` | `DigitalLocation` | Login/Transaction IP or Device. |
-| **`has_digital_location`** | `Person` | `DigitalLocation` | Optional direct link for ER blocking (shared device/IP). |
-| **`registered_sale`** | `RealProperty` | `RealEstateTransaction` | Link property to the sale event. |
-| **`buyer_in`** | `LegalEntity` | `RealEstateTransaction` | Party buying. |
-| **`seller_in`** | `LegalEntity` | `RealEstateTransaction` | Party selling. |
-| **`mentioned_in`** | `LegalEntity` | `Document` | GraphRAG link between graph & text. |
-| **`resolved_to`** | `Person` | `GoldenRecord` | Entity Resolution link from raw identity to canonical identity. |
+| **`hasAccount`** | `LegalEntity` | `BankAccount` | Ownership of funds. |
+| **`transferredTo`** | `BankAccount` | `BankAccount` | Money movement (edges carry `amount`, `timestamp`). |
+| **`relatedTo`** | `Person` | `Person` | Familial/Social ties (Symmetric). |
+| **`associatedWith`** | `Person` | `Organization` | Directors, Partners, UBOs. |
+| **`residesAt`** | `Person` | `Address` | Home address. |
+| **`accessedFrom`** | `BankAccount` | `DigitalLocation` | Login/Transaction IP or Device. |
+| **`hasDigitalLocation`** | `Person` | `DigitalLocation` | Optional direct link for ER blocking (shared device/IP). |
+| **`registeredSale`** | `RealProperty` | `RealEstateTransaction` | Link property to the sale event. |
+| **`buyerIn`** | `LegalEntity` | `RealEstateTransaction` | Party buying. |
+| **`sellerIn`** | `LegalEntity` | `RealEstateTransaction` | Party selling. |
+| **`mentionedIn`** | `LegalEntity` | `Document` | GraphRAG link between graph & text. |
+| **`resolvedTo`** | `Person` | `GoldenRecord` | Entity Resolution link from raw identity to canonical identity. |
 
 ---
 
@@ -156,20 +156,13 @@ Attributes specific to the Indian context needed for the demo algorithms.
 | Property URI | Domain | Type | Notes |
 | --- | --- | --- | --- |
 | **`riskScore`** | `Entity` | `xsd:decimal` | 0-100 aggregated risk. |
-| **`inferredRisk`** | `Entity` | `xsd:decimal` | Risk derived from neighbors. |
-| **`circleRate`** | `RealProperty` | `xsd:decimal` | Gov minimum value per sq ft. |
+| **`riskInferred`** | `Entity` | `xsd:decimal` | Risk derived from neighbors. |
+| **`circleRateValue`** | `RealProperty` | `xsd:decimal` | Gov minimum value per sq ft. |
 | **`marketValue`** | `RealProperty` | `xsd:decimal` | Actual estimated value. |
-| **`transactionType`** | `Transaction` | `xsd:string` | NEFT, RTGS, UPI, IMPS. |
+| **`txnType`** | `Transaction` | `xsd:string` | NEFT, RTGS, UPI, IMPS. |
 | **`isBenamiSuspect`** | `RealProperty` | `xsd:boolean` | Flag for investigation. |
 
-**Recommended physical field mapping (ArangoDB):**
-
-| Ontology URI | Stored field |
-| --- | --- |
-| `riskScore` | `risk_score` |
-| `inferredRisk` | `risk_inferred` |
-| `circleRate` | `circle_rate_value` |
-| `marketValue` | `market_value` |
+**Phase 1 storage mapping:** the physical fields match the ontology property names (camelCase).
 
 ---
 

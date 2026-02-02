@@ -1,6 +1,12 @@
 # Ontology ↔ storage mapping (Phase 1)
 
-This document is the authoritative mapping between ontology URIs (camelCase) and stored ArangoDB fields (snake_case), plus how conceptual classes map to physical collections.
+This document is the authoritative mapping between ontology URIs and ArangoDB storage for Phase 1.
+
+**Phase 1 convention:** storage names match the ontology naming:
+
+- **Classes → vertex collections:** PascalCase
+- **ObjectProperties → edge collections:** camelCase
+- **DatatypeProperties → document fields:** camelCase
 
 ## Base URI / prefix
 
@@ -9,52 +15,52 @@ This document is the authoritative mapping between ontology URIs (camelCase) and
 
 ## Classes → collections
 
-Collections are snake_case:
+Collections match ontology class names (PascalCase):
 
 | Ontology class | Collection |
 | --- | --- |
-| `fi:Person` | `person` |
-| `fi:Organization` | `organization` |
-| `fi:WatchlistEntity` | `watchlist_entity` |
-| `fi:BankAccount` | `bank_account` |
-| `fi:RealProperty` | `real_property` |
-| `fi:Address` | `address` |
-| `fi:DigitalLocation` | `digital_location` |
-| `fi:Transaction` | `transaction` |
-| `fi:RealEstateTransaction` | `real_estate_transaction` |
-| `fi:Document` | `document` |
-| `fi:GoldenRecord` | `golden_record` |
+| `fi:Person` | `Person` |
+| `fi:Organization` | `Organization` |
+| `fi:WatchlistEntity` | `WatchlistEntity` |
+| `fi:BankAccount` | `BankAccount` |
+| `fi:RealProperty` | `RealProperty` |
+| `fi:Address` | `Address` |
+| `fi:DigitalLocation` | `DigitalLocation` |
+| `fi:Transaction` | `Transaction` |
+| `fi:RealEstateTransaction` | `RealEstateTransaction` |
+| `fi:Document` | `Document` |
+| `fi:GoldenRecord` | `GoldenRecord` |
 
 ## Object properties → edge collections
 
 | Ontology property | Edge collection |
 | --- | --- |
-| `fi:has_account` | `has_account` |
-| `fi:transferred_to` | `transferred_to` |
-| `fi:related_to` | `related_to` |
-| `fi:associated_with` | `associated_with` |
-| `fi:resides_at` | `resides_at` |
-| `fi:accessed_from` | `accessed_from` |
-| `fi:has_digital_location` | `has_digital_location` |
-| `fi:mentioned_in` | `mentioned_in` |
-| `fi:registered_sale` | `registered_sale` |
-| `fi:buyer_in` | `buyer_in` |
-| `fi:seller_in` | `seller_in` |
-| `fi:resolved_to` | `resolved_to` |
+| `fi:hasAccount` | `hasAccount` |
+| `fi:transferredTo` | `transferredTo` |
+| `fi:relatedTo` | `relatedTo` |
+| `fi:associatedWith` | `associatedWith` |
+| `fi:residesAt` | `residesAt` |
+| `fi:accessedFrom` | `accessedFrom` |
+| `fi:hasDigitalLocation` | `hasDigitalLocation` |
+| `fi:mentionedIn` | `mentionedIn` |
+| `fi:registeredSale` | `registeredSale` |
+| `fi:buyerIn` | `buyerIn` |
+| `fi:sellerIn` | `sellerIn` |
+| `fi:resolvedTo` | `resolvedTo` |
 
 ## Datatype properties → stored fields
 
 | Ontology URI | Stored field |
 | --- | --- |
-| `fi:riskScore` | `risk_score` |
-| `fi:riskDirect` | `risk_direct` |
-| `fi:riskInferred` | `risk_inferred` |
-| `fi:riskPath` | `risk_path` |
-| `fi:riskReasons` | `risk_reasons` |
-| `fi:circleRateValue` | `circle_rate_value` |
-| `fi:marketValue` | `market_value` |
-| `fi:transactionValue` | `transaction_value` |
-| `fi:transactionType` | `txn_type` |
+| `fi:riskScore` | `riskScore` |
+| `fi:riskDirect` | `riskDirect` |
+| `fi:riskInferred` | `riskInferred` |
+| `fi:riskPath` | `riskPath` |
+| `fi:riskReasons` | `riskReasons` |
+| `fi:circleRateValue` | `circleRateValue` |
+| `fi:marketValue` | `marketValue` |
+| `fi:transactionValue` | `transactionValue` |
+| `fi:txnType` | `txnType` |
 | `fi:timestamp` | `timestamp` |
 | `fi:amount` | `amount` |
 

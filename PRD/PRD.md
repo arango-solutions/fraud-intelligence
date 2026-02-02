@@ -75,9 +75,10 @@ All PRDs under `PRD/` are expansions of this document and must use the naming be
 
 #### 2.6.1 Naming conventions
 
-* **Collections & edge collections:** lower snake_case in ArangoDB, mirroring ontology URIs where possible.
-* **Document fields:** lower snake_case in ArangoDB documents (e.g., `risk_score`, `circle_rate_value`).
-* **Ontology vs storage:** ontology URIs may be camelCase (e.g., `riskScore`) but must map to stored fields (e.g., `risk_score`) via an explicit mapping table.
+* **Vertex collections (Classes):** PascalCase (e.g., `Person`, `BankAccount`) matching OWL Class names.
+* **Edge collections (ObjectProperties):** camelCase (e.g., `hasAccount`, `transferredTo`) matching OWL ObjectProperty names.
+* **Document fields (DatatypeProperties):** camelCase (e.g., `riskScore`, `circleRateValue`) matching OWL DatatypeProperty names.
+* **Arango system fields:** `_key`, `_from`, `_to` remain unchanged.
 
 #### 2.6.2 Canonical vertex collections (entities)
 
@@ -89,7 +90,7 @@ All PRDs under `PRD/` are expansions of this document and must use the naming be
 | `BankAccount` | Account | Bank account / instrument. |
 | `RealProperty` | Property | Real estate asset (has circle/market value). |
 | `Address` | Location | Physical address (may include `district`, `state`, `pincode`, plus optional `lat`, `long`). |
-| `DigitalLocation` | Device, IP, fingerprint | Digital footprint (may include `ip_address`, `device_id`, `mac_address`). Can be modeled as vertices to support ER blocking/traversal. |
+| `DigitalLocation` | Device, IP, fingerprint | Digital footprint (may include `ipAddress`, `deviceId`, `macAddress`). Can be modeled as vertices to support ER blocking/traversal. |
 | `Transaction` | Transfer | Generic money movement event. |
 | `RealEstateTransaction` | Sale | Property sale/purchase event. |
 | `Document` | Evidence, Deed, Article | Unstructured source record; specialized types include `TitleDeed`, `NewsArticle`, `KYCRecord`. |
@@ -99,33 +100,34 @@ All PRDs under `PRD/` are expansions of this document and must use the naming be
 
 | Edge collection | From → To | Purpose |
 | --- | --- | --- |
-| `has_account` | `Person/Organization` → `BankAccount` | Ownership / control of funds. |
-| `transferred_to` | `BankAccount` → `BankAccount` | Money movement (edge carries `amount`, `timestamp`, `txn_type`). |
-| `related_to` | `Person` ↔ `Person` | Familial/social ties (edge may carry `relation_type`). |
-| `associated_with` | `Person` → `Organization` | Directors/partners/UBOs. |
-| `resides_at` | `Person` → `Address` | Home address. |
-| `accessed_from` | `BankAccount` → `DigitalLocation` | Login/transaction IP/device. |
-| `mentioned_in` | `Person/Organization/RealProperty/BankAccount` → `Document` | GraphRAG link between graph + evidence text. |
-| `registered_sale` | `RealProperty` → `RealEstateTransaction` | Link property to a sale event. |
-| `buyer_in` | `Person/Organization` → `RealEstateTransaction` | Buying party. |
-| `seller_in` | `Person/Organization` → `RealEstateTransaction` | Selling party. |
-| `resolved_to` | `Person` → `GoldenRecord` | Identity resolution link (many persons → one golden record). |
+| `hasAccount` | `Person/Organization` → `BankAccount` | Ownership / control of funds. |
+| `transferredTo` | `BankAccount` → `BankAccount` | Money movement (edge carries `amount`, `timestamp`, `txnType`). |
+| `relatedTo` | `Person` ↔ `Person` | Familial/social ties (edge may carry `relationType`). |
+| `associatedWith` | `Person` → `Organization` | Directors/partners/UBOs. |
+| `residesAt` | `Person` → `Address` | Home address. |
+| `accessedFrom` | `BankAccount` → `DigitalLocation` | Login/transaction IP/device. |
+| `hasDigitalLocation` | `Person` → `DigitalLocation` | Optional direct link for ER blocking (shared device/IP). |
+| `mentionedIn` | `Person/Organization/RealProperty/BankAccount` → `Document` | GraphRAG link between graph + evidence text. |
+| `registeredSale` | `RealProperty` → `RealEstateTransaction` | Link property to a sale event. |
+| `buyerIn` | `Person/Organization` → `RealEstateTransaction` | Buying party. |
+| `sellerIn` | `Person/Organization` → `RealEstateTransaction` | Selling party. |
+| `resolvedTo` | `Person` → `GoldenRecord` | Identity resolution link (many persons → one golden record). |
 
 #### 2.6.4 Canonical risk fields (stored in ArangoDB)
 
 | Canonical field | Type | Meaning |
 | --- | --- | --- |
-| `risk_score` | number (0-100) | Final operational risk score. |
-| `risk_direct` | number (0-100) | Direct risk from watchlists/static rules. |
-| `risk_inferred` | number (0-100) | Risk derived from neighbors/associations. |
-| `risk_path` | number (0-100) | Risk derived from fund flow distance / taint. |
-| `risk_reasons` | array[string] | Human-readable explanations for audit/UI. |
+| `riskScore` | number (0-100) | Final operational risk score. |
+| `riskDirect` | number (0-100) | Direct risk from watchlists/static rules. |
+| `riskInferred` | number (0-100) | Risk derived from neighbors/associations. |
+| `riskPath` | number (0-100) | Risk derived from fund flow distance / taint. |
+| `riskReasons` | array[string] | Human-readable explanations for audit/UI. |
 
 #### 2.6.5 Canonical “circle rate” fields (real estate)
 
-* `circle_rate_value`: government minimum value reference (per unit or total, but must be consistent across the dataset)
-* `market_value`: estimated/actual market value
-* `transaction_value`: value recorded on the `RealEstateTransaction` (sale price)
+* `circleRateValue`: government minimum value reference (per unit or total, but must be consistent across the dataset)
+* `marketValue`: estimated/actual market value
+* `transactionValue`: value recorded on the `RealEstateTransaction` (sale price)
 
 ---
 

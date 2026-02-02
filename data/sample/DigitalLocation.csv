@@ -1,4 +1,4 @@
-_key,ip_address,device_id,mac_address
+_key,ipAddress,deviceId,macAddress
 dig_42_000000,10.156.30.157,device_42_000000,32:6a:6c:87:29:50
 dig_42_000001,10.122.88.142,device_42_000001,26:50:01:d1:e6:f0
 dig_42_000002,10.149.16.60,device_42_000002,93:90:e8:24:77:87

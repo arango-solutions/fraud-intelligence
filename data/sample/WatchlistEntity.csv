@@ -1,4 +1,4 @@
-_key,name,listing_reason,risk_score,risk_direct,risk_reasons
+_key,name,listingReason,riskScore,riskDirect,riskReasons
 watch_42_000000,Meghana Balakrishnan,Defaulter,85,85,"[""watchlist_seed""]"
 watch_42_000001,Shivani Sanghvi,Defaulter,95,95,"[""watchlist_seed""]"
 watch_42_000002,Aayush Kala,Shell Company Director,84,84,"[""watchlist_seed""]"

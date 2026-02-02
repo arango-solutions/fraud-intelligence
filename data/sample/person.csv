@@ -1,4 +1,4 @@
-_key,name,pan_number,aadhaar_masked,risk_score,risk_direct,risk_inferred,risk_path,risk_reasons
+_key,name,panNumber,aadhaarMasked,riskScore,riskDirect,riskInferred,riskPath,riskReasons
 person_42_000000,Victor Tella,JVRFC7594U,XXXX-XXXX-6474,0,,,,
 person_42_000001,Ekbal Ranganathan,GMPDH6959J,XXXX-XXXX-4064,0,,,,
 person_42_000002,Rajata Bahl,ASVYX0974Y,XXXX-XXXX-3953,0,,,,

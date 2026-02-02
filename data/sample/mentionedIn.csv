@@ -1,0 +1,11 @@
+_from,_to,mentionType,confidence
+RealProperty/prop_42_000000,Document/doc_42_000000,Direct,1.0
+RealProperty/prop_42_000001,Document/doc_42_000001,Direct,1.0
+RealProperty/prop_42_000002,Document/doc_42_000002,Direct,1.0
+RealProperty/prop_42_000003,Document/doc_42_000003,Direct,1.0
+RealProperty/prop_42_000004,Document/doc_42_000004,Direct,1.0
+Organization/org_42_000005,Document/doc_42_000005,Direct,0.7
+Organization/org_42_000006,Document/doc_42_000006,Direct,0.7
+Organization/org_42_000007,Document/doc_42_000007,Direct,0.7
+Organization/org_42_000008,Document/doc_42_000008,Direct,0.7
+Organization/org_42_000009,Document/doc_42_000009,Direct,0.7

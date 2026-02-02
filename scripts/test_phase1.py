@@ -28,6 +28,35 @@ ROOT = Path(__file__).resolve().parents[1]
 REPORT_PATH = ROOT / "docs" / "phase1-validation-report.md"
 SMOKE_AQL_PATH = ROOT / "tests" / "test_basic_queries.aql"
 
+# Canonical Phase 1 collections (OWL conventions)
+PHASE1_COLLECTIONS: Tuple[str, ...] = (
+    # vertices
+    "Person",
+    "Organization",
+    "WatchlistEntity",
+    "BankAccount",
+    "RealProperty",
+    "Address",
+    "DigitalLocation",
+    "Transaction",
+    "RealEstateTransaction",
+    "Document",
+    "GoldenRecord",
+    # edges
+    "hasAccount",
+    "transferredTo",
+    "relatedTo",
+    "associatedWith",
+    "residesAt",
+    "accessedFrom",
+    "hasDigitalLocation",
+    "mentionedIn",
+    "registeredSale",
+    "buyerIn",
+    "sellerIn",
+    "resolvedTo",
+)
+
 
 @dataclass
 class StepResult:
@@ -105,14 +134,14 @@ def run_smoke_queries(cfg: ArangoConfig) -> Tuple[StepResult, Dict[str, int]]:
 
     # Counts (useful for report)
     counts: Dict[str, int] = {}
-    for c in db.collections():
-        name = c["name"]
-        if name.startswith("_"):
+    for name in PHASE1_COLLECTIONS:
+        if not db.has_collection(name):
+            counts[name] = 0
             continue
         try:
             counts[name] = db.collection(name).count()
         except Exception:
-            continue
+            counts[name] = 0
 
     return StepResult(True), counts
 
@@ -199,8 +228,13 @@ def run_mode(mode: str, data_dir: Path, force_ingest: bool, do_docker: bool) -> 
         env_override["ARANGO_PORT"] = desired_port
         # Ensure our scripts talk to the same host port.
         env_override["ARANGO_URL"] = f"http://localhost:{desired_port}"
+        # Ensure Docker uses a local-only password and our scripts use the same.
+        env_override["ARANGO_DOCKER_PASSWORD"] = env_override.get("ARANGO_DOCKER_PASSWORD") or "changeme"
+        env_override["ARANGO_PASSWORD"] = env_override["ARANGO_DOCKER_PASSWORD"]
         os.environ["ARANGO_PORT"] = desired_port
         os.environ["ARANGO_URL"] = env_override["ARANGO_URL"]
+        os.environ["ARANGO_DOCKER_PASSWORD"] = env_override["ARANGO_DOCKER_PASSWORD"]
+        os.environ["ARANGO_PASSWORD"] = env_override["ARANGO_DOCKER_PASSWORD"]
         cfg = get_arango_config(forced_mode="LOCAL")
         apply_config_to_env(cfg)
         result["arango_url"] = sanitize_url(cfg.url)

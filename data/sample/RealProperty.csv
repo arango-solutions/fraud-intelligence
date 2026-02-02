@@ -1,4 +1,4 @@
-_key,survey_number,district,state,pincode,circle_rate_value,market_value,risk_score,risk_reasons
+_key,surveyNumber,district,state,pincode,circleRateValue,marketValue,riskScore,riskReasons
 prop_42_000000,SVY-42-000000,Bandra_Kurla,Maharashtra,400050,29157248,29157248,35,"[""undervalued_property""]"
 prop_42_000001,SVY-42-000001,Navi_Mumbai,Maharashtra,400062,10545114,20422249,0,
 prop_42_000002,SVY-42-000002,Thane_West,Maharashtra,400001,7606311,12878216,0,

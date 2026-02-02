@@ -12,66 +12,66 @@ This dictionary documents the CSV outputs produced by `scripts/generate_data.py`
 
 ## Vertex collections
 
-### `person.csv`
+### `Person.csv`
 
 - `_key` (string): document key (e.g., `person_42_000001`)
 - `name` (string)
-- `pan_number` (string, optional): `[A-Z]{5}[0-9]{4}[A-Z]{1}`
-- `aadhaar_masked` (string)
-- `risk_score` (number 0-100)
-- `risk_direct` (number 0-100, optional)
-- `risk_inferred` (number 0-100, optional)
-- `risk_path` (number 0-100, optional)
-- `risk_reasons` (string, optional): JSON array string
+- `panNumber` (string, optional): `[A-Z]{5}[0-9]{4}[A-Z]{1}`
+- `aadhaarMasked` (string)
+- `riskScore` (number 0-100)
+- `riskDirect` (number 0-100, optional)
+- `riskInferred` (number 0-100, optional)
+- `riskPath` (number 0-100, optional)
+- `riskReasons` (string, optional): JSON array string
 
-### `bank_account.csv`
+### `BankAccount.csv`
 
 - `_key` (string)
-- `account_number` (string)
-- `account_type` (string): `Savings|Current|NRE`
+- `accountNumber` (string)
+- `accountType` (string): `Savings|Current|NRE`
 - `balance` (number)
-- `avg_monthly_balance` (number)
-- `risk_score` (number 0-100)
+- `avgMonthlyBalance` (number)
+- `riskScore` (number 0-100)
 
-### `real_property.csv`
+### `RealProperty.csv`
 
 - `_key` (string)
-- `survey_number` (string)
+- `surveyNumber` (string)
 - `district` (string)
 - `state` (string)
 - `pincode` (string)
-- `circle_rate_value` (number)
-- `market_value` (number)
-- `risk_score` (number 0-100)
-- `risk_reasons` (string, optional): JSON array string
+- `circleRateValue` (number)
+- `marketValue` (number)
+- `riskScore` (number 0-100)
+- `riskReasons` (string, optional): JSON array string
 
 ### Other vertex CSVs
 
 The generator also produces:
 
-- `organization.csv`
-- `watchlist_entity.csv`
-- `address.csv`
-- `digital_location.csv`
-- `transaction.csv`
-- `real_estate_transaction.csv`
-- `document.csv`
-- `golden_record.csv` (placeholder)
+- `Organization.csv`
+- `WatchlistEntity.csv`
+- `Address.csv`
+- `DigitalLocation.csv`
+- `Transaction.csv`
+- `RealEstateTransaction.csv`
+- `Document.csv`
+- `GoldenRecord.csv` (placeholder)
 
 ## Edge collections
 
 The generator produces one CSV per edge collection:
 
-- `has_account.csv` (`_from`, `_to`)
-- `transferred_to.csv` (`_from`, `_to`, `amount`, `timestamp`, `txn_type`)
-- `related_to.csv` (`_from`, `_to`, `relation_type`)
-- `associated_with.csv` (`_from`, `_to`, `role`)
-- `resides_at.csv` (`_from`, `_to`)
-- `accessed_from.csv` (`_from`, `_to`, `access_timestamp`, `access_type`)
-- `has_digital_location.csv` (`_from`, `_to`)
-- `mentioned_in.csv` (`_from`, `_to`, `mention_type`, `confidence`)
-- `registered_sale.csv` (`_from`, `_to`)
-- `buyer_in.csv` (`_from`, `_to`)
-- `seller_in.csv` (`_from`, `_to`)
-- `resolved_to.csv` (placeholder)
+- `hasAccount.csv` (`_from`, `_to`, `ownershipType`)
+- `transferredTo.csv` (`_from`, `_to`, `amount`, `timestamp`, `txnType`, `scenario`)
+- `relatedTo.csv` (`_from`, `_to`, `relationType`)
+- `associatedWith.csv` (`_from`, `_to`, `role`)
+- `residesAt.csv` (`_from`, `_to`)
+- `accessedFrom.csv` (`_from`, `_to`, `accessTimestamp`, `accessType`)
+- `hasDigitalLocation.csv` (`_from`, `_to`)
+- `mentionedIn.csv` (`_from`, `_to`, `mentionType`, `confidence`)
+- `registeredSale.csv` (`_from`, `_to`)
+- `buyerIn.csv` (`_from`, `_to`)
+- `sellerIn.csv` (`_from`, `_to`)
+- `resolvedTo.csv` (placeholder)
 
