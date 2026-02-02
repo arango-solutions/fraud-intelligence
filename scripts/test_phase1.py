@@ -160,7 +160,16 @@ def write_report(local: Dict, remote: Dict) -> None:
             lines.append(f"- **Database:** `{data['db']}`")
         lines.append("")
 
-        for k in ["docker", "generate", "ingest", "pytest", "pytest_integration", "smoke_queries"]:
+        for k in [
+            "docker",
+            "generate",
+            "ingest",
+            "define_graphs",
+            "install_themes",
+            "pytest",
+            "pytest_integration",
+            "smoke_queries",
+        ]:
             if k in data:
                 v = data[k]
                 status = "PASS" if v.get("ok") else "FAIL"
@@ -280,6 +289,24 @@ def run_mode(mode: str, data_dir: Path, force_ingest: bool, do_docker: bool) -> 
         result["ok"] = False
         return result
 
+    # Optional: create named graphs + install Visualizer themes (AMP recommended)
+    if os.getenv("PHASE1_INSTALL_VISUALIZER") == "1":
+        if cfg.mode == "REMOTE":
+            g1 = run([sys.executable, "scripts/define_graphs.py", "--mode", "REMOTE", "--with-type-edges"])
+            result["define_graphs"] = asdict(g1)
+            if not g1.ok:
+                result["ok"] = False
+                return result
+            g2 = run([sys.executable, "scripts/install_graph_themes.py", "--mode", "REMOTE"])
+            result["install_themes"] = asdict(g2)
+            if not g2.ok:
+                result["ok"] = False
+                return result
+        else:
+            # Local Docker typically doesn't expose the Visualizer; keep this a no-op.
+            result["define_graphs"] = {"ok": True, "detail": "skipped (LOCAL)"}
+            result["install_themes"] = {"ok": True, "detail": "skipped (LOCAL)"}
+
     # Tests
     pt = run_pytest(integration_only=False)
     result["pytest"] = asdict(pt)
@@ -313,6 +340,11 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--local-only", action="store_true", help="Only run LOCAL")
     p.add_argument("--remote-only", action="store_true", help="Only run REMOTE")
     p.add_argument("--remote-force", action="store_true", help="Allow --force ingest in REMOTE (dangerous)")
+    p.add_argument(
+        "--install-visualizer",
+        action="store_true",
+        help="After ingest, create OntologyGraph/DataGraph/KnowledgeGraph and install themes (REMOTE only).",
+    )
     p.add_argument("--no-docker", action="store_true", help="Skip docker compose up for LOCAL")
     return p.parse_args()
 
@@ -322,6 +354,9 @@ def main() -> None:
     load_dotenv()
 
     args = parse_args()
+    if args.install_visualizer:
+        # Plumb through without changing function signatures.
+        os.environ["PHASE1_INSTALL_VISUALIZER"] = "1"
     data_dir = ROOT / args.data_dir
 
     local: Dict = {}
