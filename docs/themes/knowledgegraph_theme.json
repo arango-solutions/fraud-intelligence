@@ -4,8 +4,8 @@
   "nodeConfigMap": {
     "Ontology": {
       "background": { "color": "#4a5568", "iconName": "fa6-solid:diagram-project" },
-      "labelAttribute": "label",
-      "hoverInfoAttributes": ["label", "uri", "_id"],
+      "labelAttribute": "description",
+      "hoverInfoAttributes": ["description", "comment", "label", "_label", "uri", "_uri", "_key", "_id"],
       "rules": []
     },
     "Class": {

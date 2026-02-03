@@ -125,6 +125,37 @@ def load_ontology_as_data(db, force: bool) -> None:
     adb_rdf.rdf_to_arangodb_by_pgt(name="OntologyGraph", rdf_graph=g, overwrite_graph=bool(force))
 
 
+def ensure_ontology_description(db) -> None:
+    """
+    ArangoRDF PGT may produce Ontology docs with either:
+    - `label`/`uri` (legacy-ish shape)
+    - `_label`/`_uri` plus RDF fields like `comment`
+
+    For consistent Visualizer labeling, populate `description` when missing using the
+    best available human-readable field (comment > label > _label > uri/_uri).
+    """
+    if not db.has_collection("Ontology"):
+        return
+    q = """
+FOR o IN Ontology
+  FILTER !HAS(o, "description") OR o.description == null OR o.description == ""
+  LET descriptionValue = (
+    HAS(o, "comment") && o.comment != null && o.comment != "" ? o.comment :
+    HAS(o, "label") && o.label != null && o.label != "" ? o.label :
+    HAS(o, "_label") && o._label != null && o._label != "" ? o._label :
+    HAS(o, "uri") && o.uri != null && o.uri != "" ? o.uri :
+    HAS(o, "_uri") && o._uri != null && o._uri != "" ? o._uri :
+    o._key
+  )
+  UPDATE o WITH { description: descriptionValue } IN Ontology
+"""
+    # Best-effort; do not fail graph creation if managed service restricts updates.
+    try:
+        list(db.aql.execute(q))
+    except Exception:
+        pass
+
+
 def ensure_graph(db, name: str, edge_definitions: List[Dict]) -> None:
     if not db.has_graph(name):
         db.create_graph(name, edge_definitions=edge_definitions)
@@ -237,6 +268,7 @@ def main() -> None:
 
     # Ensure ontology is ingested via ArangoRDF PGT (creates OntologyGraph).
     load_ontology_as_data(db, force=args.force)
+    ensure_ontology_description(db)
 
     if args.with_type_edges:
         create_type_edges(db)

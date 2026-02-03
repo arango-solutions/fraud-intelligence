@@ -4,8 +4,8 @@
   "nodeConfigMap": {
     "Ontology": {
       "background": { "color": "#4a5568", "iconName": "fa6-solid:diagram-project" },
-      "labelAttribute": "label",
-      "hoverInfoAttributes": ["label", "uri", "_id"],
+      "labelAttribute": "description",
+      "hoverInfoAttributes": ["description", "comment", "label", "_label", "uri", "_uri", "_key", "_id"],
       "rules": []
     },
     "Class": {
@@ -16,8 +16,8 @@
     },
     "Property": {
       "background": { "color": "#d69e2e", "iconName": "fa6-solid:link" },
-      "labelAttribute": "_key",
-      "hoverInfoAttributes": ["_key", "_uri", "_id"],
+      "labelAttribute": "_label",
+      "hoverInfoAttributes": ["_label", "_uri", "_key", "_id"],
       "rules": []
     }
   },
