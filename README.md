@@ -15,6 +15,7 @@ This repo currently contains **Product Requirements Documents (PRDs)** describin
 ## Repository contents
 
 - `PRD/PRD.md`: Overall project PRD and phased checklist
+- `PRD/Fraud Use Cases PRD.md`: Consolidated fraud scenarios (patterns, signals, AQL starters, demo steps)
 - `PRD/Identity Intelligence PRD.md`: Entity resolution (“Golden Record”) requirements
 - `PRD/Risk Intelligence PRD.md`: Risk scoring and propagation requirements
 - `PRD/Ontology PRD.md`: Ontology + semantic ingestion requirements

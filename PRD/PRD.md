@@ -19,6 +19,19 @@ This plan integrates the **Agentic Workflow**, **Entity Resolution**, and **Risk
 
 The demo will showcase a "Future State" of fraud detection for banking. Moving beyond static rules, it will demonstrate an **Autonomous AI Agent** that ingests unstructured data (news, deeds), resolves hidden identities (Entity Resolution), analyzes network patterns (Graph Algorithms), and propagates risk scores (Risk Intelligence) to flag complex schemes like "Circular Real Estate Trading" and "Money Mule Rings."
 
+### 1.1 Canonical fraud use cases (demo scenarios)
+
+The canonical, demo-ready descriptions of the fraud scenarios (story, graph pattern, signals, example AQL, demo steps, and test hooks) live in:
+
+- `PRD/Fraud Use Cases PRD.md`
+
+At minimum, the demo must cover:
+
+- **Circular trading**: closed-loop `transferredTo` cycles between `BankAccount` vertices
+- **Money mule ring**: many-to-one `transferredTo` (mules → hub) plus shared `DigitalLocation` via `accessedFrom`/`hasDigitalLocation`
+- **Undervalued property**: `RealEstateTransaction.transactionValue <= RealProperty.circleRateValue` linked via `registeredSale`
+- **Benami / proxy identities**: multiple `Person` records resolved via `resolvedTo` into `GoldenRecord`
+
 ---
 
 ## 2. System Architecture & Subsystems
