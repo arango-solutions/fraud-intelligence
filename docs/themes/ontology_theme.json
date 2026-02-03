@@ -10,8 +10,8 @@
     },
     "Class": {
       "background": { "color": "#9f7aea", "iconName": "fa6-solid:shapes" },
-      "labelAttribute": "label",
-      "hoverInfoAttributes": ["label", "uri", "_id"],
+      "labelAttribute": "_label",
+      "hoverInfoAttributes": ["_label", "_uri", "label", "uri", "_id"],
       "rules": []
     },
     "Property": {

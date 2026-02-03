@@ -61,7 +61,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument(
         "--with-type-edges",
         action="store_true",
-        help="Create KnowledgeGraph type edges from data vertices to Class nodes (edge collection: type)",
+        help="Create KnowledgeGraph instanceOf edges from data vertices to ontology Class nodes (edge collection: instanceOf)",
     )
     return p.parse_args()
 
@@ -150,23 +150,70 @@ def create_type_edges(db) -> None:
     ensure_collection(db, "instanceOf", edge=True)
     inst_col = db.collection("instanceOf")
 
-    docs: List[Dict] = []
-    # Ensure ontology Class nodes exist for each data vertex collection.
-    if db.has_collection("Class"):
-        class_docs = [{"_key": v, "label": v, "uri": f"#{v}"} for v in DATA_VERTICES]
-        db.collection("Class").import_bulk(class_docs, on_duplicate="update")
+    if not db.has_collection("Class"):
+        print("[WARN] Missing 'Class' collection; skipping instanceOf edges")
+        return
+    class_col = db.collection("Class")
+
+    # Derived edges; safe to rebuild deterministically.
+    try:
+        inst_col.truncate()
+    except Exception:
+        # If truncate is not permitted (managed restrictions), fall back to upsert-y import.
+        pass
+
+    def resolve_class_id(label: str) -> Optional[str]:
+        """
+        Prefer ArangoRDF PGT Class nodes (typically have `_uri`/`_label`) and fall back
+        to any legacy Class docs (may have `uri`/`label`).
+        """
+        q = """
+FOR c IN Class
+  FILTER (HAS(c, "_label") && c._label == @n)
+     OR (HAS(c, "label") && c.label == @n)
+     OR (HAS(c, "_uri") && LIKE(c._uri, CONCAT("%#", @n), true))
+     OR (HAS(c, "uri") && c.uri == CONCAT("#", @n))
+  SORT HAS(c, "_uri") DESC, HAS(c, "_label") DESC
+  LIMIT 1
+  RETURN c._id
+"""
+        res = list(db.aql.execute(q, bind_vars={"n": label}))
+        return res[0] if res else None
+
+    batch: List[Dict] = []
+    batch_size = 2000
+
     for vcoll in DATA_VERTICES:
         if not db.has_collection(vcoll):
             continue
+
+        to_id = resolve_class_id(vcoll)
+        if not to_id:
+            print(f"[WARN] No ontology Class match for '{vcoll}'; skipping instanceOf edges for this collection")
+            continue
+
+        # If a legacy stub Class doc exists (keyed by the local name) but ArangoRDF
+        # resolved to a different Class document (typically hash-keyed), remove the stub
+        # to avoid a disjoint duplicate Class in the visualizer.
+        expected_stub_id = f"Class/{vcoll}"
+        if to_id != expected_stub_id:
+            try:
+                stub = class_col.get(vcoll)
+                if stub and ("_uri" not in stub) and ("_label" not in stub) and stub.get("uri") == f"#{vcoll}":
+                    class_col.delete(vcoll)
+            except Exception:
+                pass
+
         for doc in db.collection(vcoll).all():
             from_id = doc["_id"]
-            to_id = f"Class/{vcoll}"
-            key = f"{from_id.replace('/', '_')}__{vcoll}"
-            docs.append({"_key": key, "_from": from_id, "_to": to_id})
+            key = f"{from_id.replace('/', '_')}__{to_id.replace('/', '_')}"
+            batch.append({"_key": key, "_from": from_id, "_to": to_id})
+            if len(batch) >= batch_size:
+                inst_col.import_bulk(batch, on_duplicate="update")
+                batch = []
 
-    if docs:
-        # overwrite=True updates existing edges by _key
-        inst_col.import_bulk(docs, overwrite=True)
+    if batch:
+        inst_col.import_bulk(batch, on_duplicate="update")
 
 
 def main() -> None:
