@@ -30,7 +30,7 @@ The solution will be composed of five integrated subsystems.
 * **Role:** Convert unstructured text into structured graph data.
 * **Requirement:** Must process PDF/Text documents (e.g., Property Deeds, Regulatory Watchlists).
 * **Semantic Driver:** **YES, Semantic Approach is Required.**
-* **Recommendation:** Adopt the **Arango-RDF** approach used in `risk-management`.
+* **Requirement (non-negotiable):** Ingest `ontology/fraud-intelligence.owl` using **ArangoRDF** (`arango-rdf`) and its **PGT (Property Graph Transformation)**. Do not use a custom ontology parser/loader for the demo.
 * **Why:** Fraud concepts like "Associate," "Shell Company," and "Ultimate Beneficial Owner" need a strict ontology to map diverse terms from documents into a unified graph structure. This allows the AI to infer that a "cousin" listed in a deed is a "Related Party."
 
 
@@ -199,6 +199,8 @@ The demo must tell a story through three distinct "Lenses":
 
 ### Phase 2: Intelligence Layer (Implementation)
 
+* [ ] **Entity Resolution (library):** Implement Phase 2 ER end-to-end using `arango-entity-resolution` (blocking + similarity + clustering + persistence).
+  - **Required outputs:** populate `GoldenRecord` and `resolvedTo` (Person → GoldenRecord) with safe reruns (idempotent or controlled cleanup).
 * [ ] **ER Configuration:** Tune `arango-entity-resolution` config to catch phonetic Indian name matches.
 * [ ] **Risk Logic:** Implement `calculate_inferred_risk.py` logic to propagate risk from "Watchlist" nodes to "Neighbors."
 * [ ] **Agent Configuration:** Configure `graph-analytics-ai` agents with descriptions of the new schema elements.

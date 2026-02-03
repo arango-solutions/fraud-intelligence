@@ -3,7 +3,7 @@
   "size": "sample",
   "generated_at": "2026-01-01T00:00:42Z",
   "counts": {
-    "Address.csv": 200,
+    "Address.csv": 173,
     "DigitalLocation.csv": 26,
     "Person.csv": 399,
     "Organization.csv": 30,
@@ -15,7 +15,7 @@
     "Transaction.csv": 0,
     "GoldenRecord.csv": 0,
     "hasAccount.csv": 450,
-    "transferredTo.csv": 1450,
+    "transferredTo.csv": 1452,
     "relatedTo.csv": 100,
     "associatedWith.csv": 30,
     "residesAt.csv": 399,

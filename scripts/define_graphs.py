@@ -49,13 +49,9 @@ DATA_EDGES: List[Dict] = [
     {"edge_collection": "resolvedTo", "from_vertex_collections": ["Person"], "to_vertex_collections": ["GoldenRecord"]},
 ]
 
-# Ontology-as-data collections (for OntologyGraph / KnowledgeGraph)
-ONTO_VERTICES: List[str] = ["Class", "ObjectProperty", "DatatypeProperty", "Ontology"]
-ONTO_EDGE_DEFS: List[Dict] = [
-    {"edge_collection": "domain", "from_vertex_collections": ["ObjectProperty", "DatatypeProperty"], "to_vertex_collections": ["Class"]},
-    {"edge_collection": "range", "from_vertex_collections": ["ObjectProperty"], "to_vertex_collections": ["Class"]},
-    {"edge_collection": "subClassOf", "from_vertex_collections": ["Class"], "to_vertex_collections": ["Class"]},
-]
+# Ontology graph is created by ArangoRDF (PGT). We do not hard-code its collections
+# because ArangoRDF's mapping may evolve (e.g., it uses `Property` as the unified
+# collection for ontology properties).
 
 
 def parse_args() -> argparse.Namespace:
@@ -89,110 +85,44 @@ def upsert_many(col, docs: Iterable[Dict], chunk: int = 2000) -> None:
     for d in docs:
         buf.append(d)
         if len(buf) >= chunk:
-            col.import_bulk(buf, overwrite=True)
+            res = col.import_bulk(buf, on_duplicate="update")
+            if isinstance(res, dict) and res.get("errors"):
+                raise RuntimeError(f"Bulk import errors in {col.name}: {res}")
             buf = []
     if buf:
-        col.import_bulk(buf, overwrite=True)
+        res = col.import_bulk(buf, on_duplicate="update")
+        if isinstance(res, dict) and res.get("errors"):
+            raise RuntimeError(f"Bulk import errors in {col.name}: {res}")
 
 
 def load_ontology_as_data(db, force: bool) -> None:
     """
-    Load a minimal ontology-as-data representation:
-    - Classes → `Class`
-    - ObjectProperties → `ObjectProperty`
-    - DatatypeProperties → `DatatypeProperty`
-    - Domain/range/subClassOf edges
+    Load ontology into ArangoDB using ArangoRDF (PGT transformation).
+
+    Rationale:
+    - This repo is intended to demonstrate ArangoDB's RDF/semantic capabilities.
+    - ArangoRDF's PGT transformation produces a proper property-graph representation
+      of the ontology (including rdf:type-driven collection mapping and connected topology).
     """
-    for v in ONTO_VERTICES:
-        ensure_collection(db, v, edge=False)
-    for e in ["domain", "range", "subClassOf", "type"]:
-        # `type` is optional (used only when --with-type-edges)
-        ensure_collection(db, e, edge=True)
-
-    if force:
-        for e in ["domain", "range", "subClassOf", "type"]:
-            if db.has_collection(e):
-                db.collection(e).truncate()
-
     if not OWL_PATH.exists():
         raise SystemExit(f"Missing ontology file: {OWL_PATH}")
 
-    ns = {
-        "owl": "http://www.w3.org/2002/07/owl#",
-        "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
-        "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
-    }
-    tree = ET.parse(str(OWL_PATH))
-    root = tree.getroot()
+    try:
+        from rdflib import Graph  # type: ignore
+        from arango_rdf import ArangoRDF  # type: ignore
+    except Exception as e:  # pragma: no cover
+        raise SystemExit(
+            "Missing dependency for ArangoRDF ontology ingestion. "
+            "Install: pip install -r requirements.txt"
+        ) from e
 
-    def local_name(uri: str) -> str:
-        # handles "#Foo" and "...#Foo"
-        if "#" in uri:
-            return uri.split("#", 1)[1]
-        return uri.rsplit("/", 1)[-1]
+    g = Graph()
+    # rdflib can parse RDF/XML directly from .owl files
+    g.parse(str(OWL_PATH), format="xml")
 
-    # Ontology singleton
-    ensure_collection(db, "Ontology", edge=False)
-    db.collection("Ontology").import_bulk(
-        [{"_key": "fraud-intelligence", "label": "Fraud Intelligence Ontology", "uri": "http://www.semanticweb.org/fraud-intelligence#"}],
-        overwrite=True,
-    )
-
-    # Classes
-    classes = []
-    subclasses: List[Dict] = []
-    for cls in root.findall(".//owl:Class", ns):
-        about = cls.attrib.get(f"{{{ns['rdf']}}}about")
-        if not about:
-            continue
-        name = local_name(about)
-        classes.append({"_key": name, "label": name, "uri": about})
-        for sc in cls.findall("./rdfs:subClassOf", ns):
-            res = sc.attrib.get(f"{{{ns['rdf']}}}resource")
-            if not res:
-                continue
-            parent = local_name(res)
-            subclasses.append({"_from": f"Class/{name}", "_to": f"Class/{parent}"})
-
-    upsert_many(db.collection("Class"), classes)
-    upsert_many(db.collection("subClassOf"), subclasses)
-
-    # ObjectProperties and DatatypeProperties
-    obj_props = []
-    dt_props = []
-    domains: List[Dict] = []
-    ranges: List[Dict] = []
-
-    for op in root.findall(".//owl:ObjectProperty", ns):
-        about = op.attrib.get(f"{{{ns['rdf']}}}about")
-        if not about:
-            continue
-        name = local_name(about)
-        obj_props.append({"_key": name, "label": name, "uri": about})
-        for d in op.findall("./rdfs:domain", ns):
-            res = d.attrib.get(f"{{{ns['rdf']}}}resource")
-            if res:
-                domains.append({"_from": f"ObjectProperty/{name}", "_to": f"Class/{local_name(res)}"})
-        for r in op.findall("./rdfs:range", ns):
-            res = r.attrib.get(f"{{{ns['rdf']}}}resource")
-            if res:
-                ranges.append({"_from": f"ObjectProperty/{name}", "_to": f"Class/{local_name(res)}"})
-
-    for dp in root.findall(".//owl:DatatypeProperty", ns):
-        about = dp.attrib.get(f"{{{ns['rdf']}}}about")
-        if not about:
-            continue
-        name = local_name(about)
-        dt_props.append({"_key": name, "label": name, "uri": about})
-        for d in dp.findall("./rdfs:domain", ns):
-            res = d.attrib.get(f"{{{ns['rdf']}}}resource")
-            if res:
-                domains.append({"_from": f"DatatypeProperty/{name}", "_to": f"Class/{local_name(res)}"})
-
-    upsert_many(db.collection("ObjectProperty"), obj_props)
-    upsert_many(db.collection("DatatypeProperty"), dt_props)
-    upsert_many(db.collection("domain"), domains)
-    upsert_many(db.collection("range"), ranges)
+    adb_rdf = ArangoRDF(db)
+    # overwrite_graph is destructive; use `--force` to opt in.
+    adb_rdf.rdf_to_arangodb_by_pgt(name="OntologyGraph", rdf_graph=g, overwrite_graph=bool(force))
 
 
 def ensure_graph(db, name: str, edge_definitions: List[Dict]) -> None:
@@ -210,16 +140,24 @@ def ensure_graph(db, name: str, edge_definitions: List[Dict]) -> None:
 
 
 def create_type_edges(db) -> None:
-    ensure_collection(db, "type", edge=True)
-    type_col = db.collection("type")
+    """
+    Create data-to-ontology links (instance → Class).
+
+    NOTE: ArangoRDF uses the `type` edge collection internally for ontology resources.
+    To avoid conflicting edge-definition reuse across named graphs, we keep a separate
+    edge collection for instance typing.
+    """
+    ensure_collection(db, "instanceOf", edge=True)
+    inst_col = db.collection("instanceOf")
 
     docs: List[Dict] = []
+    # Ensure ontology Class nodes exist for each data vertex collection.
+    if db.has_collection("Class"):
+        class_docs = [{"_key": v, "label": v, "uri": f"#{v}"} for v in DATA_VERTICES]
+        db.collection("Class").import_bulk(class_docs, on_duplicate="update")
     for vcoll in DATA_VERTICES:
         if not db.has_collection(vcoll):
             continue
-        # Ensure class node exists
-        if db.has_collection("Class"):
-            db.collection("Class").import_bulk([{"_key": vcoll, "label": vcoll, "uri": f"#{vcoll}"}], overwrite=True)
         for doc in db.collection(vcoll).all():
             from_id = doc["_id"]
             to_id = f"Class/{vcoll}"
@@ -228,7 +166,7 @@ def create_type_edges(db) -> None:
 
     if docs:
         # overwrite=True updates existing edges by _key
-        type_col.import_bulk(docs, overwrite=True)
+        inst_col.import_bulk(docs, overwrite=True)
 
 
 def main() -> None:
@@ -241,18 +179,34 @@ def main() -> None:
 
     db = connect(cfg)
 
-    # Ensure ontology-as-data is present (needed for OntologyGraph and KnowledgeGraph themes)
+    # ArangoRDF (PGT) creates OntologyGraph and will attach edge collections (e.g. domain/range/subClassOf)
+    # to that graph. ArangoDB does not allow an edge collection to be used in edge definitions across
+    # multiple named graphs simultaneously. Since our KnowledgeGraph also reuses these ontology edge
+    # collections, delete the dependent graphs first when forcing a re-load.
+    if args.force:
+        for gname in ["KnowledgeGraph", "OntologyGraph"]:
+            if db.has_graph(gname):
+                db.delete_graph(gname, drop_collections=False)
+
+    # Ensure ontology is ingested via ArangoRDF PGT (creates OntologyGraph).
     load_ontology_as_data(db, force=args.force)
 
     if args.with_type_edges:
         create_type_edges(db)
 
-    # Create the three named graphs
-    ensure_graph(db, "OntologyGraph", ONTO_EDGE_DEFS)
+    # Create the three named graphs.
+    # OntologyGraph is created by ArangoRDF; do not override its edge definitions here.
     ensure_graph(db, "DataGraph", DATA_EDGES)
-    knowledge_edges = ONTO_EDGE_DEFS + DATA_EDGES
+    # Build KnowledgeGraph by reusing the exact ontology edge definitions produced by ArangoRDF
+    # (avoids edge-definition conflicts).
+    onto_edge_defs: List[Dict] = []
+    if db.has_graph("OntologyGraph"):
+        onto_edge_defs = db.graph("OntologyGraph").edge_definitions()
+    knowledge_edges: List[Dict] = onto_edge_defs + DATA_EDGES
     if args.with_type_edges:
-        knowledge_edges = knowledge_edges + [{"edge_collection": "type", "from_vertex_collections": DATA_VERTICES, "to_vertex_collections": ["Class"]}]
+        knowledge_edges = knowledge_edges + [
+            {"edge_collection": "instanceOf", "from_vertex_collections": DATA_VERTICES, "to_vertex_collections": ["Class"]}
+        ]
     ensure_graph(db, "KnowledgeGraph", knowledge_edges)
 
     print("Created/updated: OntologyGraph, DataGraph, KnowledgeGraph")

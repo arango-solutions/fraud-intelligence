@@ -107,14 +107,60 @@ def install_canvas_actions(db, graph_name: str, vertex_colls: Set[str], edge_col
     vp_id = ensure_default_viewpoint(db, graph_name)
 
     edge_list_str = ", ".join(sorted(edge_colls))
+    # In cluster deployments, traversal queries should include WITH listing collections
+    # that may be encountered by the traversal (vertex + edge collections).
+    with_clause = "WITH " + ", ".join(sorted(vertex_colls | edge_colls))
     now = datetime.utcnow().isoformat() + "Z"
+
+    # ------------------------------------------------------------------
+    # Default action per graph
+    # ------------------------------------------------------------------
+    default_title = "Find 2-hop neighbors (default)"
+    default_query = f"""{with_clause}
+FOR node IN @nodes
+  FOR v, e IN 1..2
+    ANY node
+    GRAPH "{graph_name}"
+    LIMIT 100
+    RETURN e"""
+    default_doc = {
+        "graphId": graph_name,
+        "name": default_title,
+        "description": "Find 2-hop neighbors of the selected nodes",
+        "queryText": default_query,
+        "bindVariables": {"nodes": []},
+        "updatedAt": now,
+    }
+    existing_default = list(canvas_col.find({"name": default_title, "graphId": graph_name}))
+    if existing_default:
+        # If duplicates exist, keep one deterministically and remove the rest.
+        existing_default = sorted(existing_default, key=lambda d: d.get("_key", ""))
+        for extra in existing_default[1:]:
+            try:
+                canvas_col.delete(extra["_key"])
+            except Exception:
+                pass
+
+        default_doc["_key"] = existing_default[0]["_key"]
+        default_doc["_id"] = existing_default[0]["_id"]
+        default_doc["createdAt"] = existing_default[0].get("createdAt", now)
+        canvas_col.replace(default_doc, check_rev=False)
+        default_id = existing_default[0]["_id"]
+    else:
+        default_doc["createdAt"] = now
+        res = canvas_col.insert(default_doc)
+        default_id = res["_id"]
+
+    if not list(vp_act_col.find({"_from": vp_id, "_to": default_id})):
+        vp_act_col.insert({"_from": vp_id, "_to": default_id, "createdAt": now, "updatedAt": now})
 
     for v_coll in sorted(vertex_colls):
         action_title = f"[{v_coll}] Expand Relationships"
-        query = f"""FOR node IN @nodes
+        query = f"""{with_clause}
+FOR node IN @nodes
+  FILTER IS_SAME_COLLECTION("{v_coll}", node)
   FOR v, e, p IN 1..1 ANY node
     {edge_list_str}
-    FILTER IS_SAME_COLLECTION("{v_coll}", v)
     LIMIT 20
     RETURN p"""
 
@@ -123,15 +169,26 @@ def install_canvas_actions(db, graph_name: str, vertex_colls: Set[str], edge_col
             "description": f"Expand related entities for {v_coll}",
             "queryText": query,
             "graphId": graph_name,
-            "bindVariables": {"nodes": ""},
+            # Visualizer expects @nodes to be an array, not a string.
+            "bindVariables": {"nodes": []},
             "updatedAt": now,
         }
 
         existing = list(canvas_col.find({"name": action_title, "graphId": graph_name}))
         if existing:
+            # If duplicates exist, keep one deterministically and remove the rest.
+            existing = sorted(existing, key=lambda d: d.get("_key", ""))
+            for extra in existing[1:]:
+                try:
+                    canvas_col.delete(extra["_key"])
+                except Exception:
+                    pass
+
             action_doc["_key"] = existing[0]["_key"]
             action_doc["_id"] = existing[0]["_id"]
-            canvas_col.replace(action_doc)
+            action_doc["createdAt"] = existing[0].get("createdAt", now)
+            # Don't require _rev for idempotent installs.
+            canvas_col.replace(action_doc, check_rev=False)
             action_id = existing[0]["_id"]
         else:
             action_doc["createdAt"] = now
@@ -167,7 +224,7 @@ def install_themes(db) -> None:
         if existing:
             theme["_key"] = existing[0]["_key"]
             theme["_id"] = existing[0]["_id"]
-            theme_col.replace(theme)
+            theme_col.replace(theme, check_rev=False)
             print(f"[Updated Theme] {graph_name}::{theme['name']}")
         else:
             theme_col.insert(theme)

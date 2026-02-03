@@ -37,7 +37,7 @@
     <rdfs:subClassOf rdf:resource="#Document"/>
   </owl:Class>
 
-  <owl:Class rdf:about="#GoldenRecord"/>
+  <owl:Class rdf:about="#"/>
 
   <!-- Object Properties (Edge Collections) -->
 

@@ -14,16 +14,10 @@
       "hoverInfoAttributes": ["label", "uri", "_id"],
       "rules": []
     },
-    "ObjectProperty": {
+    "Property": {
       "background": { "color": "#d69e2e", "iconName": "fa6-solid:link" },
-      "labelAttribute": "label",
-      "hoverInfoAttributes": ["label", "uri", "_id"],
-      "rules": []
-    },
-    "DatatypeProperty": {
-      "background": { "color": "#319795", "iconName": "fa6-solid:tag" },
-      "labelAttribute": "label",
-      "hoverInfoAttributes": ["label", "uri", "_id"],
+      "labelAttribute": "_key",
+      "hoverInfoAttributes": ["_key", "_uri", "_id"],
       "rules": []
     },
     "Person": {
@@ -91,8 +85,8 @@
     },
     "GoldenRecord": {
       "background": { "color": "#9f7aea", "iconName": "fa6-solid:id-card" },
-      "labelAttribute": "canonicalName",
-      "hoverInfoAttributes": ["canonicalName"],
+      "labelAttribute": "name",
+      "hoverInfoAttributes": ["name", "panNumber", "clusterSize"],
       "rules": []
     }
   },
@@ -101,6 +95,7 @@
     "domain": { "lineStyle": { "color": "#4a5568", "thickness": 1.0 }, "arrowStyle": { "targetArrowShape": "triangle" }, "hoverInfoAttributes": [], "rules": [] },
     "range": { "lineStyle": { "color": "#2b6cb0", "thickness": 1.0 }, "arrowStyle": { "targetArrowShape": "triangle" }, "hoverInfoAttributes": [], "rules": [] },
     "type": { "lineStyle": { "color": "#9f7aea", "thickness": 0.8 }, "arrowStyle": { "targetArrowShape": "triangle" }, "hoverInfoAttributes": [], "rules": [] },
+    "instanceOf": { "lineStyle": { "color": "#9f7aea", "thickness": 0.8 }, "arrowStyle": { "targetArrowShape": "triangle" }, "hoverInfoAttributes": [], "rules": [] },
 
     "hasAccount": { "lineStyle": { "color": "#4a5568", "thickness": 1.0 }, "arrowStyle": { "targetArrowShape": "triangle" }, "hoverInfoAttributes": ["ownershipType"], "rules": [] },
     "transferredTo": { "lineStyle": { "color": "#2b6cb0", "thickness": 1.2 }, "arrowStyle": { "targetArrowShape": "triangle" }, "hoverInfoAttributes": ["amount", "timestamp", "txnType", "scenario"], "rules": [] },

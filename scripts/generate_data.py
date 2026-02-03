@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import csv
 import datetime as dt
+import hashlib
 import json
 import os
 import random
@@ -48,6 +49,31 @@ def key(prefix: str, seed: int, idx: int) -> str:
 
 def doc_id(collection: str, _key: str) -> str:
     return f"{collection}/{_key}"
+
+def edge_key_md5(*parts: Any) -> str:
+    """
+    Deterministic edge key.
+    Use md5 so keys are compact and AQL-friendly (MD5() can reproduce the same key).
+    """
+    s = "|".join("" if p is None else str(p) for p in parts)
+    return hashlib.md5(s.encode("utf-8")).hexdigest()
+
+
+def dedupe_edges(rows: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """
+    De-duplicate edges by `_key` while preserving order.
+    """
+    seen = set()
+    out: List[Dict[str, Any]] = []
+    for r in rows:
+        k = r.get("_key")
+        if not k:
+            continue
+        if k in seen:
+            continue
+        seen.add(k)
+        out.append(r)
+    return out
 
 
 def gen_pan(rng: random.Random) -> str:
@@ -303,10 +329,13 @@ def main() -> None:
     has_account_rows: List[Dict[str, Any]] = []
     for i, acct in enumerate(bank_account_rows):
         person = person_rows[i % len(person_rows)]
+        _from = doc_id("Person", person["_key"])
+        _to = doc_id("BankAccount", acct["_key"])
         has_account_rows.append(
             {
-                "_from": doc_id("Person", person["_key"]),
-                "_to": doc_id("BankAccount", acct["_key"]),
+                "_key": edge_key_md5(_from, _to, "Primary"),
+                "_from": _from,
+                "_to": _to,
                 "ownershipType": "Primary",
             }
         )
@@ -318,10 +347,14 @@ def main() -> None:
     for i in range(min(100, len(person_rows) // 3)):
         a = person_rows[i]["_key"]
         b = person_rows[i + 1]["_key"]
+        _a = doc_id("Person", a)
+        _b = doc_id("Person", b)
+        left, right = sorted([_a, _b])
         related_rows.append(
             {
-                "_from": doc_id("Person", a),
-                "_to": doc_id("Person", b),
+                "_key": edge_key_md5(left, right, "Sibling"),
+                "_from": _a,
+                "_to": _b,
                 "relationType": "Sibling",
             }
         )
@@ -335,12 +368,17 @@ def main() -> None:
             # Mule accounts will get a dedicated shared device edge below.
             continue
         d = rng.choice(digital_rows)
+        _from = doc_id("BankAccount", acct["_key"])
+        _to = doc_id("DigitalLocation", d["_key"])
+        ts = iso(now - dt.timedelta(days=rng.randint(0, 60)))
+        at = rng.choice(["Login", "Transaction"])
         accessed_from_rows.append(
             {
-                "_from": doc_id("BankAccount", acct["_key"]),
-                "_to": doc_id("DigitalLocation", d["_key"]),
-                "accessTimestamp": iso(now - dt.timedelta(days=rng.randint(0, 60))),
-                "accessType": rng.choice(["Login", "Transaction"]),
+                "_key": edge_key_md5(_from, _to, ts, at),
+                "_from": _from,
+                "_to": _to,
+                "accessTimestamp": ts,
+                "accessType": at,
             }
         )
 
@@ -354,12 +392,16 @@ def main() -> None:
     for i in range(4):
         src = cycle_accounts[i]
         dst = cycle_accounts[(i + 1) % 4]
+        _from = doc_id("BankAccount", src)
+        _to = doc_id("BankAccount", dst)
+        ts = iso(cycle_ts + dt.timedelta(minutes=i * 10))
         transferred_to_rows.append(
             {
-                "_from": doc_id("BankAccount", src),
-                "_to": doc_id("BankAccount", dst),
+                "_key": edge_key_md5(_from, _to, ts, cycle_amounts[i], "NEFT", "cycle"),
+                "_from": _from,
+                "_to": _to,
                 "amount": cycle_amounts[i],
-                "timestamp": iso(cycle_ts + dt.timedelta(minutes=i * 10)),
+                "timestamp": ts,
                 "txnType": "NEFT",
                 "scenario": "cycle",
             }
@@ -371,20 +413,27 @@ def main() -> None:
     mule_start = now - dt.timedelta(days=1)
     for i, mule_key in enumerate(mule_account_keys):
         # Ensure shared device link (and keep it testable)
+        _from = doc_id("BankAccount", mule_key)
+        _to = doc_id("DigitalLocation", mule_shared_digital_key)
+        ts = iso(mule_start + dt.timedelta(minutes=i))
         accessed_from_rows.append(
             {
-                "_from": doc_id("BankAccount", mule_key),
-                "_to": doc_id("DigitalLocation", mule_shared_digital_key),
-                "accessTimestamp": iso(mule_start + dt.timedelta(minutes=i)),
+                "_key": edge_key_md5(_from, _to, ts, "Transaction"),
+                "_from": _from,
+                "_to": _to,
+                "accessTimestamp": ts,
                 "accessType": "Transaction",
             }
         )
+        _to_acct = doc_id("BankAccount", hub_account_key)
+        amt = round(rng.uniform(5000, 50_000), 2)
         transferred_to_rows.append(
             {
-                "_from": doc_id("BankAccount", mule_key),
-                "_to": doc_id("BankAccount", hub_account_key),
-                "amount": round(rng.uniform(5000, 50_000), 2),
-                "timestamp": iso(mule_start + dt.timedelta(minutes=i)),
+                "_key": edge_key_md5(_from, _to_acct, ts, amt, "UPI", "mule"),
+                "_from": _from,
+                "_to": _to_acct,
+                "amount": amt,
+                "timestamp": ts,
                 "txnType": "UPI",
                 "scenario": "mule",
             }
@@ -398,13 +447,19 @@ def main() -> None:
         dst = rng.choice(bank_account_rows)["_key"]
         if src == dst:
             continue
+        _from = doc_id("BankAccount", src)
+        _to = doc_id("BankAccount", dst)
+        ts = iso(now - dt.timedelta(days=rng.randint(0, 60), minutes=rng.randint(0, 1440)))
+        txn_type = rng.choice(["NEFT", "RTGS", "UPI", "IMPS"])
+        amt = round(rng.uniform(100, 200_000), 2)
         transferred_to_rows.append(
             {
-                "_from": doc_id("BankAccount", src),
-                "_to": doc_id("BankAccount", dst),
-                "amount": round(rng.uniform(100, 200_000), 2),
-                "timestamp": iso(now - dt.timedelta(days=rng.randint(0, 60), minutes=rng.randint(0, 1440))),
-                "txnType": rng.choice(["NEFT", "RTGS", "UPI", "IMPS"]),
+                "_key": edge_key_md5(_from, _to, ts, amt, txn_type, "background"),
+                "_from": _from,
+                "_to": _to,
+                "amount": amt,
+                "timestamp": ts,
+                "txnType": txn_type,
                 "scenario": "background",
             }
         )
@@ -457,14 +512,18 @@ def main() -> None:
         )
         registered_sale_rows.append(
             {
+                "_key": edge_key_md5(doc_id("RealProperty", prop_key), doc_id("RealEstateTransaction", tx_key)),
                 "_from": doc_id("RealProperty", prop_key),
                 "_to": doc_id("RealEstateTransaction", tx_key),
             }
         )
         buyer = rng.choice(person_rows)["_key"]
         seller = rng.choice(person_rows)["_key"]
-        buyer_in_rows.append({"_from": doc_id("Person", buyer), "_to": doc_id("RealEstateTransaction", tx_key)})
-        seller_in_rows.append({"_from": doc_id("Person", seller), "_to": doc_id("RealEstateTransaction", tx_key)})
+        b_from = doc_id("Person", buyer)
+        s_from = doc_id("Person", seller)
+        tx_to = doc_id("RealEstateTransaction", tx_key)
+        buyer_in_rows.append({"_key": edge_key_md5(b_from, tx_to), "_from": b_from, "_to": tx_to})
+        seller_in_rows.append({"_key": edge_key_md5(s_from, tx_to), "_from": s_from, "_to": tx_to})
 
     # ------------------------------------------------------------------
     # Documents (optional evidence)
@@ -493,6 +552,11 @@ def main() -> None:
         if doc_type == "TitleDeed":
             mentioned_in_rows.append(
                 {
+                    "_key": edge_key_md5(
+                        doc_id("RealProperty", property_rows[i % len(property_rows)]["_key"]),
+                        doc_id("Document", doc_key),
+                        "Direct",
+                    ),
                     "_from": doc_id("RealProperty", property_rows[i % len(property_rows)]["_key"]),
                     "_to": doc_id("Document", doc_key),
                     "mentionType": "Direct",
@@ -502,6 +566,11 @@ def main() -> None:
         else:
             mentioned_in_rows.append(
                 {
+                    "_key": edge_key_md5(
+                        doc_id("Organization", org_rows[i % len(org_rows)]["_key"]),
+                        doc_id("Document", doc_key),
+                        "Direct",
+                    ),
                     "_from": doc_id("Organization", org_rows[i % len(org_rows)]["_key"]),
                     "_to": doc_id("Document", doc_key),
                     "mentionType": "Direct",
@@ -530,25 +599,39 @@ def main() -> None:
     # residences for persons
     for p in person_rows:
         addr = rng.choice(address_rows)["_key"]
-        resides_at_rows.append({"_from": doc_id("Person", p["_key"]), "_to": doc_id("Address", addr)})
+        _from = doc_id("Person", p["_key"])
+        _to = doc_id("Address", addr)
+        resides_at_rows.append({"_key": edge_key_md5(_from, _to), "_from": _from, "_to": _to})
+
+    # Emit only Address rows that are actually referenced.
+    # This prevents "orphan" Address nodes with no edges in the graph visualizer.
+    used_address_ids = {e["_to"] for e in resides_at_rows}
+    address_rows = [a for a in address_rows if doc_id("Address", a["_key"]) in used_address_ids]
 
     # has_digital_location for mule people (linking a few persons to shared device, useful for ER)
     for i in range(min(20, len(person_rows))):
         if i % 4 == 0:
+            _from = doc_id("Person", person_rows[i]["_key"])
+            _to = doc_id("DigitalLocation", mule_shared_digital_key)
             has_digital_location_rows.append(
                 {
-                    "_from": doc_id("Person", person_rows[i]["_key"]),
-                    "_to": doc_id("DigitalLocation", mule_shared_digital_key),
+                    "_key": edge_key_md5(_from, _to),
+                    "_from": _from,
+                    "_to": _to,
                 }
             )
 
     # some person -> org associations
     for i in range(min(30, len(person_rows), len(org_rows))):
+        _from = doc_id("Person", person_rows[i]["_key"])
+        _to = doc_id("Organization", org_rows[i % len(org_rows)]["_key"])
+        role = rng.choice(["Director", "Employee", "Partner"])
         associated_with_rows.append(
             {
-                "_from": doc_id("Person", person_rows[i]["_key"]),
-                "_to": doc_id("Organization", org_rows[i % len(org_rows)]["_key"]),
-                "role": rng.choice(["Director", "Employee", "Partner"]),
+                "_key": edge_key_md5(_from, _to, role),
+                "_from": _from,
+                "_to": _to,
+                "role": role,
             }
         )
 
@@ -579,17 +662,17 @@ def main() -> None:
         ("Document.csv", ["_key", "docType", "title", "content", "timestamp"], document_rows),
         ("Transaction.csv", ["_key", "amount", "timestamp", "txnType"], transaction_rows),
         ("GoldenRecord.csv", ["_key", "canonicalName"], golden_rows),
-        ("hasAccount.csv", ["_from", "_to", "ownershipType"], has_account_rows),
-        ("transferredTo.csv", ["_from", "_to", "amount", "timestamp", "txnType", "scenario"], transferred_to_rows),
-        ("relatedTo.csv", ["_from", "_to", "relationType"], related_rows),
-        ("associatedWith.csv", ["_from", "_to", "role"], associated_with_rows),
-        ("residesAt.csv", ["_from", "_to"], resides_at_rows),
-        ("accessedFrom.csv", ["_from", "_to", "accessTimestamp", "accessType"], accessed_from_rows),
-        ("hasDigitalLocation.csv", ["_from", "_to"], has_digital_location_rows),
-        ("mentionedIn.csv", ["_from", "_to", "mentionType", "confidence"], mentioned_in_rows),
-        ("registeredSale.csv", ["_from", "_to"], registered_sale_rows),
-        ("buyerIn.csv", ["_from", "_to"], buyer_in_rows),
-        ("sellerIn.csv", ["_from", "_to"], seller_in_rows),
+        ("hasAccount.csv", ["_key", "_from", "_to", "ownershipType"], dedupe_edges(has_account_rows)),
+        ("transferredTo.csv", ["_key", "_from", "_to", "amount", "timestamp", "txnType", "scenario"], dedupe_edges(transferred_to_rows)),
+        ("relatedTo.csv", ["_key", "_from", "_to", "relationType"], dedupe_edges(related_rows)),
+        ("associatedWith.csv", ["_key", "_from", "_to", "role"], dedupe_edges(associated_with_rows)),
+        ("residesAt.csv", ["_key", "_from", "_to"], dedupe_edges(resides_at_rows)),
+        ("accessedFrom.csv", ["_key", "_from", "_to", "accessTimestamp", "accessType"], dedupe_edges(accessed_from_rows)),
+        ("hasDigitalLocation.csv", ["_key", "_from", "_to"], dedupe_edges(has_digital_location_rows)),
+        ("mentionedIn.csv", ["_key", "_from", "_to", "mentionType", "confidence"], dedupe_edges(mentioned_in_rows)),
+        ("registeredSale.csv", ["_key", "_from", "_to"], dedupe_edges(registered_sale_rows)),
+        ("buyerIn.csv", ["_key", "_from", "_to"], dedupe_edges(buyer_in_rows)),
+        ("sellerIn.csv", ["_key", "_from", "_to"], dedupe_edges(seller_in_rows)),
         ("resolvedTo.csv", ["_from", "_to"], resolved_to_rows),
     ]
 

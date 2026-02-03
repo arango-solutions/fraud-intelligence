@@ -71,8 +71,8 @@
     },
     "GoldenRecord": {
       "background": { "color": "#9f7aea", "iconName": "fa6-solid:id-card" },
-      "labelAttribute": "canonicalName",
-      "hoverInfoAttributes": ["canonicalName"],
+      "labelAttribute": "name",
+      "hoverInfoAttributes": ["name", "panNumber", "clusterSize"],
       "rules": []
     }
   },

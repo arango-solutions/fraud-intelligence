@@ -98,3 +98,37 @@ def test_undervalued_property_exists():
 
     assert found, "expected at least one undervalued property transaction (transaction_value <= circle_rate_value)"
 
+
+def test_addresses_are_only_emitted_when_referenced():
+    addresses = _read_csv("Address")
+    resides = _read_csv("residesAt")
+
+    addr_ids = {f"Address/{a['_key']}" for a in addresses}
+    used = {e["_to"] for e in resides if e.get("_to", "").startswith("Address/")}
+
+    # Generator should only emit addresses that are referenced by residesAt edges.
+    # (i.e., no orphan Address vertices).
+    assert addr_ids.issubset(used), f"found orphan Address ids (sample): {sorted(addr_ids - used)[:5]}"
+
+
+def test_edge_keys_are_present_and_unique():
+    # Edge CSVs we generate should include deterministic `_key` and have no duplicates by `_key`.
+    edge_csvs = [
+        "hasAccount",
+        "transferredTo",
+        "relatedTo",
+        "associatedWith",
+        "residesAt",
+        "accessedFrom",
+        "hasDigitalLocation",
+        "mentionedIn",
+        "registeredSale",
+        "buyerIn",
+        "sellerIn",
+    ]
+    for name in edge_csvs:
+        rows = _read_csv(name)
+        keys = [r.get("_key") for r in rows]
+        assert all(keys), f"{name}: missing _key on some rows"
+        assert len(keys) == len(set(keys)), f"{name}: duplicate edge _key values found"
+

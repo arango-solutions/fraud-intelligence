@@ -2,4 +2,7 @@ faker>=24.0.0
 python-arango>=8.0.0
 networkx>=3.2.0
 pytest>=8.0.0
+arango-entity-resolution @ git+https://github.com/ArthurKeen/arango-entity-resolution.git@v3.1.1
+arango-rdf>=0.9.0
+rdflib>=7.0.0
 
