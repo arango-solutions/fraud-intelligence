@@ -198,6 +198,50 @@ FOR node IN @nodes
         if not list(vp_act_col.find({"_from": vp_id, "_to": action_id})):
             vp_act_col.insert({"_from": vp_id, "_to": action_id, "createdAt": now, "updatedAt": now})
 
+        # BankAccount-specific: detect directed cycles from a selected account
+        # (no reliance on generator "scenario" tags).
+        if v_coll == "BankAccount" and "transferredTo" in edge_colls:
+            cycle_title = "[BankAccount] Find cycles (AQL)"
+            cycle_query = f"""{with_clause}
+FOR start IN @nodes
+  FILTER IS_SAME_COLLECTION("BankAccount", start)
+  FOR v, e, p IN 3..@maxDepth OUTBOUND start transferredTo
+    OPTIONS {{ uniqueVertices: "none", uniqueEdges: "path" }}
+    FILTER v._id == start
+    LIMIT @limit
+    RETURN p"""
+
+            cycle_doc = {
+                "name": cycle_title,
+                "description": "Find directed transfer cycles returning to the selected BankAccount (AQL traversal).",
+                "queryText": cycle_query,
+                "graphId": graph_name,
+                "bindVariables": {"nodes": [], "maxDepth": 6, "limit": 5},
+                "updatedAt": now,
+            }
+
+            existing_cycle = list(canvas_col.find({"name": cycle_title, "graphId": graph_name}))
+            if existing_cycle:
+                existing_cycle = sorted(existing_cycle, key=lambda d: d.get("_key", ""))
+                for extra in existing_cycle[1:]:
+                    try:
+                        canvas_col.delete(extra["_key"])
+                    except Exception:
+                        pass
+
+                cycle_doc["_key"] = existing_cycle[0]["_key"]
+                cycle_doc["_id"] = existing_cycle[0]["_id"]
+                cycle_doc["createdAt"] = existing_cycle[0].get("createdAt", now)
+                canvas_col.replace(cycle_doc, check_rev=False)
+                cycle_id = existing_cycle[0]["_id"]
+            else:
+                cycle_doc["createdAt"] = now
+                res = canvas_col.insert(cycle_doc)
+                cycle_id = res["_id"]
+
+            if not list(vp_act_col.find({"_from": vp_id, "_to": cycle_id})):
+                vp_act_col.insert({"_from": vp_id, "_to": cycle_id, "createdAt": now, "updatedAt": now})
+
 
 def install_themes(db) -> None:
     ensure_collection(db, "_graphThemeStore", edge=False)

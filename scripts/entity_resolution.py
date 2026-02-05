@@ -85,16 +85,6 @@ FOR d IN Person
       UPDATE {}
     IN residesAt
 
-  FOR ha IN hasAccount
-    FILTER ha._from == origId
-    UPSERT { _from: d._id, _to: ha._to, ownershipType: ha.ownershipType }
-      INSERT MERGE(
-        { _from: d._id, _to: ha._to },
-        UNSET(ha, ["_id","_key","_rev","_from","_to"])
-      )
-      UPDATE {}
-    IN hasAccount
-
   FOR aw IN associatedWith
     FILTER aw._from == origId
     UPSERT { _from: d._id, _to: aw._to, role: aw.role }
@@ -116,6 +106,102 @@ FOR d IN Person
 """
     # Run repair even if no new duplicates were created (fixes earlier runs).
     list(db.aql.execute(q_edges))
+
+    # 3) For synthetic duplicates, create separate BankAccounts (idempotent) and link via hasAccount.
+    #
+    # Rationale:
+    # - `hasAccount` is a relationship and should remain idempotent.
+    # - For the demo, duplicate customer profiles can have distinct accounts (account fragmentation / proxy behavior),
+    #   which makes “before vs after” ER more visually impactful.
+    #
+    # NOTE: We skip "Victor Tella" here because we assign his two aliases to specific cycle accounts below.
+    q_dup_accounts = """
+FOR d IN Person
+  FILTER d.isSyntheticDuplicate == true
+  FILTER STARTS_WITH(d._key, "dup_")
+  FILTER d.name != "Victor Tella"
+
+  LET acctKey = CONCAT("dup_acct_", SUBSTRING(d._key, 4))
+  LET acctId = CONCAT("BankAccount/", acctKey)
+  LET acctNum = CONCAT("DUP-", SUBSTRING(MD5(d._id), 0, 12))
+
+  INSERT {
+    _key: acctKey,
+    accountNumber: acctNum,
+    accountType: "Savings",
+    balance: 0,
+    avgMonthlyBalance: 0,
+    dataSource: "phase2",
+    sourceId: acctKey
+  } INTO BankAccount
+  OPTIONS { overwriteMode: "ignore" }
+
+  UPSERT { _from: d._id, _to: acctId, ownershipType: "Primary" }
+    INSERT {
+      _key: MD5(CONCAT_SEPARATOR("|", d._id, acctId, "Primary")),
+      _from: d._id,
+      _to: acctId,
+      ownershipType: "Primary"
+    }
+    UPDATE {}
+  IN hasAccount
+
+  RETURN 1
+"""
+    list(db.aql.execute(q_dup_accounts))
+
+    # 4) Demo-specific: ensure the two "Victor Tella" aliases have separate accounts that participate
+    # in a directed cycle, so the Visualizer canvas action can detect cycles from that account without
+    # relying on the generator "cycle" tag.
+    q_victor_remove = """
+WITH Person, hasAccount
+LET victors = (
+  FOR p IN Person
+    FILTER p.name == "Victor Tella"
+    SORT p._key ASC
+    LIMIT 2
+    RETURN p._id
+)
+FILTER LENGTH(victors) == 2
+
+FOR ha IN hasAccount
+  FILTER ha._from IN victors
+  REMOVE ha IN hasAccount
+  RETURN 1
+"""
+    list(db.aql.execute(q_victor_remove))
+
+    q_victor_insert = """
+WITH Person, hasAccount
+LET victors = (
+  FOR p IN Person
+    FILTER p.name == "Victor Tella"
+    SORT p._key ASC
+    LIMIT 2
+    RETURN p._id
+)
+FILTER LENGTH(victors) == 2
+
+LET a1 = "BankAccount/acct_42_000000"
+LET a2 = "BankAccount/acct_42_000001"
+
+FOR pair IN [
+  { pid: victors[0], acct: a1 },
+  { pid: victors[1], acct: a2 }
+]
+  UPSERT { _from: pair.pid, _to: pair.acct, ownershipType: "Primary" }
+    INSERT {
+      _key: MD5(CONCAT_SEPARATOR("|", pair.pid, pair.acct, "Primary")),
+      _from: pair.pid,
+      _to: pair.acct,
+      ownershipType: "Primary"
+    }
+    UPDATE {}
+  IN hasAccount
+
+  RETURN 1
+"""
+    list(db.aql.execute(q_victor_insert))
 
     # Clean up any pre-existing duplicate edges produced by earlier runs.
     # Keep the lexicographically smallest _key within each equivalence class.

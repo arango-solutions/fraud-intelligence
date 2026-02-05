@@ -142,6 +142,8 @@ def ensure_schema(db) -> None:
     db.collection("Address").add_persistent_index(["district", "state"])
     db.collection("transferredTo").add_persistent_index(["timestamp"])
     db.collection("transferredTo").add_persistent_index(["amount"])
+    # Relationship edges should be idempotent per (_from,_to). Events over time should use `accessedFrom`.
+    db.collection("hasDigitalLocation").add_persistent_index(["_from", "_to"], unique=True)
 
 
 def import_collection(db, name: str, csv_path: Path, force: bool) -> int:
