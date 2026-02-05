@@ -65,6 +65,7 @@ The solution will be composed of five integrated subsystems.
 * **Inputs:** Natural language questions (e.g., "Find circular payments in the Mumbai Real Estate sector").
 * **Actions:** Autonomous selection of algorithms (PageRank, WCC, Cycle Detection).
 * **Outputs:** Intelligence Reports with confidence scores.
+* **PRD expansion:** See `PRD/Graph Analytics PRD.md` (Subsystem 3 requirements and demo deliverables).
 
 
 

@@ -33,37 +33,58 @@ A group of accounts repeatedly move funds in a loop to inflate turnover and laun
 - **Edges**: `transferredTo`
 - **Key fields** (on `transferredTo`):
   - `amount`, `timestamp`, `txnType`
-  - optional tag for demo datasets: `scenario == "cycle"`
+  - optional tag for demo datasets: `scenario == "cycle"` (used for deterministic dataset injection/tests, not required for AQL cycle detection)
 
 ### Signals
 - Existence of a **directed cycle** of transfers.
 - Tight timing window, repeated amounts, repeated counterparty set.
 
-### Example AQL (starter)
+### Example AQL (demo flow: Person → BankAccount → cycle traversal)
 
 ```aql
-WITH BankAccount, transferredTo
-LET start = FIRST(
-  FOR e IN transferredTo
-    FILTER e.scenario == "cycle"
-    RETURN e._from
-)
-FILTER start != null
-FOR v, e, p IN 1..6 OUTBOUND start transferredTo
-  FILTER e.scenario == "cycle"
-  FILTER v._id == start
+// Step 1 (optional): find the suspicious Person (Victor Tella synthetic alias)
+WITH Person, BankAccount, hasAccount
+FOR x IN Person
+  FILTER x.name == @name
+  FILTER x.isSyntheticDuplicate == true
+  SORT x._key ASC
   LIMIT 1
-  RETURN p
+  RETURN x
+```
+
+```aql
+// Step 2: expand the Person to reach their BankAccount(s)
+// (this is what the Person canvas action does; it uses @nodes)
+WITH Address, BankAccount, Class, DigitalLocation, Document, GoldenRecord, Ontology, Organization, Person, Property, RealEstateTransaction, RealProperty, Transaction, WatchlistEntity, accessedFrom, associatedWith, buyerIn, domain, hasAccount, hasDigitalLocation, instanceOf, mentionedIn, range, registeredSale, relatedTo, residesAt, resolvedTo, sellerIn, subClassOf, transferredTo, type
+FOR node IN @nodes
+  FILTER IS_SAME_COLLECTION("Person", node)
+  FOR v, e, p IN 1..1 ANY node
+    accessedFrom, associatedWith, buyerIn, domain, hasAccount, hasDigitalLocation, instanceOf, mentionedIn, range, registeredSale, relatedTo, residesAt, resolvedTo, sellerIn, subClassOf, transferredTo, type
+    LIMIT 20
+    RETURN p
+```
+
+```aql
+// Step 3: from the selected BankAccount, find directed cycles (no scenario tag required)
+// (this is the BankAccount canvas action; it uses @nodes)
+WITH Address, BankAccount, Class, DigitalLocation, Document, GoldenRecord, Ontology, Organization, Person, Property, RealEstateTransaction, RealProperty, Transaction, WatchlistEntity, accessedFrom, associatedWith, buyerIn, domain, hasAccount, hasDigitalLocation, instanceOf, mentionedIn, range, registeredSale, relatedTo, residesAt, resolvedTo, sellerIn, subClassOf, transferredTo, type
+FOR start IN @nodes
+  FILTER IS_SAME_COLLECTION("BankAccount", start)
+  FOR v, e, p IN 3..@maxDepth OUTBOUND start transferredTo
+    OPTIONS { uniqueVertices: "none", uniqueEdges: "path" }
+    FILTER v._id == start
+    LIMIT @limit
+    RETURN p
 ```
 
 ### Demo steps (Visualizer)
 - Open **DataGraph** or **KnowledgeGraph**.
-- Start from a `BankAccount` involved in the loop.
-- Run “Find 2-hop neighbors (default)” and/or a 1-hop expansion to reveal the ring.
-- Explain: “A closed walk exists; this is a classic circular-trading signature.”
+- Start from a high-risk `Person` (e.g., **Victor Tella**) and expand relationships to reach a `BankAccount` (via `hasAccount`).
+- Right-click the `BankAccount` and run the canvas action **`[BankAccount] Find cycles (AQL)`**.
+- Explain: “From a single suspicious account, AQL can traverse outward and prove a closed transaction loop exists (cycle detection without precomputed algorithms).”
 
 ### Test hooks
-- Integration test verifies at least one cycle exists (see `tests/test_fraud_patterns_integration.py`).
+- Integration test verifies at least one cycle exists in the dataset (see `tests/test_fraud_patterns_integration.py`).
 
 ---
 

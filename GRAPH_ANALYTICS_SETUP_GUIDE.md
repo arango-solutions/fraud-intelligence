@@ -14,6 +14,18 @@
 
 This guide shows how to integrate the **graph-analytics-ai** platform into your fraud-intelligence project to get AI-powered fraud detection insights.
 
+### How this relates to the current repo
+
+This repo already ships a working Phase 1–3 demo using ArangoDB + AQL:
+
+- Phase 1 runner: `python scripts/test_phase1.py --remote-only --install-visualizer`
+- Phase 2 runner: `python scripts/test_phase2.py --remote-only`
+- Phase 3 runner: `python scripts/test_phase3.py --remote-only`
+- Named graphs: `OntologyGraph`, `DataGraph`, `KnowledgeGraph`
+
+The “graph-analytics-ai” platform integration described below is an **optional next step** to showcase
+agentic orchestration and algorithm-backed reporting beyond the Visualizer.
+
 ---
 
 ## Prerequisites
@@ -95,7 +107,7 @@ Expected output:
 
 ## Step 4: Create Domain Description Document
 
-Create `docs/domain_description.md`:
+This repo already contains `docs/domain_description.md`. Review/update it as needed rather than re-creating it from scratch.
 
 ```markdown
 # Fraud Intelligence - Indian Banking Domain
@@ -136,7 +148,7 @@ Indian banking fraud detection system designed to identify:
 - **accessedFrom**: Digital access patterns
 - **registeredSale**: Property sales
 
-**Named Graph:** `fraud_intelligence_graph`
+**Named Graph:** Use `KnowledgeGraph` for investigations in this repo (or configure an equivalent graph name in your platform).
 
 ### Scale & Activity
 - Total nodes: ~40,000
@@ -276,7 +288,7 @@ When generating insights, the AI must:
 
 ## Step 5: Create Use Cases Document
 
-Create `docs/business_requirements.md`:
+This repo already contains `docs/business_requirements.md`. Review/update it as needed rather than re-creating it from scratch.
 
 See next section for full template...
 
