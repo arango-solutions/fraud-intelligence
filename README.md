@@ -56,6 +56,63 @@ python scripts/test_phase3.py --remote-only
 streamlit run apps/phase3_demo_app.py
 ```
 
+## Running AI-Powered Fraud Detection 🚀
+
+**NEW**: The graph-analytics-ai-platform is now configured for Indian banking fraud intelligence!
+
+### Quick Start (AI Analytics)
+
+```bash
+# Run AI-powered fraud detection
+python run_fraud_analysis.py
+```
+
+**Reports will be generated in:** `fraud_analysis_output/`
+
+**What you'll get:**
+- Circular trading detection (₹ Crores/Lakhs)
+- Money mule network identification
+- Circle rate evasion flagging
+- Benami identity resolution
+- Risk classifications (CRITICAL/HIGH/MEDIUM/LOW)
+- STR-ready recommendations with PMLA/FEMA references
+
+### Documentation
+
+**Start here:** `DOCUMENTATION_INDEX.md` - Master guide to all documentation
+
+**Essential docs:**
+- `HOW_TO_RUN_GRAPH_ANALYTICS.md` - **READ THIS FIRST** - Complete instructions
+- `PRE_FLIGHT_CHECKLIST.md` - Verify setup before running
+- `QUICK_START.md` - Quick reference and examples
+- `ARCHITECTURE.md` - How everything fits together
+
+### Pre-Requisites
+
+1. Install the platform:
+   ```bash
+   pip install -e ~/code/graph-analytics-ai-platform
+   ```
+
+2. Ensure `.env` has your credentials:
+   - ArangoDB connection (either naming scheme is fine):
+     - `ARANGO_URL` (or `ARANGO_ENDPOINT`)
+     - `ARANGO_DATABASE`
+     - `ARANGO_USERNAME` (or `ARANGO_USER`)
+     - `ARANGO_PASSWORD`
+   - LLM API keys (OPENROUTER_API_KEY or OPENAI_API_KEY)
+
+3. Verify connection:
+   ```bash
+   python -c "from graph_analytics_ai import db_connection; db_connection.test_connection()"
+   ```
+
+### Key Point
+
+**There is NO web UI for running graph analytics.** You run Python scripts locally. See `HOW_TO_RUN_GRAPH_ANALYTICS.md` for detailed explanation.
+
+---
+
 ## Notes
 
 - `.env` is required for REMOTE connectivity and must not be committed (see `.env.example`).

@@ -1,0 +1,2487 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <title>Protocol Documentation</title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Ubuntu:400,700,400italic"/>
+    <style>
+      body {
+        width: 60em;
+        margin: 1em auto;
+        color: #222;
+        font-family: "Ubuntu", sans-serif;
+        padding-bottom: 4em;
+      }
+
+      h1 {
+        font-weight: normal;
+        border-bottom: 1px solid #aaa;
+        padding-bottom: 0.5ex;
+      }
+
+      h2 {
+        border-bottom: 1px solid #aaa;
+        padding-bottom: 0.5ex;
+        margin: 1.5em 0;
+      }
+
+      h3 {
+        font-weight: normal;
+        border-bottom: 1px solid #aaa;
+        padding-bottom: 0.5ex;
+      }
+
+      a {
+        text-decoration: none;
+        color: #567e25;
+      }
+
+      table {
+        width: 100%;
+        font-size: 80%;
+        border-collapse: collapse;
+      }
+
+      thead {
+        font-weight: 700;
+        background-color: #dcdcdc;
+      }
+
+      tbody tr:nth-child(even) {
+        background-color: #fbfbfb;
+      }
+
+      td {
+        border: 1px solid #ccc;
+        padding: 0.5ex 2ex;
+      }
+
+      td p {
+        text-indent: 1em;
+        margin: 0;
+      }
+
+      td p:nth-child(1) {
+        text-indent: 0;  
+      }
+
+       
+      .field-table td:nth-child(1) {  
+        width: 10em;
+      }
+      .field-table td:nth-child(2) {  
+        width: 10em;
+      }
+      .field-table td:nth-child(3) {  
+        width: 6em;
+      }
+      .field-table td:nth-child(4) {  
+        width: auto;
+      }
+
+       
+      .extension-table td:nth-child(1) {  
+        width: 10em;
+      }
+      .extension-table td:nth-child(2) {  
+        width: 10em;
+      }
+      .extension-table td:nth-child(3) {  
+        width: 10em;
+      }
+      .extension-table td:nth-child(4) {  
+        width: 5em;
+      }
+      .extension-table td:nth-child(5) {  
+        width: auto;
+      }
+
+       
+      .enum-table td:nth-child(1) {  
+        width: 10em;
+      }
+      .enum-table td:nth-child(2) {  
+        width: 10em;
+      }
+      .enum-table td:nth-child(3) {  
+        width: auto;
+      }
+
+       
+      .scalar-value-types-table tr {
+        height: 3em;
+      }
+
+       
+      #toc-container ul {
+        list-style-type: none;
+        padding-left: 1em;
+        line-height: 180%;
+        margin: 0;
+      }
+      #toc > li > a {
+        font-weight: bold;
+      }
+
+       
+      .file-heading {
+        width: 100%;
+        display: table;
+        border-bottom: 1px solid #aaa;
+        margin: 4em 0 1.5em 0;
+      }
+      .file-heading h2 {
+        border: none;
+        display: table-cell;
+      }
+      .file-heading a {
+        text-align: right;
+        display: table-cell;
+      }
+
+       
+      .badge {
+        width: 1.6em;
+        height: 1.6em;
+        display: inline-block;
+
+        line-height: 1.6em;
+        text-align: center;
+        font-weight: bold;
+        font-size: 60%;
+
+        color: #89ba48;
+        background-color: #dff0c8;
+
+        margin: 0.5ex 1em 0.5ex -1em;
+        border: 1px solid #fbfbfb;
+        border-radius: 1ex;
+      }
+    </style>
+
+    
+    <link rel="stylesheet" type="text/css" href="stylesheet.css"/>
+  </head>
+
+  <body>
+
+    <h1 id="title">Protocol Documentation</h1>
+
+    <h2>Table of Contents</h2>
+
+    <div id="toc-container">
+      <ul id="toc">
+        
+          
+          <li>
+            <a href="#proto%2fgraphanalyticsengine.proto">proto/graphanalyticsengine.proto</a>
+            <ul>
+              
+                <li>
+                  <a href="#arangodb.cloud.internal.graphanalytics.v1.AqlQuery"><span class="badge">M</span>AqlQuery</a>
+                </li>
+              
+                <li>
+                  <a href="#arangodb.cloud.internal.graphanalytics.v1.AqlQuery.BindVarsEntry"><span class="badge">M</span>AqlQuery.BindVarsEntry</a>
+                </li>
+              
+                <li>
+                  <a href="#arangodb.cloud.internal.graphanalytics.v1.AqlQueryGroup"><span class="badge">M</span>AqlQueryGroup</a>
+                </li>
+              
+                <li>
+                  <a href="#arangodb.cloud.internal.graphanalytics.v1.DataItem"><span class="badge">M</span>DataItem</a>
+                </li>
+              
+                <li>
+                  <a href="#arangodb.cloud.internal.graphanalytics.v1.Empty"><span class="badge">M</span>Empty</a>
+                </li>
+              
+                <li>
+                  <a href="#arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineAggregateComponentsRequest"><span class="badge">M</span>GraphAnalyticsEngineAggregateComponentsRequest</a>
+                </li>
+              
+                <li>
+                  <a href="#arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineAttributePropagationRequest"><span class="badge">M</span>GraphAnalyticsEngineAttributePropagationRequest</a>
+                </li>
+              
+                <li>
+                  <a href="#arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineBetweennessCentralityRequest"><span class="badge">M</span>GraphAnalyticsEngineBetweennessCentralityRequest</a>
+                </li>
+              
+                <li>
+                  <a href="#arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineDeleteGraphResponse"><span class="badge">M</span>GraphAnalyticsEngineDeleteGraphResponse</a>
+                </li>
+              
+                <li>
+                  <a href="#arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineDeleteJobResponse"><span class="badge">M</span>GraphAnalyticsEngineDeleteJobResponse</a>
+                </li>
+              
+                <li>
+                  <a href="#arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineErrorResponse"><span class="badge">M</span>GraphAnalyticsEngineErrorResponse</a>
+                </li>
+              
+                <li>
+                  <a href="#arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineGetGraphResponse"><span class="badge">M</span>GraphAnalyticsEngineGetGraphResponse</a>
+                </li>
+              
+                <li>
+                  <a href="#arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineGraph"><span class="badge">M</span>GraphAnalyticsEngineGraph</a>
+                </li>
+              
+                <li>
+                  <a href="#arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineGraphId"><span class="badge">M</span>GraphAnalyticsEngineGraphId</a>
+                </li>
+              
+                <li>
+                  <a href="#arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineJob"><span class="badge">M</span>GraphAnalyticsEngineJob</a>
+                </li>
+              
+                <li>
+                  <a href="#arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineJobId"><span class="badge">M</span>GraphAnalyticsEngineJobId</a>
+                </li>
+              
+                <li>
+                  <a href="#arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineLabelPropagationRequest"><span class="badge">M</span>GraphAnalyticsEngineLabelPropagationRequest</a>
+                </li>
+              
+                <li>
+                  <a href="#arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineLineRankRequest"><span class="badge">M</span>GraphAnalyticsEngineLineRankRequest</a>
+                </li>
+              
+                <li>
+                  <a href="#arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineListGraphsResponse"><span class="badge">M</span>GraphAnalyticsEngineListGraphsResponse</a>
+                </li>
+              
+                <li>
+                  <a href="#arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineListJobsResponse"><span class="badge">M</span>GraphAnalyticsEngineListJobsResponse</a>
+                </li>
+              
+                <li>
+                  <a href="#arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineLoadDataAqlRequest"><span class="badge">M</span>GraphAnalyticsEngineLoadDataAqlRequest</a>
+                </li>
+              
+                <li>
+                  <a href="#arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineLoadDataAqlRequest.CustomFieldsEntry"><span class="badge">M</span>GraphAnalyticsEngineLoadDataAqlRequest.CustomFieldsEntry</a>
+                </li>
+              
+                <li>
+                  <a href="#arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineLoadDataRequest"><span class="badge">M</span>GraphAnalyticsEngineLoadDataRequest</a>
+                </li>
+              
+                <li>
+                  <a href="#arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineLoadDataRequest.CustomFieldsEntry"><span class="badge">M</span>GraphAnalyticsEngineLoadDataRequest.CustomFieldsEntry</a>
+                </li>
+              
+                <li>
+                  <a href="#arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineLoadDataResponse"><span class="badge">M</span>GraphAnalyticsEngineLoadDataResponse</a>
+                </li>
+              
+                <li>
+                  <a href="#arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEnginePageRankRequest"><span class="badge">M</span>GraphAnalyticsEnginePageRankRequest</a>
+                </li>
+              
+                <li>
+                  <a href="#arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineProcessResponse"><span class="badge">M</span>GraphAnalyticsEngineProcessResponse</a>
+                </li>
+              
+                <li>
+                  <a href="#arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineShutdownResponse"><span class="badge">M</span>GraphAnalyticsEngineShutdownResponse</a>
+                </li>
+              
+                <li>
+                  <a href="#arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineStoreResultsRequest"><span class="badge">M</span>GraphAnalyticsEngineStoreResultsRequest</a>
+                </li>
+              
+                <li>
+                  <a href="#arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineStoreResultsRequest.CustomFieldsEntry"><span class="badge">M</span>GraphAnalyticsEngineStoreResultsRequest.CustomFieldsEntry</a>
+                </li>
+              
+                <li>
+                  <a href="#arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineStoreResultsRequest.VertexCollectionsEntry"><span class="badge">M</span>GraphAnalyticsEngineStoreResultsRequest.VertexCollectionsEntry</a>
+                </li>
+              
+                <li>
+                  <a href="#arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineStoreResultsResponse"><span class="badge">M</span>GraphAnalyticsEngineStoreResultsResponse</a>
+                </li>
+              
+                <li>
+                  <a href="#arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineWccSccRequest"><span class="badge">M</span>GraphAnalyticsEngineWccSccRequest</a>
+                </li>
+              
+                <li>
+                  <a href="#arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineWccSccRequest.CustomFieldsEntry"><span class="badge">M</span>GraphAnalyticsEngineWccSccRequest.CustomFieldsEntry</a>
+                </li>
+              
+              
+              
+              
+                <li>
+                  <a href="#arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineService"><span class="badge">S</span>GraphAnalyticsEngineService</a>
+                </li>
+              
+            </ul>
+          </li>
+        
+        <li><a href="#scalar-value-types">Scalar Value Types</a></li>
+      </ul>
+    </div>
+
+    
+      
+      <div class="file-heading">
+        <h2 id="proto/graphanalyticsengine.proto">proto/graphanalyticsengine.proto</h2><a href="#title">Top</a>
+      </div>
+      <p>GraphAnalyticsEngineService is an API for interacting with graph analytics engines. Each engine corresponds to a deployment on AG, granting direct database access for loading graphs and storing results. A single database deployment can accommodate multiple graph analytics engines (GAEs).</p><p>Every call, which can take longer to complete, is asynchronous in the sense that it returns a job id and the result can/must be retrieved separately. Please note that these results must be deleted explicitly to free the memory used, since all results are stored in RAM.</p><p>The following trigger asynchronous operations, which might take longer to complete:</p><p><ul></p><p><li> Load a graph from the deployment via two AQL queries (one for vertices, one for edges) [POST]</li></p><p><li> Load a graph via the arangodump protocol [POST]</li></p><p><li> Various calls to start computation jobs [POST]</li></p><p><li> Write back result of computation job to deployment [POST]</li></p><p></ul></p>
+
+      
+        <h3 id="arangodb.cloud.internal.graphanalytics.v1.AqlQuery">AqlQuery</h3>
+        <p>AQL query with bind parameters</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>query</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>AQL query string </p></td>
+                </tr>
+              
+                <tr>
+                  <td>bind_vars</td>
+                  <td><a href="#arangodb.cloud.internal.graphanalytics.v1.AqlQuery.BindVarsEntry">AqlQuery.BindVarsEntry</a></td>
+                  <td>repeated</td>
+                  <td><p>Bind parameters as a map of parameter names to JSON values </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="arangodb.cloud.internal.graphanalytics.v1.AqlQuery.BindVarsEntry">AqlQuery.BindVarsEntry</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>key</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p> </p></td>
+                </tr>
+              
+                <tr>
+                  <td>value</td>
+                  <td><a href="#google.protobuf.Value">google.protobuf.Value</a></td>
+                  <td></td>
+                  <td><p> </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="arangodb.cloud.internal.graphanalytics.v1.AqlQueryGroup">AqlQueryGroup</h3>
+        <p>Group of AQL queries to be executed in parallel</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>queries</td>
+                  <td><a href="#arangodb.cloud.internal.graphanalytics.v1.AqlQuery">AqlQuery</a></td>
+                  <td>repeated</td>
+                  <td><p> </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="arangodb.cloud.internal.graphanalytics.v1.DataItem">DataItem</h3>
+        <p>Data item specification for vertex or edge attributes</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>name</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Attribute name </p></td>
+                </tr>
+              
+                <tr>
+                  <td>data_type</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Data type: &#34;Bool&#34;, &#34;String&#34;, &#34;U64&#34;, &#34;I64&#34;, &#34;F64&#34;, &#34;JSON&#34; </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="arangodb.cloud.internal.graphanalytics.v1.Empty">Empty</h3>
+        <p>Empty input:</p>
+
+        
+
+        
+      
+        <h3 id="arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineAggregateComponentsRequest">GraphAnalyticsEngineAggregateComponentsRequest</h3>
+        <p>Request arguments for GraphAnalyticsEngineRunCompAggregation:</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>graph_id</td>
+                  <td><a href="#uint64">uint64</a></td>
+                  <td></td>
+                  <td><p>Graph ID </p></td>
+                </tr>
+              
+                <tr>
+                  <td>job_id</td>
+                  <td><a href="#uint64">uint64</a></td>
+                  <td></td>
+                  <td><p>Job ID </p></td>
+                </tr>
+              
+                <tr>
+                  <td>aggregation_attribute</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Aggregation attribute: </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineAttributePropagationRequest">GraphAnalyticsEngineAttributePropagationRequest</h3>
+        <p>Request arguments for GraphAnalyticsEngineRunAttributePropagation.</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>graph_id</td>
+                  <td><a href="#uint64">uint64</a></td>
+                  <td></td>
+                  <td><p>Graph ID. This attribute must be given. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>start_label_attribute</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Start label attribute, must be stored in one column of the column
+store of the graph. Use id of vertex if set to &#34;@id&#34;. Values can
+be empty or a string or a list of strings. All other values are
+transformed into a string. This attribute must be given. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>synchronous</td>
+                  <td><a href="#bool">bool</a></td>
+                  <td>optional</td>
+                  <td><p>Flag to indicate whether synchronous (true) or asynchronous label
+propagation is used. The default is asynchronous, i.e. `false`. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>backwards</td>
+                  <td><a href="#bool">bool</a></td>
+                  <td>optional</td>
+                  <td><p>Flag to indicate whether the propagation happens forwards (along the
+directed edges) or backwards (in the opposite direction). The default
+is forwards, i.e. `false`. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>maximum_supersteps</td>
+                  <td><a href="#uint32">uint32</a></td>
+                  <td>optional</td>
+                  <td><p>Maximum number of steps to do, default is 64: </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineBetweennessCentralityRequest">GraphAnalyticsEngineBetweennessCentralityRequest</h3>
+        <p>Request arguments for GraphAnalyticsEngineRunPageRank:</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>graph_id</td>
+                  <td><a href="#uint64">uint64</a></td>
+                  <td></td>
+                  <td><p>Graph ID </p></td>
+                </tr>
+              
+                <tr>
+                  <td>k</td>
+                  <td><a href="#uint64">uint64</a></td>
+                  <td>optional</td>
+                  <td><p>Number of start vertices, use 0 to start from every single vertex
+in the graph for a complete result. 0 is the default. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>undirected</td>
+                  <td><a href="#bool">bool</a></td>
+                  <td>optional</td>
+                  <td><p>Flag, if edges should be used in both directions, default is false: </p></td>
+                </tr>
+              
+                <tr>
+                  <td>normalized</td>
+                  <td><a href="#bool">bool</a></td>
+                  <td>optional</td>
+                  <td><p>Flag, if a normalization with 1/((N-1)*(N-2)) should be applied,
+where N is the size of the largest orbit found. Default is false. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>parallelism</td>
+                  <td><a href="#uint32">uint32</a></td>
+                  <td>optional</td>
+                  <td><p>Number of threads to use: </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineDeleteGraphResponse">GraphAnalyticsEngineDeleteGraphResponse</h3>
+        <p>Response for a delete graph request.</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>graph_id</td>
+                  <td><a href="#uint64">uint64</a></td>
+                  <td></td>
+                  <td><p>ID of graph </p></td>
+                </tr>
+              
+                <tr>
+                  <td>error_code</td>
+                  <td><a href="#int32">int32</a></td>
+                  <td></td>
+                  <td><p>Error code, 0 if no error </p></td>
+                </tr>
+              
+                <tr>
+                  <td>error_message</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Error message, empty if no error </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineDeleteJobResponse">GraphAnalyticsEngineDeleteJobResponse</h3>
+        <p>Response for a delete job request.</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>job_id</td>
+                  <td><a href="#uint64">uint64</a></td>
+                  <td></td>
+                  <td><p>ID of job </p></td>
+                </tr>
+              
+                <tr>
+                  <td>error</td>
+                  <td><a href="#bool">bool</a></td>
+                  <td></td>
+                  <td><p>Error? </p></td>
+                </tr>
+              
+                <tr>
+                  <td>error_code</td>
+                  <td><a href="#int32">int32</a></td>
+                  <td></td>
+                  <td><p>Error code, 0 if no error </p></td>
+                </tr>
+              
+                <tr>
+                  <td>error_message</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Error message, empty if no error </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineErrorResponse">GraphAnalyticsEngineErrorResponse</h3>
+        <p>Generic error</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>error_code</td>
+                  <td><a href="#int32">int32</a></td>
+                  <td></td>
+                  <td><p>Error code, 0 if no error </p></td>
+                </tr>
+              
+                <tr>
+                  <td>error_message</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Error message, empty if no error </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineGetGraphResponse">GraphAnalyticsEngineGetGraphResponse</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>error_code</td>
+                  <td><a href="#int32">int32</a></td>
+                  <td></td>
+                  <td><p>Error code, 0 if no error </p></td>
+                </tr>
+              
+                <tr>
+                  <td>error_message</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Error message, empty if no error </p></td>
+                </tr>
+              
+                <tr>
+                  <td>graph</td>
+                  <td><a href="#arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineGraph">GraphAnalyticsEngineGraph</a></td>
+                  <td></td>
+                  <td><p>The graph </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineGraph">GraphAnalyticsEngineGraph</h3>
+        <p>Description of a graph.</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>graph_id</td>
+                  <td><a href="#uint64">uint64</a></td>
+                  <td></td>
+                  <td><p>ID of graph </p></td>
+                </tr>
+              
+                <tr>
+                  <td>number_of_vertices</td>
+                  <td><a href="#uint64">uint64</a></td>
+                  <td></td>
+                  <td><p>Number of vertices: </p></td>
+                </tr>
+              
+                <tr>
+                  <td>number_of_edges</td>
+                  <td><a href="#uint64">uint64</a></td>
+                  <td></td>
+                  <td><p>Number of edges: </p></td>
+                </tr>
+              
+                <tr>
+                  <td>memory_usage</td>
+                  <td><a href="#uint64">uint64</a></td>
+                  <td></td>
+                  <td><p>Memory usage: </p></td>
+                </tr>
+              
+                <tr>
+                  <td>memory_per_vertex</td>
+                  <td><a href="#uint64">uint64</a></td>
+                  <td></td>
+                  <td><p>Memory usage per vertex: </p></td>
+                </tr>
+              
+                <tr>
+                  <td>memory_per_edge</td>
+                  <td><a href="#uint64">uint64</a></td>
+                  <td></td>
+                  <td><p>Memory usage per edge: </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineGraphId">GraphAnalyticsEngineGraphId</h3>
+        <p>ID of an engine and id of a graph</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>graph_id</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Graph ID (for path) </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineJob">GraphAnalyticsEngineJob</h3>
+        <p>Description of a job.</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>job_id</td>
+                  <td><a href="#uint64">uint64</a></td>
+                  <td></td>
+                  <td><p>ID of the current job </p></td>
+                </tr>
+              
+                <tr>
+                  <td>graph_id</td>
+                  <td><a href="#uint64">uint64</a></td>
+                  <td></td>
+                  <td><p>Graph of the current job </p></td>
+                </tr>
+              
+                <tr>
+                  <td>total</td>
+                  <td><a href="#uint32">uint32</a></td>
+                  <td></td>
+                  <td><p>Total progress. Guaranteed to be positive, but could be 1 </p></td>
+                </tr>
+              
+                <tr>
+                  <td>progress</td>
+                  <td><a href="#uint32">uint32</a></td>
+                  <td></td>
+                  <td><p>Progress (0: no progress, equal to total: ready) </p></td>
+                </tr>
+              
+                <tr>
+                  <td>error</td>
+                  <td><a href="#bool">bool</a></td>
+                  <td></td>
+                  <td><p>Error flag </p></td>
+                </tr>
+              
+                <tr>
+                  <td>error_code</td>
+                  <td><a href="#int32">int32</a></td>
+                  <td></td>
+                  <td><p>Error code </p></td>
+                </tr>
+              
+                <tr>
+                  <td>error_message</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Error message </p></td>
+                </tr>
+              
+                <tr>
+                  <td>source_job</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Optional source job </p></td>
+                </tr>
+              
+                <tr>
+                  <td>comp_type</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Computation type: </p></td>
+                </tr>
+              
+                <tr>
+                  <td>memory_usage</td>
+                  <td><a href="#uint64">uint64</a></td>
+                  <td></td>
+                  <td><p>Memory usage: </p></td>
+                </tr>
+              
+                <tr>
+                  <td>runtime_in_microseconds</td>
+                  <td><a href="#uint64">uint64</a></td>
+                  <td></td>
+                  <td><p>Runtime of job in microseconds </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineJobId">GraphAnalyticsEngineJobId</h3>
+        <p>ID of an engine and id of a job</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>job_id</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Graph ID (for path) </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineLabelPropagationRequest">GraphAnalyticsEngineLabelPropagationRequest</h3>
+        <p>Request arguments for GraphAnalyticsEngineRunLabelPropagation.</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>graph_id</td>
+                  <td><a href="#uint64">uint64</a></td>
+                  <td></td>
+                  <td><p>Graph ID </p></td>
+                </tr>
+              
+                <tr>
+                  <td>start_label_attribute</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Start label attribute, must be stored in one column of the column
+store of the graph. Use id of vertex if set to &#34;@id&#34;. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>synchronous</td>
+                  <td><a href="#bool">bool</a></td>
+                  <td>optional</td>
+                  <td><p>Flag to indicate whether synchronous (true) or asynchronous label
+propagation is used (default is false): </p></td>
+                </tr>
+              
+                <tr>
+                  <td>random_tiebreak</td>
+                  <td><a href="#bool">bool</a></td>
+                  <td>optional</td>
+                  <td><p>Flag indicating if ties in the label choice are broken randomly
+(uniform distribution) or deterministically (smallest label amongst
+the most frequent ones), default is false: </p></td>
+                </tr>
+              
+                <tr>
+                  <td>maximum_supersteps</td>
+                  <td><a href="#uint32">uint32</a></td>
+                  <td>optional</td>
+                  <td><p>Maximum number of steps to do, default is 64: </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineLineRankRequest">GraphAnalyticsEngineLineRankRequest</h3>
+        <p>Request arguments for GraphAnalyticsEngineRunLineRank:</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>graph_id</td>
+                  <td><a href="#uint64">uint64</a></td>
+                  <td></td>
+                  <td><p>Graph ID </p></td>
+                </tr>
+              
+                <tr>
+                  <td>damping_factor</td>
+                  <td><a href="#double">double</a></td>
+                  <td>optional</td>
+                  <td><p>Damping factor, default is 0.85: </p></td>
+                </tr>
+              
+                <tr>
+                  <td>maximum_supersteps</td>
+                  <td><a href="#uint32">uint32</a></td>
+                  <td>optional</td>
+                  <td><p>Maximal number of supersteps, default is 64: </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineListGraphsResponse">GraphAnalyticsEngineListGraphsResponse</h3>
+        <p>Response arguments from GraphAnalticsEngineListGraphs.</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>error_code</td>
+                  <td><a href="#int32">int32</a></td>
+                  <td></td>
+                  <td><p>Error code, 0 if no error </p></td>
+                </tr>
+              
+                <tr>
+                  <td>error_message</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Error message, empty if no error </p></td>
+                </tr>
+              
+                <tr>
+                  <td>graphs</td>
+                  <td><a href="#arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineGraph">GraphAnalyticsEngineGraph</a></td>
+                  <td>repeated</td>
+                  <td><p>The graphs </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineListJobsResponse">GraphAnalyticsEngineListJobsResponse</h3>
+        <p>Response arguments from GraphAnalyticsEngineListJobs.</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>error_code</td>
+                  <td><a href="#int32">int32</a></td>
+                  <td></td>
+                  <td><p>Error code, 0 if no error </p></td>
+                </tr>
+              
+                <tr>
+                  <td>error_message</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Error message, empty if no error </p></td>
+                </tr>
+              
+                <tr>
+                  <td>jobs</td>
+                  <td><a href="#arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineJob">GraphAnalyticsEngineJob</a></td>
+                  <td>repeated</td>
+                  <td><p>The graphs </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineLoadDataAqlRequest">GraphAnalyticsEngineLoadDataAqlRequest</h3>
+        <p>Request arguments for GraphAnalyticsEngineLoadDataAql.</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>database</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Database to get graph from </p></td>
+                </tr>
+              
+                <tr>
+                  <td>vertex_attributes</td>
+                  <td><a href="#arangodb.cloud.internal.graphanalytics.v1.DataItem">DataItem</a></td>
+                  <td>repeated</td>
+                  <td><p>List of vertex attributes to load with their types (optional) </p></td>
+                </tr>
+              
+                <tr>
+                  <td>edge_attributes</td>
+                  <td><a href="#arangodb.cloud.internal.graphanalytics.v1.DataItem">DataItem</a></td>
+                  <td>repeated</td>
+                  <td><p>List of edge attributes to load with their types (optional) </p></td>
+                </tr>
+              
+                <tr>
+                  <td>phases</td>
+                  <td><a href="#arangodb.cloud.internal.graphanalytics.v1.AqlQueryGroup">AqlQueryGroup</a></td>
+                  <td>repeated</td>
+                  <td><p>AQL queries organized as a list of lists
+Outer list: executed sequentially (phases)
+Inner list: queries executed in parallel
+Each query returns items with format: {&#34;vertices&#34;:[...], &#34;edges&#34;:[...]} </p></td>
+                </tr>
+              
+                <tr>
+                  <td>batch_size</td>
+                  <td><a href="#uint64">uint64</a></td>
+                  <td>optional</td>
+                  <td><p>Optional batch size </p></td>
+                </tr>
+              
+                <tr>
+                  <td>custom_fields</td>
+                  <td><a href="#arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineLoadDataAqlRequest.CustomFieldsEntry">GraphAnalyticsEngineLoadDataAqlRequest.CustomFieldsEntry</a></td>
+                  <td>repeated</td>
+                  <td><p>Map of engine-type specific custom fields (dynamic for this data-load operation) </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineLoadDataAqlRequest.CustomFieldsEntry">GraphAnalyticsEngineLoadDataAqlRequest.CustomFieldsEntry</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>key</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p> </p></td>
+                </tr>
+              
+                <tr>
+                  <td>value</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p> </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineLoadDataRequest">GraphAnalyticsEngineLoadDataRequest</h3>
+        <p>Request arguments for GraphAnalyticsEngineLoadData.</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>database</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Retrieve graph from the specified database </p></td>
+                </tr>
+              
+                <tr>
+                  <td>graph_name</td>
+                  <td><a href="#string">string</a></td>
+                  <td>optional</td>
+                  <td><p>Graph name, this is optional, because one can also use a list of
+vertex and edge collections: </p></td>
+                </tr>
+              
+                <tr>
+                  <td>vertex_collections</td>
+                  <td><a href="#string">string</a></td>
+                  <td>repeated</td>
+                  <td><p>Optional list of vertex collections. Must be set, if the `graph_name`
+is not given, or if data other than the graph topology is to be
+loaded. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>vertex_attributes</td>
+                  <td><a href="#string">string</a></td>
+                  <td>repeated</td>
+                  <td><p>List of attributes to load into the column store for vertices.
+The column store of the graph will contain one column for each
+attribute listed here. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>vertex_attribute_types</td>
+                  <td><a href="#string">string</a></td>
+                  <td>repeated</td>
+                  <td><p>Types for the vertex attributes. These values are allowed:
+ - &#34;string&#34;
+ - &#34;float&#34;
+ - &#34;integer&#34;
+ - &#34;unsigned&#34; </p></td>
+                </tr>
+              
+                <tr>
+                  <td>edge_collections</td>
+                  <td><a href="#string">string</a></td>
+                  <td>repeated</td>
+                  <td><p>List of edge collections. Must be set, if `graph_name` is not given. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>parallelism</td>
+                  <td><a href="#uint32">uint32</a></td>
+                  <td>optional</td>
+                  <td><p>Optional numeric value for thread parallelism. This is currently used
+in four places. One is the number of async jobs launched to get data,
+another is the number of threads to be launched to synchronously
+work on incoming data. The third is the number of threads used
+on each DBServer to produce data. And the fourth is the length of
+the prefetch queue on DBServers. Potentially, we want to allow
+more arguments to be able to fine tune this better. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>batch_size</td>
+                  <td><a href="#uint64">uint64</a></td>
+                  <td>optional</td>
+                  <td><p>Optional batch size </p></td>
+                </tr>
+              
+                <tr>
+                  <td>custom_fields</td>
+                  <td><a href="#arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineLoadDataRequest.CustomFieldsEntry">GraphAnalyticsEngineLoadDataRequest.CustomFieldsEntry</a></td>
+                  <td>repeated</td>
+                  <td><p>Map of engine-type specific custom fields (dynamic for this data-load operation) </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineLoadDataRequest.CustomFieldsEntry">GraphAnalyticsEngineLoadDataRequest.CustomFieldsEntry</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>key</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p> </p></td>
+                </tr>
+              
+                <tr>
+                  <td>value</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p> </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineLoadDataResponse">GraphAnalyticsEngineLoadDataResponse</h3>
+        <p>Response arguments from GraphAnalyticsEngineLoadData.</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>job_id</td>
+                  <td><a href="#uint64">uint64</a></td>
+                  <td></td>
+                  <td><p>ID of the load data operation </p></td>
+                </tr>
+              
+                <tr>
+                  <td>graph_id</td>
+                  <td><a href="#uint64">uint64</a></td>
+                  <td></td>
+                  <td><p>Graph ID </p></td>
+                </tr>
+              
+                <tr>
+                  <td>error_code</td>
+                  <td><a href="#int32">int32</a></td>
+                  <td></td>
+                  <td><p>Error code, 0 if no error </p></td>
+                </tr>
+              
+                <tr>
+                  <td>error_message</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Error message, empty if no error </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEnginePageRankRequest">GraphAnalyticsEnginePageRankRequest</h3>
+        <p>Request arguments for GraphAnalyticsEngineRunPageRank:</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>graph_id</td>
+                  <td><a href="#uint64">uint64</a></td>
+                  <td></td>
+                  <td><p>Graph ID </p></td>
+                </tr>
+              
+                <tr>
+                  <td>damping_factor</td>
+                  <td><a href="#double">double</a></td>
+                  <td>optional</td>
+                  <td><p>Damping factor, default is 0.85: </p></td>
+                </tr>
+              
+                <tr>
+                  <td>maximum_supersteps</td>
+                  <td><a href="#uint32">uint32</a></td>
+                  <td>optional</td>
+                  <td><p>Maximal number of supersteps, default is 64: </p></td>
+                </tr>
+              
+                <tr>
+                  <td>seeding_attribute</td>
+                  <td><a href="#string">string</a></td>
+                  <td>optional</td>
+                  <td><p>optional seeding attribute for a seeded pagerank, default is empty
+for none: </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineProcessResponse">GraphAnalyticsEngineProcessResponse</h3>
+        <p>Response arguments from GraphAnalyticsEngineProcess.</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>job_id</td>
+                  <td><a href="#uint64">uint64</a></td>
+                  <td></td>
+                  <td><p>ID of the job </p></td>
+                </tr>
+              
+                <tr>
+                  <td>error_code</td>
+                  <td><a href="#int32">int32</a></td>
+                  <td></td>
+                  <td><p>Error code, 0 if no error </p></td>
+                </tr>
+              
+                <tr>
+                  <td>error_message</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Error message, empty if no error </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineShutdownResponse">GraphAnalyticsEngineShutdownResponse</h3>
+        <p>Response for a shutdown request.</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>error</td>
+                  <td><a href="#bool">bool</a></td>
+                  <td></td>
+                  <td><p>Error? </p></td>
+                </tr>
+              
+                <tr>
+                  <td>error_code</td>
+                  <td><a href="#int32">int32</a></td>
+                  <td></td>
+                  <td><p>Error code, 0 if no error </p></td>
+                </tr>
+              
+                <tr>
+                  <td>error_message</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Error message, empty if no error </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineStoreResultsRequest">GraphAnalyticsEngineStoreResultsRequest</h3>
+        <p>Request arguments for GraphAnalyticsEngineStoreResults.</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>job_ids</td>
+                  <td><a href="#uint64">uint64</a></td>
+                  <td>repeated</td>
+                  <td><p>ID of the jobs of which results are written </p></td>
+                </tr>
+              
+                <tr>
+                  <td>attribute_names</td>
+                  <td><a href="#string">string</a></td>
+                  <td>repeated</td>
+                  <td><p>Attribute names to write results to </p></td>
+                </tr>
+              
+                <tr>
+                  <td>database</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Database in ArangoDB to use: </p></td>
+                </tr>
+              
+                <tr>
+                  <td>vertex_collections</td>
+                  <td><a href="#arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineStoreResultsRequest.VertexCollectionsEntry">GraphAnalyticsEngineStoreResultsRequest.VertexCollectionsEntry</a></td>
+                  <td>repeated</td>
+                  <td><p>The following map maps collection names as found in the
+_id entries of vertices to the collections into which
+the result data should be written. The list of fields
+is the attributes into which the result is written.
+An insert operation with overwritemode &#34;update&#34; is used. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>parallelism</td>
+                  <td><a href="#uint32">uint32</a></td>
+                  <td>optional</td>
+                  <td><p>Optional numeric value for thread parallelism </p></td>
+                </tr>
+              
+                <tr>
+                  <td>batch_size</td>
+                  <td><a href="#uint64">uint64</a></td>
+                  <td>optional</td>
+                  <td><p>Optional batch size </p></td>
+                </tr>
+              
+                <tr>
+                  <td>target_collection</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Target collection for non-graph results: </p></td>
+                </tr>
+              
+                <tr>
+                  <td>custom_fields</td>
+                  <td><a href="#arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineStoreResultsRequest.CustomFieldsEntry">GraphAnalyticsEngineStoreResultsRequest.CustomFieldsEntry</a></td>
+                  <td>repeated</td>
+                  <td><p>Map of engine-type specific custom fields (dynamic for this
+store-results operation) </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineStoreResultsRequest.CustomFieldsEntry">GraphAnalyticsEngineStoreResultsRequest.CustomFieldsEntry</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>key</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p> </p></td>
+                </tr>
+              
+                <tr>
+                  <td>value</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p> </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineStoreResultsRequest.VertexCollectionsEntry">GraphAnalyticsEngineStoreResultsRequest.VertexCollectionsEntry</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>key</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p> </p></td>
+                </tr>
+              
+                <tr>
+                  <td>value</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p> </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineStoreResultsResponse">GraphAnalyticsEngineStoreResultsResponse</h3>
+        <p>Response arguments from GraphAnalyticsEngineStoreResults.</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>job_id</td>
+                  <td><a href="#uint64">uint64</a></td>
+                  <td></td>
+                  <td><p>ID of the store results operation </p></td>
+                </tr>
+              
+                <tr>
+                  <td>error_code</td>
+                  <td><a href="#int32">int32</a></td>
+                  <td></td>
+                  <td><p>Error code, 0 if no error </p></td>
+                </tr>
+              
+                <tr>
+                  <td>error_message</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Error message, empty if no error </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineWccSccRequest">GraphAnalyticsEngineWccSccRequest</h3>
+        <p>Request arguments for WCC or SCC:</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>graph_id</td>
+                  <td><a href="#uint64">uint64</a></td>
+                  <td></td>
+                  <td><p>Graph ID </p></td>
+                </tr>
+              
+                <tr>
+                  <td>custom_fields</td>
+                  <td><a href="#arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineWccSccRequest.CustomFieldsEntry">GraphAnalyticsEngineWccSccRequest.CustomFieldsEntry</a></td>
+                  <td>repeated</td>
+                  <td><p>Map of engine-type and algorithm-type specific custom fields (dynamic
+for this process operation) </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineWccSccRequest.CustomFieldsEntry">GraphAnalyticsEngineWccSccRequest.CustomFieldsEntry</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>key</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p> </p></td>
+                </tr>
+              
+                <tr>
+                  <td>value</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p> </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+
+      
+
+      
+
+      
+        <h3 id="arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineService">GraphAnalyticsEngineService</h3>
+        <p></p>
+        <table class="enum-table">
+          <thead>
+            <tr><td>Method Name</td><td>Request Type</td><td>Response Type</td><td>Description</td></tr>
+          </thead>
+          <tbody>
+            
+              <tr>
+                <td>GraphAnalyticsEngineLoadData</td>
+                <td><a href="#arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineLoadDataRequest">GraphAnalyticsEngineLoadDataRequest</a></td>
+                <td><a href="#arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineLoadDataResponse">GraphAnalyticsEngineLoadDataResponse</a></td>
+                <td><p>This API call fetches data from the deployment and loads it into memory
+of the engine for later processing. One can either use a named graph
+or a list of vertex collections and a list of edge collections.
+Currently, the API call always loads all vertices and edges from these
+collections. However, it is possible to select which attribute data
+is loaded alongside the vertices and the edge topology. These
+attribute values are stored into a column store, in which
+each column corresponds to an attribute and has as many rows as there
+are vertices in the graph.
+Each loaded graph will get a numerical ID, with which it can be used
+in computations.
+This is an asynchronous job which returns the job id immediately. Use the GET
+graph API with the returned graph ID to get information on errors and the outcome
+of the loading.</p></td>
+              </tr>
+            
+              <tr>
+                <td>GraphAnalyticsEngineLoadDataAql</td>
+                <td><a href="#arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineLoadDataAqlRequest">GraphAnalyticsEngineLoadDataAqlRequest</a></td>
+                <td><a href="#arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineLoadDataResponse">GraphAnalyticsEngineLoadDataResponse</a></td>
+                <td><p>This API fetches data from the ArangoGraph deployment via AQL and loads it into
+memory of the engine for later processing.
+AQL-based graph loading provides a flexible way to load subgraphs from ArangoDB
+using custom AQL queries. This approach is particularly well-suited for:
+&lt;ul&gt;
+&lt;li&gt;Loading relatively small subgraphs&lt;/li&gt;
+&lt;li&gt;Using indexes or traversals to find the right subgraph&lt;/li&gt;
+&lt;li&gt;Applying complex filtering conditions to vertices and edges&lt;/li&gt;
+&lt;li&gt;Executing graph traversals to define the subgraph&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Graph Loading Specification&lt;/p&gt;
+
+&lt;p&gt;A &#34;graph loading specification&#34; is essentially list (&#34;phases&#34;) of lists (&#34;queries&#34;)
+of AQL queries, where each query is a pair of a query string and
+a map of bind parameters. The specification has the following
+semantics:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;The **outer list** is executed **sequentially**&lt;/li&gt;
+&lt;li&gt;Each **inner list** contains queries that can be executed **in parallel**&lt;/li&gt;
+&lt;li&gt;Each query must return items in the following format:&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;
+{&#34;vertices&#34;:[...], &#34;edges&#34;:[...]}
+&lt;/pre&gt;
+
+&lt;p&gt;Both `vertices` and `edges` attributes are optional.
+&lt;ul&gt;
+&lt;li&gt;Vertex entries must contain at least an `_id` attribute&lt;/li&gt;
+&lt;li&gt;Edge entries must contain at least `_from` and `_to` attributes&lt;/li&gt;
+&lt;li&gt;Edge values can be `null` and will be silently ignored (useful for traversal start nodes)&lt;/li&gt;
+&lt;/p&gt;
+
+&lt;p&gt;Furthermore, one can specify a list of attributes for vertices (&#34;vertex_attributes&#34;) and
+edges (&#34;edge_attributes&#34;)to be loaded.
+For this list, one has to give the name as well as the type of the attribute.
+If the query does not return the right type, a default value will be used, so that
+the graph analytics engine can handle the data in a type-safe manner.
+&lt;/p&gt;</p></td>
+              </tr>
+            
+              <tr>
+                <td>GraphAnalyticsEngineRunWcc</td>
+                <td><a href="#arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineWccSccRequest">GraphAnalyticsEngineWccSccRequest</a></td>
+                <td><a href="#arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineProcessResponse">GraphAnalyticsEngineProcessResponse</a></td>
+                <td><p>Process a previously loaded graph with the weakly connected
+components algorithm (WCC) and store the results in-memory. This
+essentially means that the direction of edges is ignored and then
+the connected components of the undirected graph are computed. The
+computation will return a numerical job id, with which
+the results can later be queried or written back to the database.
+This is an asynchronous job which returns the job id immediately. Use the GET
+job API with the job id to get information on progress, errors and
+the outcome of the computation.</p></td>
+              </tr>
+            
+              <tr>
+                <td>GraphAnalyticsEngineRunScc</td>
+                <td><a href="#arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineWccSccRequest">GraphAnalyticsEngineWccSccRequest</a></td>
+                <td><a href="#arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineProcessResponse">GraphAnalyticsEngineProcessResponse</a></td>
+                <td><p>Process a previously loaded graph with the strongly connected
+components algorithm (SCC) and store the results in-memory. This means
+that the direction of the edges is taken into account and two vertices
+A and B will be in the same strongly connected component if and
+only if there is a directed path from A to B and from B to A. The
+computation will return a numerical job id, with which
+the results can later be queried or written back to the database.
+This is an asynchronous job which returns the job id immediately.
+Use the GET job API with the job id to get information on
+progress, errors and the outcome of the computation.</p></td>
+              </tr>
+            
+              <tr>
+                <td>GraphAnalyticsEngineRunCompAggregation</td>
+                <td><a href="#arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineAggregateComponentsRequest">GraphAnalyticsEngineAggregateComponentsRequest</a></td>
+                <td><a href="#arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineProcessResponse">GraphAnalyticsEngineProcessResponse</a></td>
+                <td><p>Process a previously loaded graph and a computation which
+has computed connected components (weakly or strongly) by aggregating
+some vertex data over each component found. The result will be one
+distribution map for each connected component. It is stored in memory.
+The computation will return a numerical job id, with which the
+results can later be queried or written back to the database.
+This is an asynchronous job which returns the job id immediately.
+Use the GET job API with the job id to get information on
+progress, errors and the outcome of the computation.</p></td>
+              </tr>
+            
+              <tr>
+                <td>GraphAnalyticsEngineRunPageRank</td>
+                <td><a href="#arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEnginePageRankRequest">GraphAnalyticsEnginePageRankRequest</a></td>
+                <td><a href="#arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineProcessResponse">GraphAnalyticsEngineProcessResponse</a></td>
+                <td><p>Process a previously loaded graph with the pagerank
+algorithm and store the results in-memory. There are some parameters
+controlling the computation like the damping factor and the maximal
+number of supersteps. See the input message documentation for details.
+The computation will return a numerical job id, with which the
+results can later be queried or written back to the database.
+This is an asynchronous job which returns the job id immediately.
+Use the GET job API with the job id to get information on
+progress, errors and the outcome of the computation.</p></td>
+              </tr>
+            
+              <tr>
+                <td>GraphAnalyticsEngineRunIRank</td>
+                <td><a href="#arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEnginePageRankRequest">GraphAnalyticsEnginePageRankRequest</a></td>
+                <td><a href="#arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineProcessResponse">GraphAnalyticsEngineProcessResponse</a></td>
+                <td><p>Process a previously loaded graph with the irank
+algorithm and store the results in-memory. The &#34;irank&#34; algorithms
+is a variant of pagerank, which changes the initial weight of each
+vertex. Rather than being 1/N where N is the number of vertices,
+the value is here different depending on from which vertex collection
+the vertex comes. If V is from vertex collection C and N is the number
+of vertices in C, then the initial weight of V is 1/N.
+As with pagerank, the total sum of ranks stays the same as an
+invariant of the algorithm.
+There are some parameters controlling the computation like the
+damping factor and the maximal number of supersteps. See the
+input message documentation for details. The computation will
+return a numerical job id, with which the results can later be
+queried or written back to the database.
+This is an asynchronous job which returns the job id immediately.
+Use the GET job API with the job id to get information on
+progress, errors and the outcome of the computation.</p></td>
+              </tr>
+            
+              <tr>
+                <td>GraphAnalyticsEngineRunLabelPropagation</td>
+                <td><a href="#arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineLabelPropagationRequest">GraphAnalyticsEngineLabelPropagationRequest</a></td>
+                <td><a href="#arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineProcessResponse">GraphAnalyticsEngineProcessResponse</a></td>
+                <td><p>Process a previously loaded graph with the label
+propagation algorithm and store the results in-memory. There are
+some parameters controlling the computation like the name of the
+attribute to choose the start label from, a flag to indicate
+if the synchronous or the asynchronous variant is used and the
+maximal number of supersteps. See the input message documentation
+for details. The computation will return a numerical job id, with
+which the results can later be queried or written back to the
+database. This is an asynchronous job which returns the job id
+immediately. Use the GET job API with the job id to get
+information on progress, errors and the outcome of the
+computation.</p></td>
+              </tr>
+            
+              <tr>
+                <td>GraphAnalyticsEngineRunAttributePropagation</td>
+                <td><a href="#arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineAttributePropagationRequest">GraphAnalyticsEngineAttributePropagationRequest</a></td>
+                <td><a href="#arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineProcessResponse">GraphAnalyticsEngineProcessResponse</a></td>
+                <td><p>Process a previously loaded graph with the attribute
+propagation algorithm and store the results in-memory.
+The algorithm basically reads a list of labels from a column for each
+vertex (see the loaddata operation, for which one can configure
+which attributes are loaded into the column store).
+The value can be empty or a string or a list of strings
+and the set of labels for each vertex is initialized accordingly. The
+algorithm will then simply propagate each label in each label set
+along the edges to all reachable vertices and thus compute a new
+set of labels. After a specified maximal number of steps or if no
+label set changes any more the algorithm stops.
+
+BEWARE: If there are many labels in the system and the graph is
+well-connected then the result can be huge!
+
+There are some parameters controlling the computation like the
+name of the attribute to choose the start label from, whether
+the synchronous or the asynchronous variant is to be used, if
+we propagate along the the edges forwards or backwards and the
+maximal number of supersteps. See the input message documentation
+for details. The computation will return a numerical job id,
+with which the results can later be queried or written back
+to the database. This is an asynchronous job which returns
+the job id immediately. Use the GET job API with the job id to
+get information on progress, errors and the outcome of the
+computation.</p></td>
+              </tr>
+            
+              <tr>
+                <td>GraphAnalyticsEngineRunBetweennessCentrality</td>
+                <td><a href="#arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineBetweennessCentralityRequest">GraphAnalyticsEngineBetweennessCentralityRequest</a></td>
+                <td><a href="#arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineProcessResponse">GraphAnalyticsEngineProcessResponse</a></td>
+                <td><p>Process a previously loaded graph with the betweenness-centrality
+algorithm and store the results in-memory.
+See https://snap.stanford.edu/class/cs224w-readings/brandes01centrality.pdf for details.
+There are some parameters
+controlling the computation like the number of start vertices, the
+question as to whether edges should be followed in both directions,
+and whether or not a normalization is done.
+See the input message documentation for details.
+The computation will return a numerical job id, with which the
+results can later be queried or written back to the database.
+This is an asynchronous job which returns the job id immediately.
+Use the GET job API with the job id to get information on
+progress, errors and the outcome of the computation.</p></td>
+              </tr>
+            
+              <tr>
+                <td>GraphAnalyticsEngineRunLineRank</td>
+                <td><a href="#arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineLineRankRequest">GraphAnalyticsEngineLineRankRequest</a></td>
+                <td><a href="#arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineProcessResponse">GraphAnalyticsEngineProcessResponse</a></td>
+                <td><p>Process a previously loaded graph with the linerank
+algorithm and store the results in-memory.
+The algorithm measures the importance of a vertex by aggregating
+the importance of its incident edges. This represents the amount
+of information that flows through the vertex, therefore the
+result of this algorithm can be taken as an approximation for
+betweenness centrality, which is much more computation-intensive.
+The edge importance is computed by the probability that a random
+walker, visiting edges via vertices with random restarts, will
+stay at the edge.</p></td>
+              </tr>
+            
+              <tr>
+                <td>GraphAnalyticsEngineStoreResults</td>
+                <td><a href="#arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineStoreResultsRequest">GraphAnalyticsEngineStoreResultsRequest</a></td>
+                <td><a href="#arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineStoreResultsResponse">GraphAnalyticsEngineStoreResultsResponse</a></td>
+                <td><p>Stores the results from previous jobs into the deployment.
+One can specify a number of job ids but the requirement is that
+they produce the same number of results. For example, results from
+different algorithms which produce one result per vertex can be
+written to the database together. The target collection must already
+exist and must be writable. The job produces one document per result
+and one can prescribe which attribute names should be used for which
+result.
+There are some parameters controlling the computation. See
+the input message description for details. The computation
+will return a numerical job id, with which the progress can
+be monitored. This is an asynchronous job which returns the
+job id immediately. Use the GET job API with the job id to get
+information on progress, errors and the outcome of the job.</p></td>
+              </tr>
+            
+              <tr>
+                <td>GraphAnalyticsEngineListGraphs</td>
+                <td><a href="#arangodb.cloud.internal.graphanalytics.v1.Empty">Empty</a></td>
+                <td><a href="#arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineListGraphsResponse">GraphAnalyticsEngineListGraphsResponse</a></td>
+                <td><p>List the graphs in the engine.</p></td>
+              </tr>
+            
+              <tr>
+                <td>GraphAnalyticsEngineGetGraph</td>
+                <td><a href="#arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineGraphId">GraphAnalyticsEngineGraphId</a></td>
+                <td><a href="#arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineGetGraphResponse">GraphAnalyticsEngineGetGraphResponse</a></td>
+                <td><p>Get information about a specific graph.</p></td>
+              </tr>
+            
+              <tr>
+                <td>GraphAnalyticsEngineDeleteGraph</td>
+                <td><a href="#arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineGraphId">GraphAnalyticsEngineGraphId</a></td>
+                <td><a href="#arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineDeleteGraphResponse">GraphAnalyticsEngineDeleteGraphResponse</a></td>
+                <td><p>Delete a specific graph from memory.</p></td>
+              </tr>
+            
+              <tr>
+                <td>GraphAnalyticsEngineListJobs</td>
+                <td><a href="#arangodb.cloud.internal.graphanalytics.v1.Empty">Empty</a></td>
+                <td><a href="#arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineListJobsResponse">GraphAnalyticsEngineListJobsResponse</a></td>
+                <td><p>List the jobs in the engine (loading, computing or storing).</p></td>
+              </tr>
+            
+              <tr>
+                <td>GraphAnalyticsEngineGetJob</td>
+                <td><a href="#arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineJobId">GraphAnalyticsEngineJobId</a></td>
+                <td><a href="#arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineJob">GraphAnalyticsEngineJob</a></td>
+                <td><p>Get information about a specific job (in particular progress and result when done).</p></td>
+              </tr>
+            
+              <tr>
+                <td>GraphAnalyticsEngineDeleteJob</td>
+                <td><a href="#arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineJobId">GraphAnalyticsEngineJobId</a></td>
+                <td><a href="#arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineDeleteJobResponse">GraphAnalyticsEngineDeleteJobResponse</a></td>
+                <td><p>Delete a specific job.</p></td>
+              </tr>
+            
+              <tr>
+                <td>GraphAnalticsEngineShutdown</td>
+                <td><a href="#arangodb.cloud.internal.graphanalytics.v1.Empty">Empty</a></td>
+                <td><a href="#arangodb.cloud.internal.graphanalytics.v1.GraphAnalyticsEngineShutdownResponse">GraphAnalyticsEngineShutdownResponse</a></td>
+                <td><p>Shutdown service.</p></td>
+              </tr>
+            
+          </tbody>
+        </table>
+
+        
+          
+          
+          <h4>Methods with HTTP bindings</h4>
+          <table>
+            <thead>
+              <tr>
+                <td>Method Name</td>
+                <td>Method</td>
+                <td>Pattern</td>
+                <td>Body</td>
+              </tr>
+            </thead>
+            <tbody>
+            
+              
+              
+              <tr>
+                <td>GraphAnalyticsEngineLoadData</td>
+                <td>POST</td>
+                <td>/v1/loaddata</td>
+                <td>*</td>
+              </tr>
+              
+            
+              
+              
+              <tr>
+                <td>GraphAnalyticsEngineLoadDataAql</td>
+                <td>POST</td>
+                <td>/v1/loaddataaql</td>
+                <td>*</td>
+              </tr>
+              
+            
+              
+              
+              <tr>
+                <td>GraphAnalyticsEngineRunWcc</td>
+                <td>POST</td>
+                <td>/v1/wcc</td>
+                <td>*</td>
+              </tr>
+              
+            
+              
+              
+              <tr>
+                <td>GraphAnalyticsEngineRunScc</td>
+                <td>POST</td>
+                <td>/v1/scc</td>
+                <td>*</td>
+              </tr>
+              
+            
+              
+              
+              <tr>
+                <td>GraphAnalyticsEngineRunCompAggregation</td>
+                <td>POST</td>
+                <td>/v1/aggregatecomponents</td>
+                <td>*</td>
+              </tr>
+              
+            
+              
+              
+              <tr>
+                <td>GraphAnalyticsEngineRunPageRank</td>
+                <td>POST</td>
+                <td>/v1/pagerank</td>
+                <td>*</td>
+              </tr>
+              
+            
+              
+              
+              <tr>
+                <td>GraphAnalyticsEngineRunIRank</td>
+                <td>POST</td>
+                <td>/v1/irank</td>
+                <td>*</td>
+              </tr>
+              
+            
+              
+              
+              <tr>
+                <td>GraphAnalyticsEngineRunLabelPropagation</td>
+                <td>POST</td>
+                <td>/v1/labelpropagation</td>
+                <td>*</td>
+              </tr>
+              
+            
+              
+              
+              <tr>
+                <td>GraphAnalyticsEngineRunAttributePropagation</td>
+                <td>POST</td>
+                <td>/v1/attributepropagation</td>
+                <td>*</td>
+              </tr>
+              
+            
+              
+              
+              <tr>
+                <td>GraphAnalyticsEngineRunBetweennessCentrality</td>
+                <td>POST</td>
+                <td>/v1/betweennesscentrality</td>
+                <td>*</td>
+              </tr>
+              
+            
+              
+              
+              <tr>
+                <td>GraphAnalyticsEngineRunLineRank</td>
+                <td>POST</td>
+                <td>/v1/linerank</td>
+                <td>*</td>
+              </tr>
+              
+            
+              
+              
+              <tr>
+                <td>GraphAnalyticsEngineStoreResults</td>
+                <td>POST</td>
+                <td>/v1/storeresults</td>
+                <td>*</td>
+              </tr>
+              
+            
+              
+              
+              <tr>
+                <td>GraphAnalyticsEngineListGraphs</td>
+                <td>GET</td>
+                <td>/v1/graphs</td>
+                <td></td>
+              </tr>
+              
+            
+              
+              
+              <tr>
+                <td>GraphAnalyticsEngineGetGraph</td>
+                <td>GET</td>
+                <td>/v1/graphs/{graph_id}</td>
+                <td></td>
+              </tr>
+              
+            
+              
+              
+              <tr>
+                <td>GraphAnalyticsEngineDeleteGraph</td>
+                <td>DELETE</td>
+                <td>/v1/graphs/{graph_id}</td>
+                <td></td>
+              </tr>
+              
+            
+              
+              
+              <tr>
+                <td>GraphAnalyticsEngineListJobs</td>
+                <td>GET</td>
+                <td>/v1/jobs</td>
+                <td></td>
+              </tr>
+              
+            
+              
+              
+              <tr>
+                <td>GraphAnalyticsEngineGetJob</td>
+                <td>GET</td>
+                <td>/v1/jobs/{job_id}</td>
+                <td></td>
+              </tr>
+              
+            
+              
+              
+              <tr>
+                <td>GraphAnalyticsEngineDeleteJob</td>
+                <td>DELETE</td>
+                <td>/v1/jobs/{job_id}</td>
+                <td></td>
+              </tr>
+              
+            
+              
+              
+              <tr>
+                <td>GraphAnalticsEngineShutdown</td>
+                <td>DELETE</td>
+                <td>/v1/shutdown</td>
+                <td></td>
+              </tr>
+              
+            
+            </tbody>
+          </table>
+          
+        
+    
+
+    <h2 id="scalar-value-types">Scalar Value Types</h2>
+    <table class="scalar-value-types-table">
+      <thead>
+        <tr><td>.proto Type</td><td>Notes</td><td>C++</td><td>Java</td><td>Python</td><td>Go</td><td>C#</td><td>PHP</td><td>Ruby</td></tr>
+      </thead>
+      <tbody>
+        
+          <tr id="double">
+            <td>double</td>
+            <td></td>
+            <td>double</td>
+            <td>double</td>
+            <td>float</td>
+            <td>float64</td>
+            <td>double</td>
+            <td>float</td>
+            <td>Float</td>
+          </tr>
+        
+          <tr id="float">
+            <td>float</td>
+            <td></td>
+            <td>float</td>
+            <td>float</td>
+            <td>float</td>
+            <td>float32</td>
+            <td>float</td>
+            <td>float</td>
+            <td>Float</td>
+          </tr>
+        
+          <tr id="int32">
+            <td>int32</td>
+            <td>Uses variable-length encoding. Inefficient for encoding negative numbers – if your field is likely to have negative values, use sint32 instead.</td>
+            <td>int32</td>
+            <td>int</td>
+            <td>int</td>
+            <td>int32</td>
+            <td>int</td>
+            <td>integer</td>
+            <td>Bignum or Fixnum (as required)</td>
+          </tr>
+        
+          <tr id="int64">
+            <td>int64</td>
+            <td>Uses variable-length encoding. Inefficient for encoding negative numbers – if your field is likely to have negative values, use sint64 instead.</td>
+            <td>int64</td>
+            <td>long</td>
+            <td>int/long</td>
+            <td>int64</td>
+            <td>long</td>
+            <td>integer/string</td>
+            <td>Bignum</td>
+          </tr>
+        
+          <tr id="uint32">
+            <td>uint32</td>
+            <td>Uses variable-length encoding.</td>
+            <td>uint32</td>
+            <td>int</td>
+            <td>int/long</td>
+            <td>uint32</td>
+            <td>uint</td>
+            <td>integer</td>
+            <td>Bignum or Fixnum (as required)</td>
+          </tr>
+        
+          <tr id="uint64">
+            <td>uint64</td>
+            <td>Uses variable-length encoding.</td>
+            <td>uint64</td>
+            <td>long</td>
+            <td>int/long</td>
+            <td>uint64</td>
+            <td>ulong</td>
+            <td>integer/string</td>
+            <td>Bignum or Fixnum (as required)</td>
+          </tr>
+        
+          <tr id="sint32">
+            <td>sint32</td>
+            <td>Uses variable-length encoding. Signed int value. These more efficiently encode negative numbers than regular int32s.</td>
+            <td>int32</td>
+            <td>int</td>
+            <td>int</td>
+            <td>int32</td>
+            <td>int</td>
+            <td>integer</td>
+            <td>Bignum or Fixnum (as required)</td>
+          </tr>
+        
+          <tr id="sint64">
+            <td>sint64</td>
+            <td>Uses variable-length encoding. Signed int value. These more efficiently encode negative numbers than regular int64s.</td>
+            <td>int64</td>
+            <td>long</td>
+            <td>int/long</td>
+            <td>int64</td>
+            <td>long</td>
+            <td>integer/string</td>
+            <td>Bignum</td>
+          </tr>
+        
+          <tr id="fixed32">
+            <td>fixed32</td>
+            <td>Always four bytes. More efficient than uint32 if values are often greater than 2^28.</td>
+            <td>uint32</td>
+            <td>int</td>
+            <td>int</td>
+            <td>uint32</td>
+            <td>uint</td>
+            <td>integer</td>
+            <td>Bignum or Fixnum (as required)</td>
+          </tr>
+        
+          <tr id="fixed64">
+            <td>fixed64</td>
+            <td>Always eight bytes. More efficient than uint64 if values are often greater than 2^56.</td>
+            <td>uint64</td>
+            <td>long</td>
+            <td>int/long</td>
+            <td>uint64</td>
+            <td>ulong</td>
+            <td>integer/string</td>
+            <td>Bignum</td>
+          </tr>
+        
+          <tr id="sfixed32">
+            <td>sfixed32</td>
+            <td>Always four bytes.</td>
+            <td>int32</td>
+            <td>int</td>
+            <td>int</td>
+            <td>int32</td>
+            <td>int</td>
+            <td>integer</td>
+            <td>Bignum or Fixnum (as required)</td>
+          </tr>
+        
+          <tr id="sfixed64">
+            <td>sfixed64</td>
+            <td>Always eight bytes.</td>
+            <td>int64</td>
+            <td>long</td>
+            <td>int/long</td>
+            <td>int64</td>
+            <td>long</td>
+            <td>integer/string</td>
+            <td>Bignum</td>
+          </tr>
+        
+          <tr id="bool">
+            <td>bool</td>
+            <td></td>
+            <td>bool</td>
+            <td>boolean</td>
+            <td>boolean</td>
+            <td>bool</td>
+            <td>bool</td>
+            <td>boolean</td>
+            <td>TrueClass/FalseClass</td>
+          </tr>
+        
+          <tr id="string">
+            <td>string</td>
+            <td>A string must always contain UTF-8 encoded or 7-bit ASCII text.</td>
+            <td>string</td>
+            <td>String</td>
+            <td>str/unicode</td>
+            <td>string</td>
+            <td>string</td>
+            <td>string</td>
+            <td>String (UTF-8)</td>
+          </tr>
+        
+          <tr id="bytes">
+            <td>bytes</td>
+            <td>May contain any arbitrary sequence of bytes.</td>
+            <td>string</td>
+            <td>ByteString</td>
+            <td>str</td>
+            <td>[]byte</td>
+            <td>ByteString</td>
+            <td>string</td>
+            <td>String (ASCII-8BIT)</td>
+          </tr>
+        
+      </tbody>
+    </table>
+  </body>
+</html>
+

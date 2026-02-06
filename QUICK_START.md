@@ -17,7 +17,7 @@ The **graph-analytics-ai-platform** now has specialized fraud intelligence capab
 ```python
 # In your fraud-intelligence project, use:
 runner = AgenticWorkflowRunner(
-    graph_name="fraud_intelligence_graph",
+    graph_name="KnowledgeGraph",
     industry="fraud_intelligence"  # ← Activates Indian banking fraud detection
 )
 ```
@@ -94,6 +94,8 @@ LLM_PROVIDER=openrouter
 OPENROUTER_API_KEY=your_key
 ```
 
+Note: this repo’s implemented demo graphs are `KnowledgeGraph` (recommended), `DataGraph`, and `OntologyGraph`.
+
 ### Step 3: Create Your Fraud Detection Script
 
 ```python
@@ -103,7 +105,7 @@ from graph_analytics_ai.ai.agents import AgenticWorkflowRunner
 
 async def main():
     runner = AgenticWorkflowRunner(
-        graph_name="fraud_intelligence_graph",
+        graph_name="KnowledgeGraph",
         industry="fraud_intelligence",  # KEY LINE
         enable_tracing=True
     )
@@ -205,13 +207,13 @@ Before your demo:
 ```python
 # ✅ CORRECT
 runner = AgenticWorkflowRunner(
-    graph_name="fraud_intelligence_graph",
+    graph_name="KnowledgeGraph",
     industry="fraud_intelligence"
 )
 
 # ❌ WRONG (will generate generic insights)
 runner = AgenticWorkflowRunner(
-    graph_name="fraud_intelligence_graph"
+    graph_name="KnowledgeGraph"
     # Missing industry parameter!
 )
 ```

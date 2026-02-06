@@ -1,0 +1,38 @@
+{
+  "service": "gral",
+  "version": "v1.1.3",
+  "proto_file": "graphanalyticsengine.proto",
+  "messages": [
+    "GraphAnalyticsEngineLoadDataRequest",
+    "GraphAnalyticsEngineErrorResponse",
+    "GraphAnalyticsEngineLoadDataResponse",
+    "AqlQuery",
+    "DataItem",
+    "GraphAnalyticsEngineLoadDataAqlRequest",
+    "AqlQueryGroup",
+    "GraphAnalyticsEngineWccSccRequest",
+    "GraphAnalyticsEngineProcessResponse",
+    "GraphAnalyticsEngineAggregateComponentsRequest",
+    "GraphAnalyticsEnginePageRankRequest",
+    "GraphAnalyticsEngineLabelPropagationRequest",
+    "GraphAnalyticsEngineAttributePropagationRequest",
+    "GraphAnalyticsEngineBetweennessCentralityRequest",
+    "GraphAnalyticsEngineLineRankRequest",
+    "GraphAnalyticsEngineStoreResultsRequest",
+    "GraphAnalyticsEngineStoreResultsResponse",
+    "GraphAnalyticsEngineListGraphsResponse",
+    "GraphAnalyticsEngineGetGraphResponse",
+    "GraphAnalyticsEngineGraphId",
+    "GraphAnalyticsEngineJobId",
+    "GraphAnalyticsEngineGraph",
+    "GraphAnalyticsEngineDeleteGraphResponse",
+    "GraphAnalyticsEngineListJobsResponse",
+    "GraphAnalyticsEngineJob",
+    "GraphAnalyticsEngineDeleteJobResponse",
+    "GraphAnalyticsEngineShutdownResponse",
+    "Empty"
+  ],
+  "services": [
+    "GraphAnalyticsEngineService"
+  ]
+}
