@@ -22,19 +22,45 @@ Output:
 """
 
 import asyncio
+import os
 import sys
 from pathlib import Path
 from typing import List
 
 def _require_platform():
     try:
-        from graph_analytics_ai.ai.agents import AgenticWorkflowRunner
-        from graph_analytics_ai.ai.reporting import ReportFormat
-        from graph_analytics_ai.ai.reporting.formatter import format_report
+        from graph_analytics_ai.ai.llm import create_llm_provider  # type: ignore
+        from graph_analytics_ai.db_connection import get_db_connection  # type: ignore
 
-        return AgenticWorkflowRunner, ReportFormat, format_report
+        from graph_analytics_ai.ai.agents import (  # type: ignore
+            OrchestratorAgent,
+            AgentNames,
+            SchemaAnalysisAgent,
+            RequirementsAgent,
+            UseCaseAgent,
+            TemplateAgent,
+            ExecutionAgent,
+            ReportingAgent,
+        )
+
+        from graph_analytics_ai.ai.reporting import ReportGenerator, ReportFormat  # type: ignore
+
+        return (
+            create_llm_provider,
+            get_db_connection,
+            OrchestratorAgent,
+            AgentNames,
+            SchemaAnalysisAgent,
+            RequirementsAgent,
+            UseCaseAgent,
+            TemplateAgent,
+            ExecutionAgent,
+            ReportingAgent,
+            ReportGenerator,
+            ReportFormat,
+        )
     except ImportError as e:
-        print("ERROR: graph-analytics-ai-platform not installed")
+        print("ERROR: graph-analytics-ai-platform is not available in this environment.")
         print("\nFix:")
         print("  pip install -e ~/code/graph-analytics-ai-platform")
         print("\nOr:")
@@ -65,11 +91,17 @@ def _apply_env_mapping() -> None:
     if os.getenv("ARANGO_USER") is None and os.getenv("ARANGO_USERNAME"):
         os.environ["ARANGO_USER"] = os.environ["ARANGO_USERNAME"]
 
+    # Default to self-managed GAE (GenAI suite) unless AMP keys are present.
+    # The upstream library defaults to AMP; if AMP keys are absent we must force
+    # self-managed or execution will fail requesting ARANGO_GRAPH_API_KEY_*.
+    mode = (os.getenv("GAE_DEPLOYMENT_MODE") or "").strip().lower()
+    api_key_id = os.getenv("ARANGO_GRAPH_API_KEY_ID")  # may be unset or empty
+    if (not mode or mode in ("amp", "managed", "arangograph")) and not api_key_id:
+        os.environ["GAE_DEPLOYMENT_MODE"] = "self_managed"
+
 
 async def main():
     """Run fraud intelligence graph analysis workflow."""
-
-    import os
     
     print("=" * 70)
     print(" " * 15 + "FRAUD INTELLIGENCE GRAPH ANALYSIS")
@@ -78,7 +110,20 @@ async def main():
     print()
 
     _apply_env_mapping()
-    AgenticWorkflowRunner, ReportFormat, format_report = _require_platform()
+    (
+        create_llm_provider,
+        get_db_connection,
+        OrchestratorAgent,
+        AgentNames,
+        SchemaAnalysisAgent,
+        RequirementsAgent,
+        UseCaseAgent,
+        TemplateAgent,
+        ExecutionAgent,
+        ReportingAgent,
+        ReportGenerator,
+        ReportFormat,
+    ) = _require_platform()
     
     # ========================================================================
     # CONFIGURATION
@@ -120,17 +165,47 @@ async def main():
     # STEP 1: Initialize Workflow Runner
     # ========================================================================
     
-    print("[1/4] Initializing workflow runner...")
+    print("[1/4] Initializing agentic workflow...")
     print(f"      Graph: {GRAPH_NAME}")
     print(f"      Industry: {INDUSTRY}")
     
     try:
-        runner = AgenticWorkflowRunner(
-            graph_name=GRAPH_NAME,
-            industry=INDUSTRY,
-            enable_tracing=True  # Helpful for debugging
-        )
-        print("✓ Runner initialized with fraud_intelligence industry")
+        db = get_db_connection()
+        llm_provider = create_llm_provider()
+
+        core_collections = [
+            "Person",
+            "BankAccount",
+            "Organization",
+            "RealProperty",
+            "RealEstateTransaction",
+            "DigitalLocation",
+            "GoldenRecord",
+        ]
+        satellite_collections = ["Class", "Property", "Ontology"]
+
+        agents = {
+            AgentNames.SCHEMA_ANALYST: SchemaAnalysisAgent(
+                llm_provider=llm_provider, db_connection=db
+            ),
+            AgentNames.REQUIREMENTS_ANALYST: RequirementsAgent(llm_provider=llm_provider),
+            AgentNames.USE_CASE_EXPERT: UseCaseAgent(llm_provider=llm_provider),
+            AgentNames.TEMPLATE_ENGINEER: TemplateAgent(
+                llm_provider=llm_provider,
+                graph_name=GRAPH_NAME,
+                core_collections=core_collections,
+                satellite_collections=satellite_collections,
+            ),
+            AgentNames.EXECUTION_SPECIALIST: ExecutionAgent(llm_provider=llm_provider),
+            AgentNames.REPORTING_SPECIALIST: ReportingAgent(
+                llm_provider=llm_provider, industry=INDUSTRY
+            ),
+        }
+
+        orchestrator = OrchestratorAgent(llm_provider=llm_provider, agents=agents)
+        report_generator = ReportGenerator(llm_provider=llm_provider, industry=INDUSTRY)
+
+        print("✓ Initialized agents (fraud_intelligence reporting enabled)")
     except Exception as e:
         print(f"✗ Failed to initialize runner: {e}")
         print("\nCheck:")
@@ -154,13 +229,23 @@ async def main():
     print("        - Generate intelligence reports with recommendations")
     print()
     print("      ⏱  Expected time: 1-3 minutes")
-    print("      🚀 Parallelism: ENABLED for faster execution")
+    enable_parallelism = os.getenv("FRAUD_ANALYSIS_PARALLELISM", "false").lower() in (
+        "1",
+        "true",
+        "yes",
+        "on",
+    )
+    print(
+        f"      🚀 Parallelism: {'ENABLED' if enable_parallelism else 'DISABLED'} "
+        "(set FRAUD_ANALYSIS_PARALLELISM=true to enable)"
+    )
     print()
     
     try:
-        state = await runner.run_async(
-            enable_parallelism=True,  # Parallel execution for speed
-            input_files=input_files if input_files else None
+        state = await orchestrator.run_workflow_async(
+            input_documents=input_files if input_files else [],
+            database_config=None,
+            enable_parallelism=enable_parallelism,
         )
         print("✓ Workflow completed successfully")
     except Exception as e:
@@ -192,21 +277,21 @@ async def main():
     
     print(f"✓ Generated {len(state.reports)} intelligence reports")
     
-    # Count total insights and risk levels
-    total_insights = sum(len(r.insights) for r in state.reports)
-    risk_counts = {"CRITICAL": 0, "HIGH": 0, "MEDIUM": 0, "LOW": 0}
-    
+    # Count insights and (if present) report risk levels
+    total_insights = sum(len(getattr(r, "insights", []) or []) for r in state.reports)
+    risk_counts = {"critical": 0, "high": 0, "medium": 0, "low": 0, "unknown": 0}
+
     for report in state.reports:
-        for insight in report.insights:
-            risk = insight.metadata.get('risk_level', 'UNKNOWN')
-            if risk in risk_counts:
-                risk_counts[risk] += 1
+        level = (getattr(report, "metadata", {}) or {}).get("risk_level", "unknown")
+        level = str(level).lower()
+        if level not in risk_counts:
+            level = "unknown"
+        risk_counts[level] += 1
     
     print(f"✓ Total insights: {total_insights}")
-    print(f"    - CRITICAL: {risk_counts['CRITICAL']}")
-    print(f"    - HIGH: {risk_counts['HIGH']}")
-    print(f"    - MEDIUM: {risk_counts['MEDIUM']}")
-    print(f"    - LOW: {risk_counts['LOW']}")
+    print("✓ Report risk levels:")
+    for k in ["critical", "high", "medium", "low", "unknown"]:
+        print(f"    - {k.upper()}: {risk_counts[k]}")
     
     print()
     
@@ -222,7 +307,7 @@ async def main():
         # Save Markdown
         md_path = output_dir / f"{report_name}.md"
         try:
-            md_content = format_report(report, ReportFormat.MARKDOWN)
+            md_content = report_generator.format_report(report, ReportFormat.MARKDOWN)
             md_path.write_text(md_content)
             print(f"  ✓ {md_path.name}")
         except Exception as e:
@@ -231,14 +316,9 @@ async def main():
         # Save HTML (if possible)
         html_path = output_dir / f"{report_name}.html"
         try:
-            from graph_analytics_ai.ai.reporting import HTMLReportFormatter
-            html_formatter = HTMLReportFormatter()
-            charts = report.metadata.get('charts', {})
-            html_content = html_formatter.format_report(report, charts=charts)
+            html_content = report_generator.format_report(report, ReportFormat.HTML)
             html_path.write_text(html_content)
             print(f"  ✓ {html_path.name}")
-        except ImportError:
-            print(f"  ⚠ HTML formatter not available, skipping {html_path.name}")
         except Exception as e:
             print(f"  ⚠ Failed to generate HTML: {e}")
         
@@ -249,10 +329,10 @@ async def main():
         
         # Show top insights
         for j, insight in enumerate(report.insights[:3], 1):
-            risk = insight.metadata.get('risk_level', 'N/A')
-            conf = insight.metadata.get('confidence', 0.0)
-            print(f"       {j}. [{risk}] {insight.title}")
-            print(f"          Confidence: {conf:.2f}")
+            conf = getattr(insight, "confidence", None)
+            conf_str = f"{conf:.2f}" if isinstance(conf, (int, float)) else "N/A"
+            print(f"       {j}. {insight.title}")
+            print(f"          Confidence: {conf_str}")
         
         if len(report.insights) > 3:
             print(f"       ... and {len(report.insights) - 3} more insights")
@@ -272,8 +352,8 @@ async def main():
     print("📝 What you have:")
     print(f"   - {len(state.reports)} intelligence reports")
     print(f"   - {total_insights} fraud pattern insights")
-    print(f"   - {risk_counts['CRITICAL']} CRITICAL risk findings")
-    print(f"   - {risk_counts['HIGH']} HIGH risk findings")
+    print(f"   - {risk_counts['critical']} CRITICAL risk findings")
+    print(f"   - {risk_counts['high']} HIGH risk findings")
     print()
     print("🎯 Next steps:")
     print("   1. Open HTML reports in your browser")
