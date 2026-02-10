@@ -10,7 +10,7 @@ This plan integrates the **Agentic Workflow**, **Entity Resolution**, and **Risk
 | --- | --- |
 | **Project Name** | Fraud Intelligence Demo |
 | **Version** | 1.0 (Draft) |
-| **Target Audience** | Indian Bank Risk & Compliance Executives |
+| **Target Audience** | Risk & Compliance Executives at Indian Financial Institutions |
 | **Core Objective** | Demonstrate how an Agentic AI Graph platform can autonomously detect, analyze, and predict sophisticated financial fraud (Circular Trading, Benami, Hawala). |
 
 ---
