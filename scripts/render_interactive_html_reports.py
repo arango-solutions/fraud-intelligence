@@ -24,19 +24,30 @@ from arango import ArangoClient
 from common import get_arango_config, load_dotenv
 
 
-_UC_RE = re.compile(r"\bUC-?S(\d{2})\b", re.IGNORECASE)
+_UC_S_RE = re.compile(r"\bUC-?S(\d{2})\b", re.IGNORECASE)
+_UC_R_RE = re.compile(r"\bUC-?R(\d{2})\b", re.IGNORECASE)
+_UC_NUM_RE = re.compile(r"\bUC-(\d{3})\b", re.IGNORECASE)
 
 
-def _infer_uc_suffix(md_text: str, filename: str) -> Optional[str]:
+def _infer_results_collection(md_text: str, filename: str) -> Optional[str]:
     """
-    Return UC suffix like '01' from text like 'UC-S01' or 'UC-S01:'.
+    Infer the stored results collection name from a use case id in the report.
+
+    Supported ids:
+    - UC-S01  -> uc_s01_results
+    - UC-R01  -> uc_r01_results
+    - UC-001  -> uc_001_results
     """
-    m = _UC_RE.search(md_text)
-    if m:
-        return m.group(1)
-    m2 = _UC_RE.search(filename)
-    if m2:
-        return m2.group(1)
+    for s in (md_text, filename):
+        m = _UC_S_RE.search(s)
+        if m:
+            return f"uc_s{m.group(1)}_results"
+        m = _UC_R_RE.search(s)
+        if m:
+            return f"uc_r{m.group(1)}_results"
+        m = _UC_NUM_RE.search(s)
+        if m:
+            return f"uc_{m.group(1)}_results"
     return None
 
 
@@ -324,13 +335,8 @@ def main() -> int:
 
     for md_path in md_files:
         md_text = md_path.read_text(encoding="utf-8")
-        uc_suffix = _infer_uc_suffix(md_text, md_path.name)
-        if not uc_suffix:
-            # Skip files that don't look like GAE use-case outputs
-            continue
-
-        coll = f"uc_s{uc_suffix}_results"
-        if not db.has_collection(coll):
+        coll = _infer_results_collection(md_text, md_path.name)
+        if not coll or not db.has_collection(coll):
             # No stored results => can't plot interactively
             chart_spec = {"primary": {"data": []}, "secondary": {"data": []}}
             algorithm = "unknown"

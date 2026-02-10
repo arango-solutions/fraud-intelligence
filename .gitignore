@@ -21,3 +21,4 @@ data/demo/
 # Generated reports (local output)
 fraud_analysis_output/
 
+*.pdf

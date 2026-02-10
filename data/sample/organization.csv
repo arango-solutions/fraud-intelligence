@@ -1,31 +1,31 @@
 _key,name,orgType,riskScore
-org_42_000000,Comar-Iyengar,UtilityCompany,0
-org_42_000001,"Gole, Bala and Shenoy",Legitimate,0
-org_42_000002,"Kadakia, Sarma and Manne",Legitimate,0
-org_42_000003,"Biswas, Rege and Tata",Shell,0
+org_42_000000,Comar-Iyengar,Legitimate,0
+org_42_000001,"Gole, Bala and Shenoy",UtilityCompany,0
+org_42_000002,"Kadakia, Sarma and Manne",Retailer,0
+org_42_000003,"Biswas, Rege and Tata",Retailer,0
 org_42_000004,Mitter and Sons,UtilityCompany,0
-org_42_000005,Dube-Sampath,Shell,0
-org_42_000006,Borah-Sen,Legitimate,0
-org_42_000007,"Srinivas, Rattan and Warrior",UtilityCompany,0
-org_42_000008,"Sahota, Bansal and Parsa",Retailer,0
-org_42_000009,"Yadav, Chada and Chopra",Retailer,0
-org_42_000010,Pant and Sons,UtilityCompany,0
-org_42_000011,"Basu, Ratta and Narula",Retailer,0
-org_42_000012,Cherian-Anne,UtilityCompany,0
-org_42_000013,Kuruvilla and Sons,Shell,0
+org_42_000005,Dube-Sampath,Retailer,0
+org_42_000006,Borah-Sen,UtilityCompany,0
+org_42_000007,"Srinivas, Rattan and Warrior",Shell,0
+org_42_000008,"Sahota, Bansal and Parsa",Shell,0
+org_42_000009,"Yadav, Chada and Chopra",Legitimate,0
+org_42_000010,Pant and Sons,Shell,0
+org_42_000011,"Basu, Ratta and Narula",Shell,0
+org_42_000012,Cherian-Anne,Legitimate,0
+org_42_000013,Kuruvilla and Sons,UtilityCompany,0
 org_42_000014,"Venkataraman, Kant and Sehgal",Shell,0
-org_42_000015,Raman-Sheth,Legitimate,0
+org_42_000015,Raman-Sheth,Shell,0
 org_42_000016,"Tella, Dora and Pai",Shell,0
-org_42_000017,Subramanian Inc,Shell,0
-org_42_000018,Sagar-Chada,Legitimate,0
-org_42_000019,Dhar LLC,UtilityCompany,0
-org_42_000020,Oza-Shah,Shell,0
+org_42_000017,Subramanian Inc,Legitimate,0
+org_42_000018,Sagar-Chada,UtilityCompany,0
+org_42_000019,Dhar LLC,Legitimate,0
+org_42_000020,Oza-Shah,Retailer,0
 org_42_000021,Verma Group,Shell,0
-org_42_000022,Soni-Chatterjee,Shell,0
-org_42_000023,Sethi-Nagar,Legitimate,0
-org_42_000024,Mital Inc,UtilityCompany,0
-org_42_000025,"Contractor, Bajaj and Oza",Legitimate,0
+org_42_000022,Soni-Chatterjee,Retailer,0
+org_42_000023,Sethi-Nagar,UtilityCompany,0
+org_42_000024,Mital Inc,Shell,0
+org_42_000025,"Contractor, Bajaj and Oza",Retailer,0
 org_42_000026,"Chopra, Gala and Kohli",Retailer,0
-org_42_000027,"Ghosh, Dutta and Narayanan",Shell,0
-org_42_000028,"Sandhu, Shere and Kata",Retailer,0
-org_42_000029,Gour-Grewal,UtilityCompany,0
+org_42_000027,"Ghosh, Dutta and Narayanan",Retailer,0
+org_42_000028,"Sandhu, Shere and Kata",Shell,0
+org_42_000029,Gour-Grewal,Shell,0

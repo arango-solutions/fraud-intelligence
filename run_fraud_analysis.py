@@ -35,6 +35,7 @@ def _require_platform():
         from graph_analytics_ai.ai.agents import (  # type: ignore
             OrchestratorAgent,
             AgentNames,
+            AgentDefaults,
             SchemaAnalysisAgent,
             RequirementsAgent,
             UseCaseAgent,
@@ -50,6 +51,7 @@ def _require_platform():
             get_db_connection,
             OrchestratorAgent,
             AgentNames,
+            AgentDefaults,
             SchemaAnalysisAgent,
             RequirementsAgent,
             UseCaseAgent,
@@ -115,6 +117,7 @@ async def main():
         get_db_connection,
         OrchestratorAgent,
         AgentNames,
+        AgentDefaults,
         SchemaAnalysisAgent,
         RequirementsAgent,
         UseCaseAgent,
@@ -124,6 +127,18 @@ async def main():
         ReportGenerator,
         ReportFormat,
     ) = _require_platform()
+
+    # Optional: run more (or all) use cases per execution.
+    # The upstream agentic workflow defaults to 3 for safety/demo speed.
+    max_exec_raw = (os.getenv("FRAUD_ANALYSIS_MAX_EXECUTIONS") or "").strip()
+    if max_exec_raw:
+        try:
+            max_exec = int(max_exec_raw)
+            if max_exec > 0:
+                AgentDefaults.MAX_EXECUTIONS = max_exec
+        except ValueError:
+            # Ignore invalid values (keep platform defaults).
+            pass
     
     # ========================================================================
     # CONFIGURATION
@@ -242,11 +257,19 @@ async def main():
     print()
     
     try:
-        state = await orchestrator.run_workflow_async(
-            input_documents=input_files if input_files else [],
-            database_config=None,
-            enable_parallelism=enable_parallelism,
-        )
+        if enable_parallelism:
+            state = await orchestrator.run_workflow_async(
+                input_documents=input_files if input_files else [],
+                database_config=None,
+                enable_parallelism=True,
+            )
+        else:
+            # Run synchronously to avoid parallel template execution (which can
+            # overwhelm the self-managed GRAL service and cause 503/500 errors).
+            state = orchestrator.run_workflow(
+                input_documents=input_files if input_files else [],
+                database_config=None,
+            )
         print("✓ Workflow completed successfully")
     except Exception as e:
         print(f"✗ Workflow failed: {e}")

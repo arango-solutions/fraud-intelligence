@@ -242,11 +242,32 @@ def main() -> None:
                 "name": faker.name(),
                 "panNumber": gen_pan(rng),
                 "aadhaarMasked": masked_aadhaar(rng),
+                "isSyntheticDuplicate": False,
                 "riskScore": 0,
                 "riskDirect": "",
                 "riskInferred": "",
                 "riskPath": "",
                 "riskReasons": "",
+            }
+        )
+
+    # Deterministic demo anchor: Victor Tella (two aliases) for Use Case 1.
+    # We place them at the beginning so their owned accounts are stable and easy to find.
+    # Both are marked as synthetic duplicates so the investigator query can filter on it.
+    if len(person_rows) >= 2:
+        shared_pan = gen_pan(rng)
+        person_rows[0].update(
+            {
+                "name": "Victor Tella",
+                "panNumber": shared_pan,
+                "isSyntheticDuplicate": True,
+            }
+        )
+        person_rows[1].update(
+            {
+                "name": "Victor Tella",
+                "panNumber": shared_pan,
+                "isSyntheticDuplicate": True,
             }
         )
 
@@ -263,6 +284,7 @@ def main() -> None:
                 "name": short_name,
                 "panNumber": "",  # missing PAN
                 "aadhaarMasked": masked_aadhaar(rng),
+                "isSyntheticDuplicate": True,
                 "riskScore": 0,
                 "riskReasons": json.dumps(["benami_variation"]),
             }
@@ -473,14 +495,17 @@ def main() -> None:
     buyer_in_rows: List[Dict[str, Any]] = []
     seller_in_rows: List[Dict[str, Any]] = []
 
-    undervalued_count = max(1, int(sizes.properties * 0.02))
+    # Ensure the sample dataset contains enough "circle rate evasion" examples
+    # to make the demo query return multiple rows.
+    undervalued_count = max(5, int(sizes.properties * 0.02))
 
     for i in range(sizes.properties):
         prop_key = key("prop", args.seed, i)
         district = rng.choice(districts)
         circle_rate = rng.randint(5_000_000, 30_000_000)
         is_undervalued = i < undervalued_count
-        market_value = circle_rate if is_undervalued else int(circle_rate * rng.uniform(1.2, 2.0))
+        # Market value is typically higher than the government minimum circle rate.
+        market_value = int(circle_rate * rng.uniform(1.2, 2.0))
         risk_score = 35 if is_undervalued else 0
         risk_reasons = json.dumps(["undervalued_property"]) if is_undervalued else ""
         property_rows.append(
@@ -498,7 +523,9 @@ def main() -> None:
         )
 
         tx_key = key("retx", args.seed, i)
-        tx_value = circle_rate if is_undervalued else market_value
+        # Circle-rate evasion: transaction recorded below circle rate (e.g., "cash component").
+        # Non-undervalued transactions are recorded near market value.
+        tx_value = int(circle_rate * rng.uniform(0.6, 0.95)) if is_undervalued else market_value
         payment_method = "Mixed" if is_undervalued else "Bank Transfer"
         real_estate_tx_rows.append(
             {
@@ -643,7 +670,18 @@ def main() -> None:
         ("DigitalLocation.csv", ["_key", "ipAddress", "deviceId", "macAddress"], digital_rows),
         (
             "Person.csv",
-            ["_key", "name", "panNumber", "aadhaarMasked", "riskScore", "riskDirect", "riskInferred", "riskPath", "riskReasons"],
+            [
+                "_key",
+                "name",
+                "panNumber",
+                "aadhaarMasked",
+                "isSyntheticDuplicate",
+                "riskScore",
+                "riskDirect",
+                "riskInferred",
+                "riskPath",
+                "riskReasons",
+            ],
             person_rows,
         ),
         ("Organization.csv", ["_key", "name", "orgType", "riskScore"], org_rows),

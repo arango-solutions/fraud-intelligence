@@ -3,6 +3,8 @@ addr_42_000000,"H.No. 433, Chaudry Street",Mumbai,Mumbai_South,Maharashtra,40002
 addr_42_000001,"60/01, Kaul Ganj",Mumbai,Thane_West,Maharashtra,400070,19.189318,72.959476
 addr_42_000002,"38/63, Mall Chowk",Mumbai,Mumbai_South,Maharashtra,400012,19.128007,72.778899
 addr_42_000003,"654, Kale Street",Mumbai,Thane_West,Maharashtra,400072,18.977718,72.938565
+addr_42_000004,"H.No. 161
+Padmanabhan Path",Mumbai,Thane_West,Maharashtra,400054,19.180728,72.966371
 addr_42_000005,"H.No. 781
 Brar Marg",Mumbai,Thane_West,Maharashtra,400001,19.068668,72.847893
 addr_42_000006,"95/931
@@ -14,8 +16,6 @@ Bora Road",Mumbai,Bandra_Kurla,Maharashtra,400078,18.920621,73.007298
 addr_42_000010,"H.No. 305
 Loyal Marg",Mumbai,Mumbai_South,Maharashtra,400071,19.288709,72.87599
 addr_42_000011,"953, Randhawa Chowk",Mumbai,Andheri_East,Maharashtra,400047,19.22835,72.943186
-addr_42_000012,"423
-Yohannan Circle",Mumbai,Navi_Mumbai,Maharashtra,400085,18.960761,72.789475
 addr_42_000013,"96/965
 Devi Ganj",Mumbai,Thane_West,Maharashtra,400110,19.204689,73.045862
 addr_42_000015,"69, Wadhwa Chowk",Mumbai,Andheri_East,Maharashtra,400086,18.948315,72.869476
@@ -46,12 +46,14 @@ addr_42_000035,"H.No. 74
 Sur Marg",Mumbai,Thane_West,Maharashtra,400100,19.037044,72.815234
 addr_42_000037,"H.No. 097
 Wali Circle",Mumbai,Mumbai_South,Maharashtra,400107,18.926984,72.871635
+addr_42_000038,"H.No. 812, Bir Zila",Mumbai,Andheri_East,Maharashtra,400073,18.98057,72.837444
 addr_42_000039,"19, Baral Ganj",Mumbai,Mumbai_South,Maharashtra,400009,18.915974,72.906077
 addr_42_000040,"99, Mutti Circle",Mumbai,Navi_Mumbai,Maharashtra,400061,19.20165,72.80595
 addr_42_000041,"534
 Deep Marg",Mumbai,Navi_Mumbai,Maharashtra,400078,18.949353,72.917749
 addr_42_000042,"51
 Shanker Nagar",Mumbai,Bandra_Kurla,Maharashtra,400097,19.285032,73.030096
+addr_42_000043,"H.No. 838, Deo Road",Mumbai,Thane_West,Maharashtra,400086,19.179439,72.881718
 addr_42_000044,"H.No. 354
 Sarma Street",Mumbai,Andheri_East,Maharashtra,400016,19.064002,72.914921
 addr_42_000045,"80/84
@@ -70,6 +72,7 @@ addr_42_000057,"H.No. 86
 Narula Circle",Mumbai,Bandra_Kurla,Maharashtra,400013,19.219369,73.009671
 addr_42_000058,"H.No. 429, Barad Road",Mumbai,Mumbai_South,Maharashtra,400002,19.153901,72.921365
 addr_42_000059,"65/56, Vaidya",Mumbai,Mumbai_South,Maharashtra,400022,19.269074,73.007635
+addr_42_000060,"93, Basu Road",Mumbai,Bandra_Kurla,Maharashtra,400052,19.083969,72.829849
 addr_42_000061,"H.No. 883
 Sankar Path",Mumbai,Mumbai_South,Maharashtra,400050,18.949148,72.770604
 addr_42_000062,"59/514, More Circle",Mumbai,Andheri_East,Maharashtra,400037,19.269138,72.989836
@@ -103,7 +106,6 @@ Yohannan Marg",Mumbai,Andheri_East,Maharashtra,400084,19.136905,73.046425
 addr_42_000081,"34, Sunder Marg",Mumbai,Navi_Mumbai,Maharashtra,400039,18.883286,72.998789
 addr_42_000082,"56, Sibal Street",Mumbai,Mumbai_South,Maharashtra,400015,19.274351,72.807602
 addr_42_000083,"80/69, Bala",Mumbai,Mumbai_South,Maharashtra,400037,19.191815,72.813525
-addr_42_000084,"62/720, Raghavan Road",Mumbai,Navi_Mumbai,Maharashtra,400088,18.968464,72.866006
 addr_42_000085,"755
 Mall Marg",Mumbai,Andheri_East,Maharashtra,400109,19.092272,72.840314
 addr_42_000086,"H.No. 17
@@ -111,6 +113,7 @@ Zacharia Nagar",Mumbai,Mumbai_South,Maharashtra,400036,18.918765,72.888601
 addr_42_000087,"H.No. 31, Balasubramanian Nagar",Mumbai,Mumbai_South,Maharashtra,400082,18.881489,72.985913
 addr_42_000089,"19/374
 Ganesh Path",Mumbai,Bandra_Kurla,Maharashtra,400089,19.115581,72.801325
+addr_42_000090,"419, Muni Nagar",Mumbai,Thane_West,Maharashtra,400075,19.109148,73.003687
 addr_42_000091,"31
 Kibe",Mumbai,Navi_Mumbai,Maharashtra,400040,18.942199,72.805685
 addr_42_000092,"49/190, Walia Path",Mumbai,Andheri_East,Maharashtra,400006,19.257572,72.992914
@@ -204,6 +207,8 @@ Kanda Path",Mumbai,Navi_Mumbai,Maharashtra,400029,18.901876,73.036538
 addr_42_000155,"42/10, Sastry Road",Mumbai,Mumbai_South,Maharashtra,400097,19.208118,72.952491
 addr_42_000156,"52/14, Sagar Path",Mumbai,Mumbai_South,Maharashtra,400003,19.278837,72.825821
 addr_42_000157,"285, Thaker Circle",Mumbai,Navi_Mumbai,Maharashtra,400086,18.944001,72.805342
+addr_42_000158,"474
+Contractor Path",Mumbai,Mumbai_South,Maharashtra,400090,19.116867,72.83103
 addr_42_000159,"H.No. 236
 Pau Circle",Mumbai,Andheri_East,Maharashtra,400078,19.202097,72.816981
 addr_42_000160,"04, Dasgupta Circle",Mumbai,Mumbai_South,Maharashtra,400040,19.206673,72.815854
@@ -250,6 +255,8 @@ addr_42_000192,"H.No. 836, Setty Marg",Mumbai,Mumbai_South,Maharashtra,400057,19
 addr_42_000193,"545
 Chad",Mumbai,Andheri_East,Maharashtra,400062,18.957433,72.784385
 addr_42_000194,"290, Magar Zila",Mumbai,Mumbai_South,Maharashtra,400010,19.225289,72.882198
+addr_42_000195,"67/976
+Kale Road",Mumbai,Navi_Mumbai,Maharashtra,400020,19.144367,72.785011
 addr_42_000196,"H.No. 61, Sur Road",Mumbai,Navi_Mumbai,Maharashtra,400032,19.278633,72.793851
 addr_42_000197,"H.No. 369
 Amble Nagar",Mumbai,Mumbai_South,Maharashtra,400077,19.114391,72.886529

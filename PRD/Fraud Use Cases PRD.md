@@ -55,11 +55,11 @@ FOR x IN Person
 ```aql
 // Step 2: expand the Person to reach their BankAccount(s)
 // (this is what the Person canvas action does; it uses @nodes)
-WITH Address, BankAccount, Class, DigitalLocation, Document, GoldenRecord, Ontology, Organization, Person, Property, RealEstateTransaction, RealProperty, Transaction, WatchlistEntity, accessedFrom, associatedWith, buyerIn, domain, hasAccount, hasDigitalLocation, instanceOf, mentionedIn, range, registeredSale, relatedTo, residesAt, resolvedTo, sellerIn, subClassOf, transferredTo, type
+WITH Address, BankAccount, Class, DigitalLocation, Document, GoldenRecord, Ontology, Organization, Person, Property, RealEstateTransaction, RealProperty, Transaction, WatchlistEntity, accessedFrom, associatedWith, buyerIn, domain, hasAccount, hasDigitalLocation, mentionedIn, range, registeredSale, relatedTo, residesAt, resolvedTo, sellerIn, subClassOf, transferredTo, type
 FOR node IN @nodes
   FILTER IS_SAME_COLLECTION("Person", node)
   FOR v, e, p IN 1..1 ANY node
-    accessedFrom, associatedWith, buyerIn, domain, hasAccount, hasDigitalLocation, instanceOf, mentionedIn, range, registeredSale, relatedTo, residesAt, resolvedTo, sellerIn, subClassOf, transferredTo, type
+    accessedFrom, associatedWith, buyerIn, domain, hasAccount, hasDigitalLocation, mentionedIn, range, registeredSale, relatedTo, residesAt, resolvedTo, sellerIn, subClassOf, transferredTo, type
     LIMIT 20
     RETURN p
 ```
@@ -67,7 +67,7 @@ FOR node IN @nodes
 ```aql
 // Step 3: from the selected BankAccount, find directed cycles (no scenario tag required)
 // (this is the BankAccount canvas action; it uses @nodes)
-WITH Address, BankAccount, Class, DigitalLocation, Document, GoldenRecord, Ontology, Organization, Person, Property, RealEstateTransaction, RealProperty, Transaction, WatchlistEntity, accessedFrom, associatedWith, buyerIn, domain, hasAccount, hasDigitalLocation, instanceOf, mentionedIn, range, registeredSale, relatedTo, residesAt, resolvedTo, sellerIn, subClassOf, transferredTo, type
+WITH Address, BankAccount, Class, DigitalLocation, Document, GoldenRecord, Ontology, Organization, Person, Property, RealEstateTransaction, RealProperty, Transaction, WatchlistEntity, accessedFrom, associatedWith, buyerIn, domain, hasAccount, hasDigitalLocation, mentionedIn, range, registeredSale, relatedTo, residesAt, resolvedTo, sellerIn, subClassOf, transferredTo, type
 FOR start IN @nodes
   FILTER IS_SAME_COLLECTION("BankAccount", start)
   FOR v, e, p IN 3..@maxDepth OUTBOUND start transferredTo

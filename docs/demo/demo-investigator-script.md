@@ -85,6 +85,135 @@ python scripts/test_phase3.py --remote-only
 - **Performance**:
   - Keep `limit` small (≤ 10) for live demos.
 
+---
+
+## Additional investigator demos (pick 1–2)
+
+These are **Visualizer-first** flows that complement Use Case 1. They are designed to be quick, repeatable, and “clickable” in front of an audience.
+
+### Use Case 2: Money mule hub discovery (fan-in / fan-out)
+
+#### Goal (what you prove)
+
+Starting from the *transaction network*, you can identify “hub” accounts (high fan-in or fan-out), then pivot to connected identities and activity.
+
+#### Step-by-step (Visualizer + AQL)
+
+1. Visualizer → open **KnowledgeGraph**
+2. Query UI: run one of these AQL queries to find suspicious hub accounts.
+
+**Top fan-out accounts (many outgoing transfers):**
+
+```aql
+WITH transferredTo
+FOR e IN transferredTo
+  COLLECT from = e._from WITH COUNT INTO outDegree
+  SORT outDegree DESC
+  LIMIT 5
+  RETURN { accountId: from, outDegree }
+```
+
+**Top fan-in accounts (many incoming transfers):**
+
+```aql
+WITH transferredTo
+FOR e IN transferredTo
+  COLLECT to = e._to WITH COUNT INTO inDegree
+  SORT inDegree DESC
+  LIMIT 5
+  RETURN { accountId: to, inDegree }
+```
+
+3. Copy one returned `accountId` (e.g., `BankAccount/...`) and add it to the canvas (search by ID).
+4. Right-click the `BankAccount` → run **“Find 2-hop neighbors (default)”** (or **Expand Relationships**) to pull in connected accounts/persons.
+5. Optional: Right-click the same `BankAccount` → run **`[BankAccount] Find cycles (AQL)`** to see if the hub also participates in circular flows.
+
+#### What to say (talk track)
+
+- “Instead of guessing where to look, we rank accounts by how they behave in the network.”
+- “High fan-in/out accounts are common in mule networks and layering.”
+- “From there, Visualizer lets us pivot to the people and counterparties instantly.”
+
+---
+
+### Use Case 3: Circle rate evasion in property transactions (undervaluation)
+
+#### Goal (what you prove)
+
+You can find properties where the **sale value** looks suspicious relative to the **circle rate value**, then pivot to the buyer/seller identities and linked accounts.
+
+#### Step-by-step (Visualizer + AQL)
+
+1. Visualizer → open **KnowledgeGraph**
+2. Query UI: run the AQL below to find suspicious property sales.
+
+```aql
+WITH RealProperty, RealEstateTransaction, registeredSale
+FOR p IN RealProperty
+  FILTER p.circleRateValue != null
+  FILTER p.circleRateValue > 0
+  FOR tx IN 1..1 OUTBOUND p registeredSale
+    FILTER tx.transactionValue != null
+    LET ratio = tx.transactionValue / p.circleRateValue
+    FILTER ratio < 0.8
+    SORT ratio ASC
+    LIMIT 5
+    RETURN {
+      propertyId: p._id,
+      transactionId: tx._id,
+      circleRateValue: p.circleRateValue,
+      transactionValue: tx.transactionValue,
+      ratio
+    }
+```
+
+3. Add the returned `propertyId` (or `transactionId`) to the canvas (search by ID).
+4. Right-click the node → run **“Find 2-hop neighbors (default)”** to bring in buyer/seller + related entities.
+5. Optional: if you landed on a `RealEstateTransaction`, expand again to bring in:
+   - buyer via `buyerIn`
+   - seller via `sellerIn`
+   - and any linked `BankAccount` via their `hasAccount`
+
+#### What to say (talk track)
+
+- “This is an explainable anomaly: the sale value is far below the circle-rate baseline.”
+- “The graph makes it easy to pivot from the property to the people and accounts involved.”
+- “This is where you decide: benign discount vs coordinated undervaluation / laundering.”
+
+---
+
+### Use Case 4 (algorithm-assisted): Start from PageRank results and pivot
+
+#### Goal (what you prove)
+
+Graph algorithms can scan the **entire graph** to find “needle-in-haystack” nodes with disproportionate network influence, and Visualizer makes the pivot immediate.
+
+#### Step-by-step (Visualizer + AQL)
+
+1. Ensure analytics has been run (example):
+   - `FRAUD_ANALYSIS_MAX_EXECUTIONS=10 python run_fraud_analysis.py`
+2. Query UI: list top-ranked entities from stored PageRank outputs:
+
+```aql
+WITH uc_s02_results
+FOR r IN uc_s02_results
+  SORT r.rank DESC
+  LIMIT 10
+  RETURN { id: r.id, rank: r.rank }
+```
+
+3. Copy an `id` (e.g., `RealEstateTransaction/...`, `Person/...`, `BankAccount/...`) and add it to the canvas (search by ID).
+4. Right-click → run **“Find 2-hop neighbors (default)”** to reveal the neighborhood.
+5. Use that neighborhood to choose the next investigator step:
+   - run cycle detection from a `BankAccount`
+   - inspect buyer/seller around a `RealEstateTransaction`
+   - pivot identity → accounts via `hasAccount`
+
+#### What to say (talk track)
+
+- “Algorithms process the full network and surface the most central entities.”
+- “Then the investigator uses Visualizer to quickly explain *why* it’s central.”
+
 # Demo Script: Use Case 1 — Circular Trading Detection (Investigator Flow)
 
 This document provides a step-by-step script for demonstrating **Use Case 1: Circular Trading ("Round Trip" Transfers)** using ArangoDB's Graph Visualizer. This demo showcases AQL-native cycle detection from a single suspicious account, demonstrating how investigators can discover fraud patterns interactively without precomputed algorithms.

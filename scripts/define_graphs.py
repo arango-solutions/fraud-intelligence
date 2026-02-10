@@ -61,7 +61,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument(
         "--with-type-edges",
         action="store_true",
-        help="Create KnowledgeGraph instanceOf edges from data vertices to ontology Class nodes (edge collection: instanceOf)",
+        help="Create KnowledgeGraph rdf:type edges from data vertices to ontology Class nodes (edge collection: type)",
     )
     return p.parse_args()
 
@@ -172,25 +172,36 @@ def ensure_graph(db, name: str, edge_definitions: List[Dict]) -> None:
 
 def create_type_edges(db) -> None:
     """
-    Create data-to-ontology links (instance → Class).
+    Create data-to-ontology links (instance → Class) using OWL/RDF's `rdf:type`.
 
-    NOTE: ArangoRDF uses the `type` edge collection internally for ontology resources.
-    To avoid conflicting edge-definition reuse across named graphs, we keep a separate
-    edge collection for instance typing.
+    Implementation notes:
+    - We write into the `type` edge collection (the canonical predicate in OWL/RDF).
+    - We only touch edges where `_from` is in our Phase 1 data vertex collections and
+      `_to` is a `Class/*` document. Ontology-only `type` edges (produced by ArangoRDF)
+      are not modified.
     """
-    ensure_collection(db, "instanceOf", edge=True)
-    inst_col = db.collection("instanceOf")
+    ensure_collection(db, "type", edge=True)
+    type_col = db.collection("type")
 
     if not db.has_collection("Class"):
-        print("[WARN] Missing 'Class' collection; skipping instanceOf edges")
+        print("[WARN] Missing 'Class' collection; skipping rdf:type edges")
         return
     class_col = db.collection("Class")
 
-    # Derived edges; safe to rebuild deterministically.
+    # Remove ONLY data-instance type edges, so we can rebuild deterministically.
+    # (Do not truncate the whole `type` edge collection; it may contain ontology edges.)
     try:
-        inst_col.truncate()
+        q = """
+FOR e IN type
+  LET fromColl = PARSE_IDENTIFIER(e._from).collection
+  LET toColl = PARSE_IDENTIFIER(e._to).collection
+  FILTER fromColl IN @fromColls
+  FILTER toColl == "Class"
+  REMOVE e IN type
+"""
+        list(db.aql.execute(q, bind_vars={"fromColls": DATA_VERTICES}))
     except Exception:
-        # If truncate is not permitted (managed restrictions), fall back to upsert-y import.
+        # Best-effort cleanup; proceed with upserts below even if removal is restricted.
         pass
 
     def resolve_class_id(label: str) -> Optional[str]:
@@ -220,31 +231,28 @@ FOR c IN Class
 
         to_id = resolve_class_id(vcoll)
         if not to_id:
-            print(f"[WARN] No ontology Class match for '{vcoll}'; skipping instanceOf edges for this collection")
+            print(f"[WARN] No ontology Class match for '{vcoll}'; skipping type edges for this collection")
             continue
 
-        # If a legacy stub Class doc exists (keyed by the local name) but ArangoRDF
-        # resolved to a different Class document (typically hash-keyed), remove the stub
-        # to avoid a disjoint duplicate Class in the visualizer.
-        expected_stub_id = f"Class/{vcoll}"
-        if to_id != expected_stub_id:
-            try:
-                stub = class_col.get(vcoll)
-                if stub and ("_uri" not in stub) and ("_label" not in stub) and stub.get("uri") == f"#{vcoll}":
-                    class_col.delete(vcoll)
-            except Exception:
-                pass
+        # If a legacy stub Class doc exists (keyed by the local name), remove it to
+        # avoid disjoint duplicates (safe because ArangoRDF PGT Class exists).
+        try:
+            stub = class_col.get(vcoll)
+            if stub and ("_uri" not in stub) and ("_label" not in stub):
+                class_col.delete(vcoll)
+        except Exception:
+            pass
 
         for doc in db.collection(vcoll).all():
             from_id = doc["_id"]
             key = f"{from_id.replace('/', '_')}__{to_id.replace('/', '_')}"
             batch.append({"_key": key, "_from": from_id, "_to": to_id})
             if len(batch) >= batch_size:
-                inst_col.import_bulk(batch, on_duplicate="update")
+                type_col.import_bulk(batch, on_duplicate="update")
                 batch = []
 
     if batch:
-        inst_col.import_bulk(batch, on_duplicate="update")
+        type_col.import_bulk(batch, on_duplicate="update")
 
 
 def main() -> None:
@@ -283,9 +291,22 @@ def main() -> None:
         onto_edge_defs = db.graph("OntologyGraph").edge_definitions()
     knowledge_edges: List[Dict] = onto_edge_defs + DATA_EDGES
     if args.with_type_edges:
-        knowledge_edges = knowledge_edges + [
-            {"edge_collection": "instanceOf", "from_vertex_collections": DATA_VERTICES, "to_vertex_collections": ["Class"]}
-        ]
+        # Ensure KnowledgeGraph's edge definition for `type` allows:
+        # - ontology edges (from ArangoRDF)
+        # - instance typing edges (DATA_VERTICES -> Class)
+        patched: List[Dict] = []
+        seen_type = False
+        for ed in knowledge_edges:
+            if ed.get("edge_collection") != "type":
+                patched.append(ed)
+                continue
+            seen_type = True
+            froms = sorted(set(ed.get("from_vertex_collections", [])) | set(DATA_VERTICES))
+            tos = sorted(set(ed.get("to_vertex_collections", [])) | {"Class"})
+            patched.append({"edge_collection": "type", "from_vertex_collections": froms, "to_vertex_collections": tos})
+        if not seen_type:
+            patched.append({"edge_collection": "type", "from_vertex_collections": sorted(set(DATA_VERTICES)), "to_vertex_collections": ["Class"]})
+        knowledge_edges = patched
     ensure_graph(db, "KnowledgeGraph", knowledge_edges)
 
     print("Created/updated: OntologyGraph, DataGraph, KnowledgeGraph")

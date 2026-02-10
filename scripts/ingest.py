@@ -68,6 +68,10 @@ JSON_FIELDS = {
     "RealEstateTransaction": {"riskReasons"},
 }
 
+BOOLEAN_FIELDS = {
+    "Person": {"isSyntheticDuplicate"},
+}
+
 
 def env_any(*names: str, default: Optional[str] = None) -> str:
     for name in names:
@@ -106,6 +110,14 @@ def convert_row(collection: str, row: Dict[str, str]) -> Dict[str, Any]:
     for k, v in row.items():
         if v == "":
             continue
+        if k in BOOLEAN_FIELDS.get(collection, set()):
+            vv = v.strip().lower()
+            if vv in {"true", "1", "yes"}:
+                out[k] = True
+                continue
+            if vv in {"false", "0", "no"}:
+                out[k] = False
+                continue
         if k in NUMERIC_FIELDS.get(collection, set()):
             out[k] = to_number(v)
             continue
