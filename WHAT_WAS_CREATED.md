@@ -154,12 +154,12 @@ python run_fraud_analysis.py
 These were created in our previous session and are still valid:
 
 ✅ **Fraud Intelligence Industry Prompt**
-- Location: `~/code/graph-analytics-ai-platform/graph_analytics_ai/ai/reporting/prompts.py`
+- Location: `~/code/agentic-graph-analytics/graph_analytics_ai/ai/reporting/prompts.py`
 - Content: `FRAUD_INTELLIGENCE_PROMPT` with Indian banking context
 - Registry: `INDUSTRY_PROMPTS` mapping
 
 ✅ **Fraud Pattern Detectors**
-- Location: `~/code/graph-analytics-ai-platform/graph_analytics_ai/ai/reporting/algorithm_insights.py`
+- Location: `~/code/agentic-graph-analytics/graph_analytics_ai/ai/reporting/algorithm_insights.py`
 - Functions:
   - `detect_wcc_fraud_patterns` (money mule networks, Benami clusters)
   - `detect_pagerank_fraud_patterns` (transaction hubs, concentration)
@@ -220,7 +220,7 @@ These were created in our previous session and are still valid:
 - Don't understand the relationship
 
 **Reality:**
-- `graph-analytics-ai-platform` = The engine (Python library)
+- `agentic-graph-analytics` = The engine (Python library)
 - `fraud-intelligence` = Your project (uses the engine)
 - Scripts in fraud-intelligence import the platform
 

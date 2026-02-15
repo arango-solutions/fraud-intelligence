@@ -90,7 +90,7 @@ cat HOW_TO_RUN_GRAPH_ANALYTICS.md | less
 pip list | grep graph-analytics-ai
 
 # If not installed:
-pip install -e ~/code/graph-analytics-ai-platform
+pip install -e ~/code/agentic-graph-analytics
 
 # Test database connection
 python -c "from graph_analytics_ai import db_connection; db_connection.test_connection()"
@@ -141,7 +141,7 @@ cd ~/code/fraud-intelligence
 
 # ✅ 1. Platform installed
 pip list | grep graph-analytics-ai
-# Should show: graph-analytics-ai-platform (some version)
+# Should show: agentic-graph-analytics (some version)
 
 # ✅ 2. Script exists
 ls -l run_fraud_analysis.py
@@ -177,7 +177,7 @@ ls -l fraud_analysis_output/
 
 You have two repos working together:
 
-1. **`~/code/graph-analytics-ai-platform`** (The Engine)
+1. **`~/code/agentic-graph-analytics`** (The Engine)
    - Python library (like pandas or numpy)
    - Contains analytics code
    - You import it in scripts
@@ -194,7 +194,7 @@ You run:
   python run_fraud_analysis.py
     ↓
 Script imports:
-  graph-analytics-ai-platform
+  agentic-graph-analytics
     ↓
 Script reads:
   .env (credentials)
@@ -339,7 +339,7 @@ Edit `docs/business_requirements.md` to change what gets analyzed, then re-run.
 
 **Fix:**
 ```bash
-pip install -e ~/code/graph-analytics-ai-platform
+pip install -e ~/code/agentic-graph-analytics
 ```
 
 ### Error: "Connection to database failed"

@@ -3,14 +3,14 @@
 Fraud Intelligence Graph Analysis
 
 This script runs AI-powered fraud detection on your Indian banking graph.
-It uses the graph-analytics-ai-platform with specialized fraud intelligence
+It uses the agentic-graph-analytics library with specialized fraud intelligence
 prompts and pattern detectors.
 
 Usage:
     python run_fraud_analysis.py
 
 Requirements:
-    - graph-analytics-ai-platform installed (pip install -e ~/code/graph-analytics-ai-platform)
+    - agentic-graph-analytics installed (pip install -e ~/code/agentic-graph-analytics)
     - .env file with ArangoDB credentials and LLM API keys
     - Graph data loaded in ArangoDB
 
@@ -19,13 +19,15 @@ Output:
     - HTML reports with charts (if enabled)
     - Fraud patterns with risk classifications
     - STR-ready recommendations
+    - Historical tracking in analytics catalog (for compliance/audit)
 """
 
 import asyncio
 import os
 import sys
+from datetime import datetime
 from pathlib import Path
-from typing import List
+from typing import List, Optional, Any
 
 def _require_platform():
     try:
@@ -45,6 +47,14 @@ def _require_platform():
         )
 
         from graph_analytics_ai.ai.reporting import ReportGenerator, ReportFormat  # type: ignore
+        
+        from graph_analytics_ai.catalog import (  # type: ignore
+            AnalysisCatalog,
+            CatalogQueries,
+            ExecutionFilter,
+            ExecutionStatus,
+        )
+        from graph_analytics_ai.catalog.storage import ArangoDBStorage  # type: ignore
 
         return (
             create_llm_provider,
@@ -60,13 +70,18 @@ def _require_platform():
             ReportingAgent,
             ReportGenerator,
             ReportFormat,
+            AnalysisCatalog,
+            CatalogQueries,
+            ExecutionFilter,
+            ExecutionStatus,
+            ArangoDBStorage,
         )
     except ImportError as e:
-        print("ERROR: graph-analytics-ai-platform is not available in this environment.")
+        print("ERROR: agentic-graph-analytics is not available in this environment.")
         print("\nFix:")
-        print("  pip install -e ~/code/graph-analytics-ai-platform")
+        print("  pip install -e ~/code/agentic-graph-analytics")
         print("\nOr:")
-        print("  cd ~/code/graph-analytics-ai-platform && pip install -e .")
+        print("  cd ~/code/agentic-graph-analytics && pip install -e .")
         raise SystemExit(1) from e
 
 
@@ -87,9 +102,14 @@ def _apply_env_mapping() -> None:
         # Fall back to env-only; do not error here.
         pass
 
-    # Bridge variable names.
+    # Bridge variable names (apply_config_to_env sets both when it runs)
     if os.getenv("ARANGO_ENDPOINT") is None and os.getenv("ARANGO_URL"):
-        os.environ["ARANGO_ENDPOINT"] = os.environ["ARANGO_URL"]
+        try:
+            from common import ensure_endpoint_has_port  # type: ignore
+            endpoint = ensure_endpoint_has_port(os.environ["ARANGO_URL"])
+        except Exception:
+            endpoint = os.environ["ARANGO_URL"]
+        os.environ["ARANGO_ENDPOINT"] = endpoint
     if os.getenv("ARANGO_USER") is None and os.getenv("ARANGO_USERNAME"):
         os.environ["ARANGO_USER"] = os.environ["ARANGO_USERNAME"]
 
@@ -126,6 +146,11 @@ async def main():
         ReportingAgent,
         ReportGenerator,
         ReportFormat,
+        AnalysisCatalog,
+        CatalogQueries,
+        ExecutionFilter,
+        ExecutionStatus,
+        ArangoDBStorage,
     ) = _require_platform()
 
     # Optional: run more (or all) use cases per execution.
@@ -177,16 +202,70 @@ async def main():
     print()
     
     # ========================================================================
-    # STEP 1: Initialize Workflow Runner
+    # STEP 1: Initialize Workflow Runner & Catalog
     # ========================================================================
     
-    print("[1/4] Initializing agentic workflow...")
+    print("[1/5] Initializing agentic workflow...")
     print(f"      Graph: {GRAPH_NAME}")
     print(f"      Industry: {INDUSTRY}")
+    
+    # Check if catalog tracking should be enabled
+    enable_catalog = os.getenv("FRAUD_ANALYSIS_ENABLE_CATALOG", "true").lower() in (
+        "1",
+        "true",
+        "yes",
+        "on",
+    )
     
     try:
         db = get_db_connection()
         llm_provider = create_llm_provider()
+        
+        # Initialize catalog (optional but recommended for compliance)
+        catalog: Optional[Any] = None
+        current_epoch: Optional[Any] = None
+        
+        if enable_catalog:
+            try:
+                storage = ArangoDBStorage(db)
+                catalog = AnalysisCatalog(storage)
+                
+                # Create epoch for this analysis period
+                epoch_name = f"fraud-detection-{datetime.now().strftime('%Y-%m')}"
+                
+                # Check if epoch already exists
+                try:
+                    existing_epochs = catalog.query_epochs(
+                        filter=None,  # Get all epochs
+                        limit=100
+                    )
+                    current_epoch = next(
+                        (e for e in existing_epochs if e.name == epoch_name), 
+                        None
+                    )
+                except Exception:
+                    current_epoch = None
+                
+                if current_epoch:
+                    print(f"✓ Using existing epoch: {epoch_name}")
+                else:
+                    current_epoch = catalog.create_epoch(
+                        name=epoch_name,
+                        description=f"Monthly fraud detection analysis for Indian banking - {datetime.now().strftime('%B %Y')}",
+                        tags=["production", "fraud_intelligence", "monthly", "india", "compliance"]
+                    )
+                    print(f"✓ Created catalog epoch: {epoch_name}")
+                
+                print(f"  Epoch ID: {current_epoch.epoch_id}")
+                print("  📊 Catalog tracking ENABLED (for compliance/audit)")
+            except Exception as e:
+                print(f"⚠ Failed to initialize catalog: {e}")
+                print("  Continuing without catalog tracking...")
+                catalog = None
+                current_epoch = None
+        else:
+            print("  📊 Catalog tracking DISABLED")
+            print("     (Set FRAUD_ANALYSIS_ENABLE_CATALOG=true to enable)")
 
         core_collections = [
             "Person",
@@ -203,22 +282,42 @@ async def main():
             AgentNames.SCHEMA_ANALYST: SchemaAnalysisAgent(
                 llm_provider=llm_provider, db_connection=db
             ),
-            AgentNames.REQUIREMENTS_ANALYST: RequirementsAgent(llm_provider=llm_provider),
-            AgentNames.USE_CASE_EXPERT: UseCaseAgent(llm_provider=llm_provider),
+            AgentNames.REQUIREMENTS_ANALYST: RequirementsAgent(
+                llm_provider=llm_provider,
+                catalog=catalog  # ← Catalog integration
+            ),
+            AgentNames.USE_CASE_EXPERT: UseCaseAgent(
+                llm_provider=llm_provider,
+                catalog=catalog  # ← Catalog integration
+            ),
             AgentNames.TEMPLATE_ENGINEER: TemplateAgent(
                 llm_provider=llm_provider,
                 graph_name=GRAPH_NAME,
                 core_collections=core_collections,
                 satellite_collections=satellite_collections,
+                catalog=catalog  # ← Catalog integration
             ),
-            AgentNames.EXECUTION_SPECIALIST: ExecutionAgent(llm_provider=llm_provider),
+            AgentNames.EXECUTION_SPECIALIST: ExecutionAgent(
+                llm_provider=llm_provider,
+                catalog=catalog  # ← Catalog integration
+            ),
             AgentNames.REPORTING_SPECIALIST: ReportingAgent(
                 llm_provider=llm_provider, industry=INDUSTRY
             ),
         }
 
-        orchestrator = OrchestratorAgent(llm_provider=llm_provider, agents=agents)
+        orchestrator = OrchestratorAgent(
+            llm_provider=llm_provider, 
+            agents=agents,
+            catalog=catalog  # ← Catalog integration
+        )
         report_generator = ReportGenerator(llm_provider=llm_provider, industry=INDUSTRY)
+
+        # Associate executor with current epoch so executions are linked to this epoch
+        if catalog and current_epoch:
+            agents[AgentNames.EXECUTION_SPECIALIST].executor.epoch_id = (
+                current_epoch.epoch_id
+            )
 
         print("✓ Initialized agents (fraud_intelligence reporting enabled)")
     except Exception as e:
@@ -235,7 +334,7 @@ async def main():
     # STEP 2: Run Agentic Workflow
     # ========================================================================
     
-    print("[2/4] Running agentic workflow...")
+    print("[2/5] Running agentic workflow...")
     print("      This orchestrates multiple AI agents to:")
     print("        - Analyze your graph schema")
     print("        - Generate fraud detection queries")
@@ -286,7 +385,7 @@ async def main():
     # STEP 3: Process Results
     # ========================================================================
     
-    print("[3/4] Processing results...")
+    print("[3/5] Processing results...")
     
     if not state.reports:
         print("✗ No reports generated")
@@ -319,10 +418,56 @@ async def main():
     print()
     
     # ========================================================================
-    # STEP 4: Save Reports
+    # STEP 4: Query Catalog (if enabled)
     # ========================================================================
     
-    print("[4/4] Saving reports...")
+    if catalog and current_epoch:
+        print("[4/5] Querying catalog for historical context...")
+        
+        try:
+            queries = CatalogQueries(storage)
+            
+            # Get all executions from this epoch
+            recent_executions = queries.query_with_pagination(
+                filter=ExecutionFilter(
+                    epoch_id=current_epoch.epoch_id,
+                    status=ExecutionStatus.COMPLETED,
+                ),
+                page=1,
+                page_size=100
+            )
+            
+            print(f"✓ Tracked {recent_executions.total_count} executions in catalog:")
+            
+            # Group by algorithm
+            by_algorithm = {}
+            for exec in recent_executions.items:
+                algo = exec.algorithm
+                if algo not in by_algorithm:
+                    by_algorithm[algo] = []
+                by_algorithm[algo].append(exec)
+            
+            for algo, execs in by_algorithm.items():
+                avg_duration_ms = sum(
+                    e.performance_metrics.execution_time_seconds * 1000 for e in execs
+                ) / len(execs)
+                total_results = sum(getattr(e, "result_count", 0) for e in execs)
+                print(f"  - {algo.upper()}: {len(execs)} runs, avg {avg_duration_ms:.0f}ms, {total_results} total results")
+            
+            print("  📈 Full execution history stored for compliance/audit")
+            
+        except Exception as e:
+            print(f"⚠ Failed to query catalog: {e}")
+    else:
+        print("[4/5] Catalog tracking disabled, skipping history query")
+    
+    print()
+    
+    # ========================================================================
+    # STEP 5: Save Reports
+    # ========================================================================
+    
+    print("[5/5] Saving reports...")
     
     for i, report in enumerate(state.reports, 1):
         report_name = f"fraud_report_{i}"
@@ -392,6 +537,20 @@ async def main():
     print("💡 To run again:")
     print("   python run_fraud_analysis.py")
     print()
+    
+    if catalog and current_epoch:
+        print("📊 Catalog Information:")
+        print(f"   - Epoch: {current_epoch.name}")
+        print(f"   - Epoch ID: {current_epoch.epoch_id}")
+        print("   - All executions tracked for compliance/audit")
+        print("   - Query history: Use catalog.query_executions()")
+        print("   - View lineage: Use LineageTracker")
+        print()
+        print("   Example queries:")
+        print("     from graph_analytics_ai.catalog import CatalogQueries, ExecutionFilter")
+        print("     queries = CatalogQueries(storage)")
+        print(f"     history = queries.query_with_pagination(filter=ExecutionFilter(epoch_id='{current_epoch.epoch_id}'))")
+        print()
 
 
 if __name__ == "__main__":

@@ -58,12 +58,12 @@ streamlit run apps/phase3_demo_app.py
 
 ## Running AI-Powered Fraud Detection 🚀
 
-**NEW**: The graph-analytics-ai-platform is now configured for Indian banking fraud intelligence!
+**NEW**: The agentic-graph-analytics is now configured for Indian banking fraud intelligence with automatic tracking!
 
 ### Quick Start (AI Analytics)
 
 ```bash
-# Run AI-powered fraud detection
+# Run AI-powered fraud detection (catalog tracking enabled by default)
 python run_fraud_analysis.py
 ```
 
@@ -76,6 +76,23 @@ python run_fraud_analysis.py
 - Benami identity resolution
 - Risk classifications (CRITICAL/HIGH/MEDIUM/LOW)
 - STR-ready recommendations with PMLA/FEMA references
+- **NEW:** Full execution tracking in analytics catalog for compliance/audit
+
+### Analytics Catalog (NEW)
+
+The workflow now automatically tracks all executions for compliance and historical analysis:
+
+- **Monthly Epochs:** Analyses grouped by month (e.g., "fraud-detection-2026-02")
+- **Full Lineage:** Requirements → Use Cases → Templates → Executions → Results
+- **Historical Trends:** Compare fraud patterns across months
+- **Compliance Ready:** Complete audit trail for PMLA/FEMA/FIU-IND reviews
+
+**See:** `CATALOG_USAGE_GUIDE.md` for detailed catalog features and queries
+
+**Disable catalog (optional):**
+```bash
+FRAUD_ANALYSIS_ENABLE_CATALOG=false python run_fraud_analysis.py
+```
 
 ### Documentation
 
@@ -91,7 +108,7 @@ python run_fraud_analysis.py
 
 1. Install the platform:
    ```bash
-   pip install -e ~/code/graph-analytics-ai-platform
+   pip install -e ~/code/agentic-graph-analytics
    ```
 
 2. Ensure `.env` has your credentials:

@@ -15,7 +15,7 @@
 │  │                                                           │ │
 │  │  1. You run: python run_fraud_analysis.py                │ │
 │  │                                                           │ │
-│  │  2. Script imports graph-analytics-ai-platform           │ │
+│  │  2. Script imports agentic-graph-analytics           │ │
 │  │                                                           │ │
 │  │  3. Script reads credentials from .env                   │ │
 │  │                                                           │ │
@@ -149,9 +149,9 @@ open fraud_analysis_output/fraud_report_1.html
 
 ## Two Repositories Explained
 
-### Repository 1: `graph-analytics-ai-platform`
+### Repository 1: `agentic-graph-analytics`
 
-**Location:** `~/code/graph-analytics-ai-platform`
+**Location:** `~/code/agentic-graph-analytics`
 
 **What it is:**
 - Python library/package
@@ -205,7 +205,7 @@ python run_fraud_analysis.py
 ### Like Excel and Your Spreadsheet
 
 ```
-graph-analytics-ai-platform  =  Excel application
+agentic-graph-analytics  =  Excel application
 fraud-intelligence          =  Your specific spreadsheet
 
 You don't "run Excel" in the cloud.
@@ -250,7 +250,7 @@ You run your Python script locally, which imports the platform and uses it.
 
 ```
 ~/code/
-├── graph-analytics-ai-platform/
+├── agentic-graph-analytics/
 │   ├── graph_analytics_ai/
 │   │   ├── ai/
 │   │   │   ├── agents/           ← Agentic workflow

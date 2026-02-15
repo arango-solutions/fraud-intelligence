@@ -10,7 +10,7 @@ Ready to run AI-powered fraud detection on your Indian banking graph!
 
 ## ✅ What's Been Set Up for You
 
-The **graph-analytics-ai-platform** now has specialized fraud intelligence capabilities:
+The **agentic-graph-analytics** now has specialized fraud intelligence capabilities:
 
 ### 1. Industry Switch: `fraud_intelligence`
 
@@ -77,7 +77,7 @@ Three key documents in your `fraud-intelligence` project:
 
 ```bash
 cd ~/code/fraud-intelligence
-pip install -e ~/code/graph-analytics-ai-platform
+pip install -e ~/code/agentic-graph-analytics
 ```
 
 ### Step 2: Configure Environment
@@ -287,7 +287,7 @@ for i, report in enumerate(state.reports):
 - **Setup Guide**: `GRAPH_ANALYTICS_SETUP_GUIDE.md` (detailed instructions)
 - **Domain Description**: `docs/domain_description.md` (Indian banking context)
 - **Business Requirements**: `docs/business_requirements.md` (objectives and success criteria)
-- **Platform README**: `~/code/graph-analytics-ai-platform/README.md`
+- **Platform README**: `~/code/agentic-graph-analytics/README.md`
 - **Industry Prompts**: `graph_analytics_ai/ai/reporting/prompts.py` (see FRAUD_INTELLIGENCE_PROMPT)
 - **Pattern Detection**: `graph_analytics_ai/ai/reporting/algorithm_insights.py` (fraud patterns)
 

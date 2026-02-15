@@ -8,10 +8,10 @@
 
 You have TWO repositories working together:
 
-1. **`~/code/graph-analytics-ai-platform`** - The analytics engine (library/package)
+1. **`~/code/agentic-graph-analytics`** - The analytics engine (library/package)
 2. **`~/code/fraud-intelligence`** - Your fraud detection project (uses the engine)
 
-The fraud-intelligence project runs **Python scripts** that call the graph-analytics-ai-platform library.
+The fraud-intelligence project runs **Python scripts** that call the agentic-graph-analytics library.
 
 ---
 
@@ -51,7 +51,7 @@ pip list | grep graph-analytics-ai
 **If you don't see it:**
 
 ```bash
-pip install -e ~/code/graph-analytics-ai-platform
+pip install -e ~/code/agentic-graph-analytics
 ```
 
 ### 3. Verify Your .env File Exists
@@ -296,7 +296,7 @@ The `.env` file contains **your credentials** so the Python script can:
 **Fix:**
 
 ```bash
-pip install -e ~/code/graph-analytics-ai-platform
+pip install -e ~/code/agentic-graph-analytics
 ```
 
 ### Error: "Connection to ArangoDB failed"
@@ -403,7 +403,7 @@ fraud-intelligence/
 - ❌ There is no "Retry" button anywhere
 - ❌ You don't run it from ArangoGraph Platform UI
 - ❌ You don't paste credentials into chat with an AI
-- ❌ The graph-analytics-ai-platform is not a web app you login to
+- ❌ The agentic-graph-analytics is not a web app you login to
 
 ---
 
@@ -454,5 +454,5 @@ Check these docs in this repo:
 
 Or check the platform repo:
 
-- `~/code/graph-analytics-ai-platform/README.md`
-- `~/code/graph-analytics-ai-platform/examples/` - More example scripts
+- `~/code/agentic-graph-analytics/README.md`
+- `~/code/agentic-graph-analytics/examples/` - More example scripts

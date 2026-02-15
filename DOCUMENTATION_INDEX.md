@@ -25,6 +25,7 @@ If you just want to **RUN THE ANALYSIS RIGHT NOW:**
 | **[HOW_TO_RUN_GRAPH_ANALYTICS.md](HOW_TO_RUN_GRAPH_ANALYTICS.md)** | **First** - Before running anything | Step-by-step instructions, corrects "UI" misconception |
 | **[PRE_FLIGHT_CHECKLIST.md](PRE_FLIGHT_CHECKLIST.md)** | Before running the script | Verify setup, troubleshoot common issues |
 | **[QUICK_START.md](QUICK_START.md)** | Quick reference | Examples, tips, common patterns |
+| **[CATALOG_USAGE_GUIDE.md](CATALOG_USAGE_GUIDE.md)** | **NEW** - For compliance tracking | Analytics catalog, historical analysis, audit trails |
 | **[ARCHITECTURE.md](ARCHITECTURE.md)** | Want to understand the system | How everything fits together, visual diagrams |
 | **[GRAPH_ANALYTICS_SETUP_GUIDE.md](GRAPH_ANALYTICS_SETUP_GUIDE.md)** | Setting up from scratch | Detailed installation and configuration |
 
@@ -87,6 +88,7 @@ fraud-intelligence/
 │   ├── HOW_TO_RUN_GRAPH_ANALYTICS.md  ← START HERE
 │   ├── PRE_FLIGHT_CHECKLIST.md        ← Verify before running
 │   ├── QUICK_START.md                 ← Quick reference
+│   ├── CATALOG_USAGE_GUIDE.md         ← NEW: Analytics catalog
 │   ├── ARCHITECTURE.md                ← How it works
 │   └── GRAPH_ANALYTICS_SETUP_GUIDE.md ← Detailed setup
 │
@@ -138,7 +140,7 @@ See **[HOW_TO_RUN_GRAPH_ANALYTICS.md](HOW_TO_RUN_GRAPH_ANALYTICS.md)** for detai
 
 ### The Two Repositories
 
-1. **`graph-analytics-ai-platform`** (the engine)
+1. **`agentic-graph-analytics`** (the engine)
    - Python library/package
    - Contains analytics code
    - You `import` it in scripts
@@ -214,7 +216,7 @@ pip list | grep graph-analytics-ai
 ### Install Platform
 
 ```bash
-pip install -e ~/code/graph-analytics-ai-platform
+pip install -e ~/code/agentic-graph-analytics
 ```
 
 ### Open Reports
@@ -244,9 +246,9 @@ open fraud_analysis_output/fraud_report_1.html
 
 ### Level 3: Advanced User
 
-1. Study `~/code/graph-analytics-ai-platform/graph_analytics_ai/ai/reporting/prompts.py`
+1. Study `~/code/agentic-graph-analytics/graph_analytics_ai/ai/reporting/prompts.py`
 2. Customize `FRAUD_INTELLIGENCE_PROMPT` for your needs
-3. Study `~/code/graph-analytics-ai-platform/graph_analytics_ai/ai/reporting/algorithm_insights.py`
+3. Study `~/code/agentic-graph-analytics/graph_analytics_ai/ai/reporting/algorithm_insights.py`
 4. Add custom pattern detectors
 5. Modify `run_fraud_analysis.py` for custom workflows
 
@@ -277,6 +279,9 @@ open fraud_analysis_output/fraud_report_1.html
 
 ### "I want to understand Indian banking fraud context"
 → **[docs/domain_description.md](docs/domain_description.md)**
+
+### "I need to track executions for compliance/audit"
+→ **[CATALOG_USAGE_GUIDE.md](CATALOG_USAGE_GUIDE.md)**
 
 ---
 

@@ -13,12 +13,12 @@
 
 2. **How it actually works:**
    - You run Python scripts locally on the user's machine
-   - Scripts import `graph-analytics-ai-platform` (a Python library)
+   - Scripts import `agentic-graph-analytics` (a Python library)
    - Scripts connect to ArangoDB using credentials from `.env`
    - Scripts generate reports and save them to disk
 
 3. **The setup:**
-   - `~/code/graph-analytics-ai-platform` = The analytics engine (library)
+   - `~/code/agentic-graph-analytics` = The analytics engine (library)
    - `~/code/fraud-intelligence` = This project (uses the engine)
 
 ---
@@ -40,7 +40,7 @@ That's it. The script is already created and ready to run.
 
 The `run_fraud_analysis.py` script:
 
-1. Imports the `graph-analytics-ai-platform` library
+1. Imports the `agentic-graph-analytics` library
 2. Reads credentials from `.env` file (automatically)
 3. Connects to ArangoDB
 4. Initializes `AgenticWorkflowRunner` with `industry="fraud_intelligence"`
@@ -148,7 +148,7 @@ runner = AgenticWorkflowRunner(
    ```
 
 3. **Common errors:**
-   - "ModuleNotFoundError" → Run `pip install -e ~/code/graph-analytics-ai-platform`
+   - "ModuleNotFoundError" → Run `pip install -e ~/code/agentic-graph-analytics`
    - "Connection failed" → Check `.env` credentials and cluster status
    - "Graph not found" → Verify graph name in script matches ArangoDB
    - "No reports generated" → Check if graph has data

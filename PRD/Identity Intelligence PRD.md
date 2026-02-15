@@ -110,7 +110,7 @@ The subsystem will implement the pipeline pattern defined in `arango-entity-reso
 * **Requirement:** This **MUST** use ArangoDB's **Weakly Connected Components (WCC)** algorithm for scale.
 * **Implementation:**
 1. Create a temporary graph `MatchGraph` where edges represent high-confidence matches.
-2. Execute **WCC** via `GAEOrchestrator` (from `graph-analytics-ai-platform`).
+2. Execute **WCC** via `GAEOrchestrator` (from `agentic-graph-analytics`).
 3. Each resulting "Component" is a unique real-world identity.
 
 

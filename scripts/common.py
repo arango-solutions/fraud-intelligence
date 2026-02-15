@@ -56,6 +56,24 @@ def sanitize_url(url: str) -> str:
         return re.sub(r"//[^/@]+@", "//***@", url)
 
 
+def ensure_endpoint_has_port(url: str, default_port: int = 8529) -> str:
+    """
+    Append :8529 to ArangoDB endpoint if no port is present.
+    Prevents 401 errors when the platform expects the port.
+    """
+    if not url:
+        return url
+    try:
+        u = urlparse(url)
+        if u.port is not None:
+            return url
+        # No port: append default (e.g. https://host -> https://host:8529)
+        netloc = f"{u.hostname or u.netloc}:{default_port}"
+        return urlunparse((u.scheme, netloc, u.path or "", u.params, u.query, u.fragment))
+    except Exception:
+        return url
+
+
 def get_mode() -> str:
     return (os.getenv("MODE") or os.getenv("ARANGO_MODE") or "LOCAL").strip().upper()
 
@@ -119,9 +137,12 @@ def apply_config_to_env(cfg: ArangoConfig) -> None:
     """
     Normalize the env vars our scripts/tests use.
     Never prints secrets.
+    Ensures ARANGO_URL and ARANGO_ENDPOINT include :8529 when missing (avoids 401).
     """
+    url = ensure_endpoint_has_port(cfg.url)
     os.environ["MODE"] = cfg.mode
-    os.environ["ARANGO_URL"] = cfg.url
+    os.environ["ARANGO_URL"] = url
+    os.environ["ARANGO_ENDPOINT"] = url
     os.environ["ARANGO_USERNAME"] = cfg.username
     os.environ["ARANGO_PASSWORD"] = cfg.password
     # Support both names; prefer ARANGO_DATABASE going forward.

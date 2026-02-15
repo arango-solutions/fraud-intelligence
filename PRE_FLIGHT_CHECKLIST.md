@@ -14,7 +14,7 @@ pip list | grep graph-analytics-ai
 
 **If not:**
 ```bash
-pip install -e ~/code/graph-analytics-ai-platform
+pip install -e ~/code/agentic-graph-analytics
 ```
 
 ---
@@ -152,7 +152,7 @@ python run_fraud_analysis.py
 
 **Fix:**
 ```bash
-pip install -e ~/code/graph-analytics-ai-platform
+pip install -e ~/code/agentic-graph-analytics
 ```
 
 ### "Connection to database failed"

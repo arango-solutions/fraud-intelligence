@@ -23,7 +23,7 @@ python run_fraud_analysis.py
 ```bash
 # 1. Check platform installed
 pip list | grep graph-analytics-ai
-# If missing: pip install -e ~/code/graph-analytics-ai-platform
+# If missing: pip install -e ~/code/agentic-graph-analytics
 
 # 2. Check .env exists
 ls -la .env
@@ -250,7 +250,7 @@ pip list | grep graph-analytics-ai
 
 ### Install platform
 ```bash
-pip install -e ~/code/graph-analytics-ai-platform
+pip install -e ~/code/agentic-graph-analytics
 ```
 
 ### View reports
@@ -289,7 +289,7 @@ cat run_fraud_analysis.py  # The script itself has inline comments
 **A:** Yes - edit `docs/business_requirements.md`
 
 ### Q: How do I add new fraud patterns?
-**A:** Edit pattern detectors in `graph-analytics-ai-platform` repo
+**A:** Edit pattern detectors in `agentic-graph-analytics` repo
 
 ### Q: Can I export reports?
 **A:** Reports are already exported to `fraud_analysis_output/`

@@ -43,7 +43,7 @@ agentic orchestration and algorithm-backed reporting beyond the Visualizer.
 cd ~/code/fraud-intelligence
 
 # Install the library
-pip install -e ~/code/graph-analytics-ai-platform
+pip install -e ~/code/agentic-graph-analytics
 
 # Verify installation
 python -c "from graph_analytics_ai.ai.agents import AgenticWorkflowRunner; print('✓ Installed')"
@@ -596,7 +596,7 @@ runner = AgenticWorkflowRunner(
 ## Support
 
 See graph-analytics-ai documentation:
-- Main README: `~/code/graph-analytics-ai-platform/README.md`
+- Main README: `~/code/agentic-graph-analytics/README.md`
 - Industry prompts: `graph_analytics_ai/ai/reporting/prompts.py`
 - Pattern detection: `graph_analytics_ai/ai/reporting/algorithm_insights.py`
 

@@ -92,7 +92,7 @@ These files from our previous session are still in place:
 - `docs/domain_description.md` (Indian banking context)
 - `docs/business_requirements.md` (fraud detection objectives)
 
-### In graph-analytics-ai-platform
+### In agentic-graph-analytics
 
 These were created in our previous session and are still configured:
 
@@ -153,7 +153,7 @@ These were created in our previous session and are still configured:
 ### 3. Two Repositories 📚
 
 **Clarified:**
-- `graph-analytics-ai-platform` = Engine (library)
+- `agentic-graph-analytics` = Engine (library)
 - `fraud-intelligence` = Your project (uses engine)
 - Import relationship explained
 
