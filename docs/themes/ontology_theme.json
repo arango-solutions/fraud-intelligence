@@ -1,21 +1,39 @@
 {
   "name": "Ontology",
-  "description": "OntologyGraph theme (classes + properties).",
+  "description": "OntologyGraph theme (classes and properties).",
   "nodeConfigMap": {
     "Ontology": {
-      "background": { "color": "#4a5568", "iconName": "fa6-solid:diagram-project" },
+      "background": {"color": "#4a5568", "iconName": "fa6-solid:diagram-project"},
       "labelAttribute": "description",
       "hoverInfoAttributes": ["description", "comment", "label", "_label", "uri", "_uri", "_key", "_id"],
       "rules": []
     },
     "Class": {
-      "background": { "color": "#9f7aea", "iconName": "fa6-solid:shapes" },
+      "background": {"color": "#9f7aea", "iconName": "fa6-solid:shapes"},
       "labelAttribute": "_label",
       "hoverInfoAttributes": ["_label", "_uri", "label", "uri", "_id"],
       "rules": []
     },
     "Property": {
-      "background": { "color": "#d69e2e", "iconName": "fa6-solid:link" },
+      "background": {"color": "#d69e2e", "iconName": "fa6-solid:link"},
+      "labelAttribute": "_label",
+      "hoverInfoAttributes": ["_label", "_uri", "_key", "_id"],
+      "rules": []
+    },
+    "ObjectProperty": {
+      "background": {"color": "#d69e2e", "iconName": "fa6-solid:link"},
+      "labelAttribute": "_label",
+      "hoverInfoAttributes": ["_label", "_uri", "_key", "_id"],
+      "rules": []
+    },
+    "DatatypeProperty": {
+      "background": {"color": "#d69e2e", "iconName": "fa6-solid:link"},
+      "labelAttribute": "_label",
+      "hoverInfoAttributes": ["_label", "_uri", "_key", "_id"],
+      "rules": []
+    },
+    "OntologyGraph_UnknownResource": {
+      "background": {"color": "#718096", "iconName": "fa6-solid:circle-question"},
       "labelAttribute": "_label",
       "hoverInfoAttributes": ["_label", "_uri", "_key", "_id"],
       "rules": []
@@ -23,23 +41,32 @@
   },
   "edgeConfigMap": {
     "subClassOf": {
-      "lineStyle": { "color": "#805ad5", "thickness": 1.2 },
-      "arrowStyle": { "sourceArrowShape": "none", "targetArrowShape": "triangle" },
+      "lineStyle": {"color": "#805ad5", "thickness": 1.2},
+      "arrowStyle": {"sourceArrowShape": "none", "targetArrowShape": "triangle"},
       "hoverInfoAttributes": [],
-      "rules": []
+      "rules": [],
+      "labelStyle": {"color": "#1d2531"}
     },
     "domain": {
-      "lineStyle": { "color": "#4a5568", "thickness": 1.0 },
-      "arrowStyle": { "sourceArrowShape": "none", "targetArrowShape": "triangle" },
+      "lineStyle": {"color": "#4a5568", "thickness": 1},
+      "arrowStyle": {"sourceArrowShape": "none", "targetArrowShape": "triangle"},
       "hoverInfoAttributes": [],
-      "rules": []
+      "rules": [],
+      "labelStyle": {"color": "#1d2531"}
     },
     "range": {
-      "lineStyle": { "color": "#2b6cb0", "thickness": 1.0 },
-      "arrowStyle": { "sourceArrowShape": "none", "targetArrowShape": "triangle" },
+      "lineStyle": {"color": "#2b6cb0", "thickness": 1},
+      "arrowStyle": {"sourceArrowShape": "none", "targetArrowShape": "triangle"},
       "hoverInfoAttributes": [],
-      "rules": []
+      "rules": [],
+      "labelStyle": {"color": "#1d2531"}
+    },
+    "type": {
+      "lineStyle": {"color": "#9f7aea", "thickness": 0.8},
+      "arrowStyle": {"sourceArrowShape": "none", "targetArrowShape": "triangle"},
+      "hoverInfoAttributes": [],
+      "rules": [],
+      "labelStyle": {"color": "#1d2531"}
     }
   }
 }
-

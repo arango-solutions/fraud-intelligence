@@ -53,7 +53,6 @@ DATA_EDGES: List[Dict] = [
 # because ArangoRDF's mapping may evolve (e.g., it uses `Property` as the unified
 # collection for ontology properties).
 
-
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description="Define OntologyGraph / DataGraph / KnowledgeGraph in ArangoDB.")
     p.add_argument("--mode", choices=["LOCAL", "REMOTE"], help="Override MODE for Arango connection")
@@ -61,7 +60,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument(
         "--with-type-edges",
         action="store_true",
-        help="Create KnowledgeGraph rdf:type edges from data vertices to ontology Class nodes (edge collection: type)",
+        help="Create KnowledgeGraph dataType edges from data vertices to ontology Class nodes",
     )
     return p.parse_args()
 
@@ -172,36 +171,24 @@ def ensure_graph(db, name: str, edge_definitions: List[Dict]) -> None:
 
 def create_type_edges(db) -> None:
     """
-    Create data-to-ontology links (instance → Class) using OWL/RDF's `rdf:type`.
+    Create data-to-ontology links (instance → Class) for KnowledgeGraph.
 
-    Implementation notes:
-    - We write into the `type` edge collection (the canonical predicate in OWL/RDF).
-    - We only touch edges where `_from` is in our Phase 1 data vertex collections and
-      `_to` is a `Class/*` document. Ontology-only `type` edges (produced by ArangoRDF)
-      are not modified.
+    Uses a separate `dataType` edge collection so OntologyGraph can keep `type`
+    for ontology-only metadata (Class rdf:type, etc.). OntologyGraph must remain
+    pure metadata with no data instances (Person, Organization, etc.).
     """
-    ensure_collection(db, "type", edge=True)
-    type_col = db.collection("type")
+    ensure_collection(db, "dataType", edge=True)
+    data_type_col = db.collection("dataType")
 
     if not db.has_collection("Class"):
-        print("[WARN] Missing 'Class' collection; skipping rdf:type edges")
+        print("[WARN] Missing 'Class' collection; skipping dataType edges")
         return
     class_col = db.collection("Class")
 
-    # Remove ONLY data-instance type edges, so we can rebuild deterministically.
-    # (Do not truncate the whole `type` edge collection; it may contain ontology edges.)
+    # Truncate dataType so we can rebuild deterministically (this collection is ours).
     try:
-        q = """
-FOR e IN type
-  LET fromColl = PARSE_IDENTIFIER(e._from).collection
-  LET toColl = PARSE_IDENTIFIER(e._to).collection
-  FILTER fromColl IN @fromColls
-  FILTER toColl == "Class"
-  REMOVE e IN type
-"""
-        list(db.aql.execute(q, bind_vars={"fromColls": DATA_VERTICES}))
+        data_type_col.truncate()
     except Exception:
-        # Best-effort cleanup; proceed with upserts below even if removal is restricted.
         pass
 
     def resolve_class_id(label: str) -> Optional[str]:
@@ -248,11 +235,11 @@ FOR c IN Class
             key = f"{from_id.replace('/', '_')}__{to_id.replace('/', '_')}"
             batch.append({"_key": key, "_from": from_id, "_to": to_id})
             if len(batch) >= batch_size:
-                type_col.import_bulk(batch, on_duplicate="update")
+                data_type_col.import_bulk(batch, on_duplicate="update")
                 batch = []
 
     if batch:
-        type_col.import_bulk(batch, on_duplicate="update")
+        data_type_col.import_bulk(batch, on_duplicate="update")
 
 
 def main() -> None:
@@ -282,34 +269,20 @@ def main() -> None:
         create_type_edges(db)
 
     # Create the three named graphs.
-    # OntologyGraph is created by ArangoRDF; do not override its edge definitions here.
+    # OntologyGraph is created by ArangoRDF (pure metadata: Class, Property, domain, range, subClassOf, type).
+    # Keep it; do not delete. It must not contain data instances (Person, Organization, etc.).
     ensure_graph(db, "DataGraph", DATA_EDGES)
-    # Build KnowledgeGraph by reusing the exact ontology edge definitions produced by ArangoRDF
-    # (avoids edge-definition conflicts).
-    onto_edge_defs: List[Dict] = []
-    if db.has_graph("OntologyGraph"):
-        onto_edge_defs = db.graph("OntologyGraph").edge_definitions()
-    knowledge_edges: List[Dict] = onto_edge_defs + DATA_EDGES
+    # KnowledgeGraph = DataGraph + dataType (data instances -> Class). Ontology edges stay in OntologyGraph.
+    knowledge_edges: List[Dict] = list(DATA_EDGES)
     if args.with_type_edges:
-        # Ensure KnowledgeGraph's edge definition for `type` allows:
-        # - ontology edges (from ArangoRDF)
-        # - instance typing edges (DATA_VERTICES -> Class)
-        patched: List[Dict] = []
-        seen_type = False
-        for ed in knowledge_edges:
-            if ed.get("edge_collection") != "type":
-                patched.append(ed)
-                continue
-            seen_type = True
-            froms = sorted(set(ed.get("from_vertex_collections", [])) | set(DATA_VERTICES))
-            tos = sorted(set(ed.get("to_vertex_collections", [])) | {"Class"})
-            patched.append({"edge_collection": "type", "from_vertex_collections": froms, "to_vertex_collections": tos})
-        if not seen_type:
-            patched.append({"edge_collection": "type", "from_vertex_collections": sorted(set(DATA_VERTICES)), "to_vertex_collections": ["Class"]})
-        knowledge_edges = patched
+        knowledge_edges.append({
+            "edge_collection": "dataType",
+            "from_vertex_collections": sorted(DATA_VERTICES),
+            "to_vertex_collections": ["Class"],
+        })
     ensure_graph(db, "KnowledgeGraph", knowledge_edges)
 
-    print("Created/updated: OntologyGraph, DataGraph, KnowledgeGraph")
+    print("Created/updated: OntologyGraph (metadata only), DataGraph, KnowledgeGraph")
 
 
 if __name__ == "__main__":

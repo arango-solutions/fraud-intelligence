@@ -1,0 +1,16 @@
+---
+description: MCP server bindings for this project
+alwaysApply: true
+---
+
+# MCP Server Bindings
+
+This project uses the following MCP servers. Always use these specific server identifiers to avoid confusion with other projects:
+
+| Purpose | MCP Server ID |
+|---------|--------------|
+| ArangoDB (primary database) | `arangodb-fraud-intelligence-mcp` |
+| ArangoDB Entity Resolution | `fraud-intelligence-arango-er-mcp` |
+
+- **Never** use a different project's ArangoDB MCP server (e.g. `user-arangodb-dnb-sharded-amp-mcp` or `user-dnb-er`) when working in this project.
+- When calling MCP tools, always pass the correct server identifier above.

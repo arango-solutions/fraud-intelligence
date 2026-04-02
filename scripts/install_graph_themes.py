@@ -19,6 +19,12 @@ except Exception:  # pragma: no cover
 
 ROOT = Path(__file__).resolve().parents[1]
 
+# Ontology-only collections (metadata). OntologyGraph theme and canvas actions use these only.
+ONTOLOGY_VERTEX_COLLECTIONS: frozenset = frozenset({
+    "Class", "Property", "Ontology", "ObjectProperty", "DatatypeProperty", "OntologyGraph_UnknownResource",
+})
+ONTOLOGY_EDGE_COLLECTIONS: frozenset = frozenset({"domain", "range", "subClassOf", "type"})
+
 THEMES: Dict[str, Path] = {
     "OntologyGraph": ROOT / "docs" / "themes" / "ontology_theme.json",
     "DataGraph": ROOT / "docs" / "themes" / "datagraph_theme.json",
@@ -98,108 +104,187 @@ def ensure_default_viewpoint(db, graph_name: str) -> str:
     return res["_id"]
 
 
-def install_canvas_actions(db, graph_name: str, vertex_colls: Set[str], edge_colls: Set[str]) -> None:
+def _upsert_canvas_action(
+    canvas_col,
+    vp_act_col,
+    vp_id: str,
+    graph_name: str,
+    name: str,
+    description: str,
+    query_text: str,
+    bind_vars: Dict,
+    now: str,
+) -> str:
+    """Upsert a canvas action and link to viewpoint. Returns action _id."""
+    existing = list(canvas_col.find({"name": name, "graphId": graph_name}))
+    if existing:
+        existing = sorted(existing, key=lambda d: d.get("_key", ""))
+        for extra in existing[1:]:
+            try:
+                canvas_col.delete(extra["_key"])
+            except Exception:
+                pass
+        doc = {
+            "graphId": graph_name,
+            "name": name,
+            "description": description,
+            "queryText": query_text,
+            "bindVariables": bind_vars,
+            "updatedAt": now,
+            "_key": existing[0]["_key"],
+            "_id": existing[0]["_id"],
+            "createdAt": existing[0].get("createdAt", now),
+        }
+        canvas_col.replace(doc, check_rev=False)
+        action_id = existing[0]["_id"]
+    else:
+        doc = {
+            "graphId": graph_name,
+            "name": name,
+            "description": description,
+            "queryText": query_text,
+            "bindVariables": bind_vars,
+            "createdAt": now,
+            "updatedAt": now,
+        }
+        res = canvas_col.insert(doc)
+        action_id = res["_id"]
+    if not list(vp_act_col.find({"_from": vp_id, "_to": action_id})):
+        vp_act_col.insert({"_from": vp_id, "_to": action_id, "createdAt": now, "updatedAt": now})
+    return action_id
+
+
+def install_ontology_graph_actions(db, graph_name: str) -> None:
+    """
+    Install canvas actions for OntologyGraph (metadata only).
+    Uses simple FOR node IN @nodes format. Ontology vertex types only.
+    Removes any existing actions for data collections (Person, Organization, etc.).
+    """
     ensure_collection(db, "_canvasActions", edge=False)
     ensure_collection(db, "_viewpointActions", edge=True)
+    canvas_col = db.collection("_canvasActions")
+    vp_act_col = db.collection("_viewpointActions")
+    vp_id = ensure_default_viewpoint(db, graph_name)
+    now = datetime.utcnow().isoformat() + "Z"
 
+    # Remove non-ontology expand actions (Person, Organization, etc. don't belong)
+    ontology_actions = {f"[{c}] Expand Relationships" for c in ONTOLOGY_VERTEX_COLLECTIONS}
+    for doc in canvas_col.find({"graphId": graph_name}):
+        name = doc.get("name", "")
+        if name.endswith("Expand Relationships") and name not in ontology_actions:
+            try:
+                canvas_col.delete(doc["_key"])
+                # Remove viewpoint link
+                for edge in vp_act_col.find({"_to": doc["_id"]}):
+                    vp_act_col.delete(edge["_key"])
+            except Exception:
+                pass
+
+    # Ontology edges only (from original artifacts)
+    onto_edges = "domain, range, subClassOf, type"
+    onto_edges_no_type = "domain, range, subClassOf"
+    with_ontology = "WITH Class, DatatypeProperty, ObjectProperty, Ontology, OntologyGraph_UnknownResource, Property, domain, range, subClassOf, type"
+
+    # Default: simple FOR node IN @nodes, RETURN e
+    default_query = f"""{with_ontology}
+FOR node IN @nodes
+  FOR v, e IN 1..2 ANY node GRAPH "{graph_name}"
+  LIMIT 100
+  RETURN e"""
+    _upsert_canvas_action(
+        canvas_col, vp_act_col, vp_id, graph_name,
+        "Find 2-hop neighbors (default)",
+        "Find 2-hop neighbors of the selected nodes",
+        default_query,
+        {"nodes": []},
+        now,
+    )
+
+    # Class, Property, Ontology, OntologyGraph_UnknownResource: filter on node, edges domain/range/subClassOf/type
+    for v_coll in ["Class", "Property", "Ontology", "OntologyGraph_UnknownResource"]:
+        query = f"""{with_ontology}
+FOR node IN @nodes
+  FILTER IS_SAME_COLLECTION("{v_coll}", node)
+  FOR v, e, p IN 1..1 ANY node {onto_edges}
+  LIMIT 20
+  RETURN p"""
+        _upsert_canvas_action(
+            canvas_col, vp_act_col, vp_id, graph_name,
+            f"[{v_coll}] Expand Relationships",
+            f"Expand related entities for {v_coll}",
+            query,
+            {"nodes": []},
+            now,
+        )
+
+    # DatatypeProperty, ObjectProperty: filter on traversed vertex v (from original)
+    with_props = "WITH Class, DatatypeProperty, ObjectProperty, domain, range, subClassOf"
+    for v_coll in ["DatatypeProperty", "ObjectProperty"]:
+        query = f"""{with_props}
+FOR node IN @nodes
+  FOR v, e, p IN 1..1 ANY node {onto_edges_no_type}
+  FILTER IS_SAME_COLLECTION("{v_coll}", v)
+  LIMIT 20
+  RETURN p"""
+        _upsert_canvas_action(
+            canvas_col, vp_act_col, vp_id, graph_name,
+            f"[{v_coll}] Expand Relationships",
+            f"Expand related entities for {v_coll}",
+            query,
+            {"nodes": []},
+            now,
+        )
+
+
+def install_canvas_actions(db, graph_name: str, vertex_colls: Set[str], edge_colls: Set[str]) -> None:
+    """Install canvas actions. OntologyGraph uses ontology-only logic; others use generic logic."""
+    if graph_name == "OntologyGraph":
+        install_ontology_graph_actions(db, graph_name)
+        return
+
+    ensure_collection(db, "_canvasActions", edge=False)
+    ensure_collection(db, "_viewpointActions", edge=True)
     canvas_col = db.collection("_canvasActions")
     vp_act_col = db.collection("_viewpointActions")
     vp_id = ensure_default_viewpoint(db, graph_name)
 
     edge_list_str = ", ".join(sorted(edge_colls))
-    # In cluster deployments, traversal queries should include WITH listing collections
-    # that may be encountered by the traversal (vertex + edge collections).
     with_clause = "WITH " + ", ".join(sorted(vertex_colls | edge_colls))
     now = datetime.utcnow().isoformat() + "Z"
 
-    # ------------------------------------------------------------------
-    # Default action per graph
-    # ------------------------------------------------------------------
+    # Simple format: FOR node IN @nodes (node selector provides array of selected nodes)
     default_title = "Find 2-hop neighbors (default)"
     default_query = f"""{with_clause}
 FOR node IN @nodes
-  FOR v, e IN 1..2
-    ANY node
-    GRAPH "{graph_name}"
-    LIMIT 100
-    RETURN e"""
-    default_doc = {
-        "graphId": graph_name,
-        "name": default_title,
-        "description": "Find 2-hop neighbors of the selected nodes",
-        "queryText": default_query,
-        "bindVariables": {"nodes": []},
-        "updatedAt": now,
-    }
-    existing_default = list(canvas_col.find({"name": default_title, "graphId": graph_name}))
-    if existing_default:
-        # If duplicates exist, keep one deterministically and remove the rest.
-        existing_default = sorted(existing_default, key=lambda d: d.get("_key", ""))
-        for extra in existing_default[1:]:
-            try:
-                canvas_col.delete(extra["_key"])
-            except Exception:
-                pass
-
-        default_doc["_key"] = existing_default[0]["_key"]
-        default_doc["_id"] = existing_default[0]["_id"]
-        default_doc["createdAt"] = existing_default[0].get("createdAt", now)
-        canvas_col.replace(default_doc, check_rev=False)
-        default_id = existing_default[0]["_id"]
-    else:
-        default_doc["createdAt"] = now
-        res = canvas_col.insert(default_doc)
-        default_id = res["_id"]
-
-    if not list(vp_act_col.find({"_from": vp_id, "_to": default_id})):
-        vp_act_col.insert({"_from": vp_id, "_to": default_id, "createdAt": now, "updatedAt": now})
+  FOR v, e IN 1..2 ANY node GRAPH "{graph_name}"
+  LIMIT 100
+  RETURN e"""
+    _upsert_canvas_action(
+        canvas_col, vp_act_col, vp_id, graph_name,
+        default_title,
+        "Find 2-hop neighbors of the selected nodes",
+        default_query,
+        {"nodes": []},
+        now,
+    )
 
     for v_coll in sorted(vertex_colls):
         action_title = f"[{v_coll}] Expand Relationships"
         query = f"""{with_clause}
 FOR node IN @nodes
   FILTER IS_SAME_COLLECTION("{v_coll}", node)
-  FOR v, e, p IN 1..1 ANY node
-    {edge_list_str}
-    LIMIT 20
-    RETURN p"""
+  FOR v, e, p IN 1..1 ANY node {edge_list_str}
+  LIMIT 20
+  RETURN p"""
+        _upsert_canvas_action(
+            canvas_col, vp_act_col, vp_id, graph_name,
+            action_title,
+            f"Expand related entities for {v_coll}",
+            query,
+            {"nodes": []},
+            now,
+        )
 
-        action_doc = {
-            "name": action_title,
-            "description": f"Expand related entities for {v_coll}",
-            "queryText": query,
-            "graphId": graph_name,
-            # Visualizer expects @nodes to be an array, not a string.
-            "bindVariables": {"nodes": []},
-            "updatedAt": now,
-        }
-
-        existing = list(canvas_col.find({"name": action_title, "graphId": graph_name}))
-        if existing:
-            # If duplicates exist, keep one deterministically and remove the rest.
-            existing = sorted(existing, key=lambda d: d.get("_key", ""))
-            for extra in existing[1:]:
-                try:
-                    canvas_col.delete(extra["_key"])
-                except Exception:
-                    pass
-
-            action_doc["_key"] = existing[0]["_key"]
-            action_doc["_id"] = existing[0]["_id"]
-            action_doc["createdAt"] = existing[0].get("createdAt", now)
-            # Don't require _rev for idempotent installs.
-            canvas_col.replace(action_doc, check_rev=False)
-            action_id = existing[0]["_id"]
-        else:
-            action_doc["createdAt"] = now
-            res = canvas_col.insert(action_doc)
-            action_id = res["_id"]
-
-        if not list(vp_act_col.find({"_from": vp_id, "_to": action_id})):
-            vp_act_col.insert({"_from": vp_id, "_to": action_id, "createdAt": now, "updatedAt": now})
-
-        # BankAccount-specific: detect directed cycles from a selected account
-        # (no reliance on generator "scenario" tags).
         if v_coll == "BankAccount" and "transferredTo" in edge_colls:
             cycle_title = "[BankAccount] Find cycles (AQL)"
             cycle_query = f"""{with_clause}
@@ -210,37 +295,14 @@ FOR start IN @nodes
     FILTER v._id == start
     LIMIT @limit
     RETURN p"""
-
-            cycle_doc = {
-                "name": cycle_title,
-                "description": "Find directed transfer cycles returning to the selected BankAccount (AQL traversal).",
-                "queryText": cycle_query,
-                "graphId": graph_name,
-                "bindVariables": {"nodes": [], "maxDepth": 6, "limit": 5},
-                "updatedAt": now,
-            }
-
-            existing_cycle = list(canvas_col.find({"name": cycle_title, "graphId": graph_name}))
-            if existing_cycle:
-                existing_cycle = sorted(existing_cycle, key=lambda d: d.get("_key", ""))
-                for extra in existing_cycle[1:]:
-                    try:
-                        canvas_col.delete(extra["_key"])
-                    except Exception:
-                        pass
-
-                cycle_doc["_key"] = existing_cycle[0]["_key"]
-                cycle_doc["_id"] = existing_cycle[0]["_id"]
-                cycle_doc["createdAt"] = existing_cycle[0].get("createdAt", now)
-                canvas_col.replace(cycle_doc, check_rev=False)
-                cycle_id = existing_cycle[0]["_id"]
-            else:
-                cycle_doc["createdAt"] = now
-                res = canvas_col.insert(cycle_doc)
-                cycle_id = res["_id"]
-
-            if not list(vp_act_col.find({"_from": vp_id, "_to": cycle_id})):
-                vp_act_col.insert({"_from": vp_id, "_to": cycle_id, "createdAt": now, "updatedAt": now})
+            _upsert_canvas_action(
+                canvas_col, vp_act_col, vp_id, graph_name,
+                cycle_title,
+                "Find directed transfer cycles returning to the selected BankAccount (AQL traversal).",
+                cycle_query,
+                {"nodes": [], "maxDepth": 6, "limit": 5},
+                now,
+            )
 
 
 def install_themes(db) -> None:
@@ -256,6 +318,10 @@ def install_themes(db) -> None:
 
         raw = json.loads(theme_path.read_text(encoding="utf-8"))
         vertex_colls, edge_colls = get_graph_schema(db, graph_name)
+        # OntologyGraph: restrict to metadata only (no Person, Organization, etc.)
+        if graph_name == "OntologyGraph":
+            vertex_colls = vertex_colls & ONTOLOGY_VERTEX_COLLECTIONS
+            edge_colls = edge_colls & ONTOLOGY_EDGE_COLLECTIONS
         theme = prune_theme(raw, vertex_colls, edge_colls)
         theme["graphId"] = graph_name
         now = datetime.utcnow().isoformat() + "Z"
