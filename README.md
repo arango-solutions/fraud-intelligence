@@ -1,34 +1,50 @@
 # Fraud Intelligence Demo
 
-An end-to-end **Fraud Intelligence Demo** built around **ArangoDB + graph analytics + agentic workflows**.
+An end-to-end **Fraud Intelligence Demo** targeting Risk & Compliance teams at Indian financial institutions. It demonstrates how an **Agentic AI Graph platform** can autonomously detect, analyze, and explain sophisticated financial crime schemes that defeat conventional rule-based systems.
 
-## What this is
+## The Business Problem
+
+Indian banks and NBFCs face fraud schemes that are deliberately engineered to be invisible in siloed, transactional systems:
+
+- **Circular Trading** — funds loop between shell accounts to fabricate turnover and launder money through layering. No single transaction looks suspicious; only the closed loop reveals the scheme.
+- **Money Mule Rings ("Smurfing")** — many low-activity accounts funnel small amounts toward a single aggregator, often sharing a device or IP fingerprint. Classic threshold rules miss it entirely.
+- **Real Estate Value Manipulation (Circle Rate Evasion)** — property deals are registered at or below the government-mandated minimum ("circle rate") to hide a cash component, evading stamp duty and laundering value off-ledger.
+- **Benami / Proxy Identities** — the same real person appears as multiple customer records under slight name variations or partial KYC. Relationships, accounts, and risk are fragmented across identities, making it impossible to see the true exposure.
+- **Guilt by Association** — a seemingly clean customer is materially risky because of who they transact with. Risk propagates through the network from known bad actors (watchlist hits, shell companies, tainted flows) to connected parties.
+
+These schemes share a common trait: **the evidence is in the graph, not in the row**. The platform makes that evidence visible, explainable, and actionable.
+
+## Regulatory Context
+
+Outputs are framed for **PMLA / FEMA / FIU-IND** compliance, including STR-ready recommendations and a full audit trail of every analytical execution.
+
+## What This Demo Shows
 
 This repo contains **PRDs + runnable scripts** for a demo that:
 
-- Ingests unstructured sources (e.g., deeds/news/watchlists) into a graph (“GraphRAG” + ontology)
-- Resolves proxy / duplicate identities (“Benami”) via entity resolution
-- Runs graph analytics (e.g., PageRank/WCC/cycle detection) in an agentic workflow
-- Computes and propagates risk scores (direct / inferred / path risk)
-- Presents results through three stakeholder “lenses”: Investigator, Analyst, Executive
+- Ingests unstructured sources (deeds, news articles, watchlists) into a knowledge graph via ontology-driven GraphRAG
+- Resolves Benami / proxy identities into `GoldenRecord` entities via entity resolution
+- Runs graph analytics (PageRank, WCC, cycle detection) driven by an agentic AI workflow
+- Computes and propagates risk scores — direct, inferred ("guilt by association"), and path-based
+- Presents results through three stakeholder lenses: **Investigator**, **Analyst**, **Executive**
 
 ## Repository contents
 
 - `PRD/PRD.md`: Overall project PRD and phased checklist
 - `PRD/Fraud Use Cases PRD.md`: Consolidated fraud scenarios (patterns, signals, AQL starters, demo steps)
 - `PRD/Graph Analytics PRD.md`: Subsystem 3 (AQL-native investigations + algorithm-backed analytics + optional agentic workflow)
-- `PRD/Identity Intelligence PRD.md`: Entity resolution (“Golden Record”) requirements
+- `PRD/Identity Intelligence PRD.md`: Entity resolution ("Golden Record") requirements
 - `PRD/Risk Intelligence PRD.md`: Risk scoring and propagation requirements
 - `PRD/Ontology PRD.md`: Ontology + semantic ingestion requirements
 - `PRD/Data Generator PRD.md`: Synthetic Indian Banking context data generation requirements
-- `PRD/Visualization & User Experience PRD.md`: UI/UX “three lenses” requirements
+- `PRD/Visualization & User Experience PRD.md`: UI/UX "three lenses" requirements
 - `scripts/`: Phase 1–3 runners and implementation scripts
 - `docs/`: runbooks + validation reports + themes
 
 ## Status
 
 - **Current**: Phase 1–3 are implemented and validated on REMOTE (AMP).
-- **Next**: Optional Subsystem 3 “Graph Analytics AI Platform” / agentic workflow integration (see `GRAPH_ANALYTICS_SETUP_GUIDE.md`).
+- **Next**: Optional Subsystem 3 "Graph Analytics AI Platform" / agentic workflow integration (see `GRAPH_ANALYTICS_SETUP_GUIDE.md`).
 
 ## Quick start (REMOTE)
 
@@ -50,7 +66,7 @@ python scripts/test_phase2.py --remote-only
 python scripts/test_phase3.py --remote-only
 ```
 
-4. **(Optional) Phase 3 MVP app (“three lenses”)**:
+4. **(Optional) Phase 3 MVP app ("three lenses")**:
 
 ```bash
 streamlit run apps/phase3_demo_app.py
@@ -134,4 +150,3 @@ FRAUD_ANALYSIS_ENABLE_CATALOG=false python run_fraud_analysis.py
 
 - `.env` is required for REMOTE connectivity and must not be committed (see `.env.example`).
 - `GRAPH_ANALYTICS_SETUP_GUIDE.md` is a forward-looking template for optional platform integration; do not paste real secrets into docs.
-
