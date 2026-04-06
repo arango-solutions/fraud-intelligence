@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import copy
 import json
+import re
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -138,7 +139,9 @@ def _upsert_canvas_action(
         canvas_col.replace(doc, check_rev=False)
         action_id = existing[0]["_id"]
     else:
+        stable_key = re.sub(r"[^a-z0-9]+", "_", f"{graph_name}_{name}".lower()).strip("_")
         doc = {
+            "_key": stable_key,
             "graphId": graph_name,
             "name": name,
             "description": description,
@@ -325,7 +328,6 @@ def install_themes(db) -> None:
         theme = prune_theme(raw, vertex_colls, edge_colls)
         theme["graphId"] = graph_name
         now = datetime.utcnow().isoformat() + "Z"
-        theme["createdAt"] = now
         theme["updatedAt"] = now
         theme["isDefault"] = True
         ensure_visualizer_shape(theme)
@@ -334,9 +336,11 @@ def install_themes(db) -> None:
         if existing:
             theme["_key"] = existing[0]["_key"]
             theme["_id"] = existing[0]["_id"]
+            theme["createdAt"] = existing[0].get("createdAt", now)
             theme_col.replace(theme, check_rev=False)
             print(f"[Updated Theme] {graph_name}::{theme['name']}")
         else:
+            theme["createdAt"] = now
             theme_col.insert(theme)
             print(f"[Installed Theme] {graph_name}::{theme['name']}")
 
