@@ -641,6 +641,55 @@ FOR seed IN Person
             now,
         )
 
+    # ===== GAE-derived indications (require scripts/phase3_gae.py to have run) =====
+    # phase3_gae.py computes PageRank/WCC on the ArangoDB Graph Analytics Engine and
+    # writes the scores back onto the nodes (BankAccount.pagerankScore,
+    # {BankAccount,DigitalLocation}.wccComponent). These queries surface those
+    # results as graph elements in the Visualizer.
+
+    # PageRank: the highest-influence accounts are the mule hubs. Return the top
+    # accounts with their inbound transfers so the hub + spokes render.
+    if "BankAccount" in vertex_colls and "transferredTo" in edge_colls:
+        _upsert_query(
+            queries_col, vp_query_col, vp_id, graph_name,
+            "[I&W] Top Mule Hubs (PageRank)",
+            "Highest-PageRank accounts (GAE) — money-mule collection hubs. Requires scripts/phase3_gae.py.",
+            f"""WITH BankAccount, transferredTo
+FOR acct IN BankAccount
+  FILTER acct.pagerankScore != null
+  SORT acct.pagerankScore DESC
+  LIMIT @limit
+  FOR v, e, p IN 1..1 INBOUND acct transferredTo
+    LIMIT @edgesPerHub
+    RETURN p""",
+            {"limit": 5, "edgesPerHub": 25},
+            now,
+        )
+
+    # WCC: the largest weakly-connected component in the device-sharing graph is the
+    # coordinated mule ring. Return the ring accounts + their shared-device edges.
+    if "BankAccount" in vertex_colls and "DigitalLocation" in vertex_colls and "accessedFrom" in edge_colls:
+        _upsert_query(
+            queries_col, vp_query_col, vp_id, graph_name,
+            "[I&W] Fraud Ring (WCC Community)",
+            "The largest weakly-connected component (GAE WCC over shared devices) — the coordinated mule ring. Requires scripts/phase3_gae.py.",
+            f"""WITH BankAccount, DigitalLocation, accessedFrom
+LET topComp = FIRST(
+  FOR a IN BankAccount
+    FILTER a.wccComponent != null
+    COLLECT c = a.wccComponent WITH COUNT INTO n
+    SORT n DESC
+    LIMIT 1
+    RETURN c
+)
+FOR acct IN BankAccount
+  FILTER acct.wccComponent == topComp
+  FOR v, e, p IN 1..1 OUTBOUND acct accessedFrom
+    RETURN p""",
+            {},
+            now,
+        )
+
 
 def install_canvas_actions(db, graph_name: str, vertex_colls: Set[str], edge_colls: Set[str]) -> None:
     """Install canvas actions. OntologyGraph uses ontology-only logic; others use generic logic."""

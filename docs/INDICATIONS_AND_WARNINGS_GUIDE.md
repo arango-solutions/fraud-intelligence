@@ -24,6 +24,7 @@ throwaway ArangoDB seeded with the planted demo patterns.
 |---|---|
 | `[I&W] Risk Propagation`, `UC4: Highest-Risk Entities`, the **Risk Heatmap** theme | **Phase 3** risk scoring — `python scripts/phase3_risk.py --mode REMOTE` |
 | `[I&W] Suspect Aliases`, `[Person] Reveal Aliases` | **Phase 2** entity resolution (`GoldenRecord` + `resolvedTo`) |
+| `[I&W] Top Mule Hubs (PageRank)`, `[I&W] Fraud Ring (WCC Community)` | **GAE analytics** — `~/code/agentic-graph-analytics/.venv/bin/python scripts/phase3_gae.py` (computes PageRank/WCC on the Graph Analytics Engine and writes `pagerankScore`/`wccComponent` onto the nodes) |
 
 > **Gotcha:** if the dataset is regenerated/reloaded, `riskScore` resets to 0.
 > Re-run Phase 3 afterward, or the risk-based query/theme come up empty/flat.
@@ -59,6 +60,8 @@ property sale, and synthetic **aliases** for Victor Tella.
 | **[I&W] Risk Propagation (Guilt by Association)** | Associates of the highest-risk people inherit risk | associate **paths** | ✅ if Phase 3 risk scoring + `relatedTo` exist |
 | **[I&W] Gateway Accounts (Pass-Through Intermediaries)** | Accounts with both high in- and out-degree (layering) | transfer **paths** | ⚠️ data-dependent (needs accounts with in≥3 & out≥3) |
 | **[I&W] Structuring Chains (Amount Decay Pattern)** | 3-hop chains where each transfer is ≥5% smaller (skim/fee) | chain **paths** | ⚠️ data-dependent (needs a decaying chain to exist) |
+| **[I&W] Top Mule Hubs (PageRank)** | Highest-influence accounts (GAE PageRank) — mule collection hubs | inbound transfer **paths** | ✅ after `phase3_gae.py` (writes `pagerankScore`) |
+| **[I&W] Fraud Ring (WCC Community)** | Largest device-sharing component (GAE WCC) — the coordinated ring | `accessedFrom` **paths** | ✅ after `phase3_gae.py` (writes `wccComponent`) |
 
 Plus the existing use-case queries: `UC1: Find Victor Tella`, `UC2: Top Fan-In /
 Fan-Out Accounts`, `UC3: Undervalued Property Sales`, `UC4: Highest-Risk

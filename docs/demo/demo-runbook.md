@@ -136,6 +136,16 @@ WCC runs over the **device-sharing projection** (`[BankAccount, DigitalLocation]
 + `accessedFrom`) so the mule ring separates as one large component; running it
 over raw `transferredTo` would collapse into a single giant component.
 
+`phase3_gae.py` also **writes the scores back onto the graph nodes**
+(`BankAccount.pagerankScore`, `{BankAccount,DigitalLocation}.wccComponent`), which
+power two **Visualizer** saved queries — **`[I&W] Top Mule Hubs (PageRank)`** and
+**`[I&W] Fraud Ring (WCC Community)`**. To refresh just the node scores after a
+data reload without redeploying an engine:
+
+```bash
+~/code/agentic-graph-analytics/.venv/bin/python scripts/phase3_gae.py --write-back-only
+```
+
 ---
 
 ## Demo rehearsal checklist (exact click-paths)
