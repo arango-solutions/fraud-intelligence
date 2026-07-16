@@ -18,6 +18,16 @@ paths)** — the Queries panel only draws those; queries that return scalar or
 aggregate objects render an empty canvas. This was verified end-to-end against a
 throwaway ArangoDB seeded with the planted demo patterns.
 
+### Prerequisites (run the pipeline first)
+
+| Capability | Requires |
+|---|---|
+| `[I&W] Risk Propagation`, `UC4: Highest-Risk Entities`, the **Risk Heatmap** theme | **Phase 3** risk scoring — `python scripts/phase3_risk.py --mode REMOTE` |
+| `[I&W] Suspect Aliases`, `[Person] Reveal Aliases` | **Phase 2** entity resolution (`GoldenRecord` + `resolvedTo`) |
+
+> **Gotcha:** if the dataset is regenerated/reloaded, `riskScore` resets to 0.
+> Re-run Phase 3 afterward, or the risk-based query/theme come up empty/flat.
+
 ---
 
 ## How to use in the demo
@@ -97,6 +107,26 @@ Relationships` actions for every collection.
 
 ---
 
+## Risk Heatmap theme (color by risk)
+
+Switch the graph from entity-type colors to a risk heatmap from the Visualizer
+**Legend** → theme picker → **Risk Heatmap**. It colors risk-bearing entities
+(`Person`, `Organization`, `BankAccount`, `RealProperty`,
+`RealEstateTransaction`, `GoldenRecord`) by `riskScore` (0–100 scale):
+
+| Risk | Score | Color |
+|---|---|---|
+| High | ≥ 70 | red |
+| Medium | 40–69 | yellow |
+| Low | < 40 | green |
+
+Best used **after** running Risk Propagation (or any expand) so the recolor makes
+the high-risk actors in the subgraph pop. Requires Phase 3 risk scoring (see
+Prerequisites); without it everything renders green. Switch back to the `Data` /
+`Knowledge` theme for entity-type colors.
+
+---
+
 ## Suggested demo walkthrough: "from indication to Victor Tella"
 
 **Scene 1 — Circular pattern (headline).**
@@ -121,6 +151,8 @@ the cycle / ring accounts from Scenes 1–2.
 **Scene 4 — Tainted associates.**
 Run **[I&W] Risk Propagation** → Victor's associate network lights up.
 *"Everyone one hop from our highest-risk actor inherits scrutiny."*
+Switch the **Legend → Risk Heatmap** theme so the network recolors red/yellow/green
+by `riskScore` — the high-risk actors pop visually.
 
 **Close.** *"We never started from the suspect. We started from patterns —
 cycles, shared devices, velocity, aliases — and the evidence led us to Victor

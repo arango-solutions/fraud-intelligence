@@ -22,3 +22,6 @@ data/demo/
 fraud_analysis_output/
 
 *.pdf
+.prd-drift-queue/
+.claude/
+CLAUDE.md

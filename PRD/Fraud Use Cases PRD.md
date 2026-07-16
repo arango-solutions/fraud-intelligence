@@ -236,29 +236,40 @@ FOR g IN GoldenRecord
 A seemingly “clean” customer is risky because they are connected to risky entities (watchlist hits, high-risk businesses, or tainted transaction flows).
 
 ### Graph pattern
-- **Vertices**: `WatchlistEntity`, `Person`, `Organization`, `BankAccount`
-- **Edges**: `relatedTo`, `associatedWith`, `transferredTo`
+- **Vertices**: `Person` (and its `relatedTo` associates)
+- **Edges**: `relatedTo` (Person→Person)
 - **Key fields**:
   - `riskScore`, `riskDirect`, `riskInferred`, `riskPath`, `riskReasons`
 
+> **Data-model note:** `WatchlistEntity` has **no edges** in this dataset —
+> watchlist hits are recorded as `riskScore`/`riskReasons` on `Person`. Risk
+> propagation therefore seeds from the highest-risk `Person` and walks
+> `relatedTo`, not from `WatchlistEntity`. `riskScore` is on a **0–100** scale
+> (populated by Phase 3 risk scoring; max in the demo data ≈ 95).
+
 ### Signals
-- Risk flows from known bad entities to neighbors (bounded, decayed).
+- Risk flows from the highest-risk people to their associates (bounded, decayed).
 - Explanations are captured in `riskReasons` for auditability.
 
-### Example AQL (starter: find neighbors of high-risk nodes)
+### Example AQL (deployed as the `[I&W] Risk Propagation` saved query)
 
 ```aql
-WITH Person, Organization, WatchlistEntity, relatedTo, associatedWith
-FOR start IN Person
-  FILTER start.riskScore >= 80
-  FOR v, e, p IN 1..2 ANY start relatedTo, associatedWith
-    LIMIT 50
-    RETURN { start: start._id, v: v._id, edge: e._id }
+WITH Person, relatedTo
+FOR seed IN Person
+  FILTER seed.riskScore != null AND seed.riskScore >= @minRisk   // default 50
+  SORT seed.riskScore DESC
+  LIMIT @seedLimit                                               // default 3
+  FOR v, e, p IN 1..@depth ANY seed relatedTo                   // default depth 2
+    OPTIONS { uniqueVertices: "path", bfs: true }
+    LIMIT @limit                                                 // default 25
+    RETURN p
 ```
 
 ### Demo steps (Visualizer)
-- Start from a high-risk seed (e.g., `WatchlistEntity` or `Person` with high `riskScore`).
-- Expand outward and narrate why connected entities should be investigated.
+- Requires **Phase 3** risk scoring (`python scripts/phase3_risk.py --mode REMOTE`); otherwise `riskScore` is 0 and the query is empty.
+- Run **`[I&W] Risk Propagation`** from the Queries panel — the highest-risk people and their associate network render.
+- (Optional) Switch to the **Risk Heatmap** theme (Legend) to recolor by `riskScore`.
+- Narrate why connected entities inherit scrutiny (guilt by association).
 
 ### Test hooks
 - Risk Intelligence algorithms are defined in PRDs, but not enforced by current automated tests (add once risk scripts land).

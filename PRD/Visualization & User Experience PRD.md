@@ -72,6 +72,41 @@ The interface will be built as a unified **Web Application** (likely Streamlit) 
 
 ---
 
+### 2.4 Delivered Implementation: ArangoDB Graph Visualizer
+
+The Investigator View is delivered today **natively in the ArangoDB Graph
+Visualizer** (no custom Streamlit graph component required). It is provisioned by
+the idempotent installer `scripts/install_graph_themes.py` across `DataGraph` and
+`KnowledgeGraph`. Reference docs: `docs/visualization_runbook.md` and
+`docs/INDICATIONS_AND_WARNINGS_GUIDE.md`.
+
+**Themes** (in `_graphThemeStore`, one default + opt-in heatmap per graph):
+
+* **`Data` / `Knowledge`** (default): nodes colored by **entity type** — `Person`=blue, `BankAccount`=blue-grey, `Organization`=green, `RealProperty`=brown, `WatchlistEntity`=red, `GoldenRecord`=purple, etc.
+* **`Risk Heatmap`** (opt-in, switched via the Legend): colors risk-bearing entities by `riskScore` on the **0–100** scale — **≥70 red (high), 40–69 yellow (medium), <40 green (low)**. This realizes the "predictive risk heatmap" promise at the graph level (complementing the geospatial heatmap in Lens 3). Requires Phase 3 risk scoring.
+
+**Saved queries** (Queries panel — all return vertices/edges/paths so they render):
+
+* **Use-case queries:** `UC1: Find Victor Tella`, `UC2: Top Fan-In/Fan-Out Accounts`, `UC3: Undervalued Property Sales`, `UC4: Highest-Risk Entities`, `Account Transfer Chain`.
+* **`[I&W]` indications & warnings** (start from a red-flag *pattern*, then expand to the suspect): Circular Transaction Patterns, Shared Device Mule Ring, Rapid Inbound Bursts, Round Amount Transfers, Suspect Aliases, Risk Propagation, Gateway Accounts, Structuring Chains.
+
+**Canvas actions** (right-click a node):
+
+* **BankAccount:** Find cycles (AQL), Trace Funding Sources (upstream), Trace Downstream Flow, Show Owner & Linked Accounts, Show Co-Accessed Accounts (shared device).
+* **Person:** Reveal Aliases (Golden Record), Show Accounts & Money Flows, Show Associate Network.
+* Plus generic `Find 2-hop neighbors` and `[<Type>] Expand Relationships`.
+
+**Dependencies:** the alias capabilities require **Phase 2** (entity resolution);
+the risk heatmap and risk queries require **Phase 3** (risk scoring). `riskScore`
+resets to 0 when data is regenerated, so Phase 3 must be re-run afterward.
+
+> **Note on node sizing:** the requirement in §2.1 to *size* nodes by `risk_score`
+> is not expressible in the ArangoDB Visualizer theme schema (which controls color
+> and icon, not size). Risk is therefore conveyed via the **Risk Heatmap color
+> bands** instead of node size.
+
+---
+
 ## 3. Lens 2: The "Analyst" View (Interactive Reports)
 
 **Target Persona:** Senior Analyst / Model Validator.

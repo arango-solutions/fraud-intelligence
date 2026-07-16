@@ -24,10 +24,7 @@
       "background": { "color": "#3182ce", "iconName": "fa6-solid:user" },
       "labelAttribute": "name",
       "hoverInfoAttributes": ["name", "panNumber", "riskScore"],
-      "rules": [
-        { "name": "High Risk", "condition": "riskScore >= 80", "background": { "color": "#e53e3e" } },
-        { "name": "Medium Risk", "condition": "riskScore >= 50 && riskScore < 80", "background": { "color": "#ecc94b" } }
-      ]
+      "rules": []
     },
     "Organization": {
       "background": { "color": "#38a169", "iconName": "fa6-solid:building" },

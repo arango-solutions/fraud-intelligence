@@ -32,6 +32,14 @@ THEMES: Dict[str, Path] = {
     "KnowledgeGraph": ROOT / "docs" / "themes" / "knowledgegraph_theme.json",
 }
 
+# Additional, opt-in themes installed as isDefault=False (selected via the Legend).
+# The risk heatmap colors entities by riskScore (requires Phase 3 risk scoring).
+RISK_HEATMAP_THEME: Path = ROOT / "docs" / "themes" / "risk_heatmap_theme.json"
+ADDITIONAL_THEMES: Dict[str, List[Path]] = {
+    "DataGraph": [RISK_HEATMAP_THEME],
+    "KnowledgeGraph": [RISK_HEATMAP_THEME],
+}
+
 
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description="Install graph themes + default viewpoint/actions into ArangoDB Visualizer collections.")
@@ -816,6 +824,41 @@ FOR node IN @nodes
             )
 
 
+def _install_one_theme(
+    theme_col,
+    theme_path: Path,
+    graph_name: str,
+    vertex_colls: Set[str],
+    edge_colls: Set[str],
+    is_default: bool,
+) -> None:
+    """Upsert a single theme (by name + graphId) for a graph. Exactly one theme
+    per graph should be isDefault=True (the built-in/base theme); opt-in themes
+    such as the risk heatmap are installed as isDefault=False."""
+    if not theme_path.exists():
+        raise SystemExit(f"Missing theme file: {theme_path}")
+
+    raw = json.loads(theme_path.read_text(encoding="utf-8"))
+    theme = prune_theme(raw, vertex_colls, edge_colls)
+    theme["graphId"] = graph_name
+    now = datetime.utcnow().isoformat() + "Z"
+    theme["updatedAt"] = now
+    theme["isDefault"] = is_default
+    ensure_visualizer_shape(theme)
+
+    existing = list(theme_col.find({"name": theme["name"], "graphId": graph_name}))
+    if existing:
+        theme["_key"] = existing[0]["_key"]
+        theme["_id"] = existing[0]["_id"]
+        theme["createdAt"] = existing[0].get("createdAt", now)
+        theme_col.replace(theme, check_rev=False)
+        print(f"[Updated Theme] {graph_name}::{theme['name']} (default={is_default})")
+    else:
+        theme["createdAt"] = now
+        theme_col.insert(theme)
+        print(f"[Installed Theme] {graph_name}::{theme['name']} (default={is_default})")
+
+
 def install_themes(db) -> None:
     ensure_collection(db, "_graphThemeStore", edge=False)
     theme_col = db.collection("_graphThemeStore")
@@ -827,30 +870,18 @@ def install_themes(db) -> None:
             print(f"[SKIP] Graph '{graph_name}' does not exist")
             continue
 
-        raw = json.loads(theme_path.read_text(encoding="utf-8"))
         vertex_colls, edge_colls = get_graph_schema(db, graph_name)
         # OntologyGraph: restrict to metadata only (no Person, Organization, etc.)
         if graph_name == "OntologyGraph":
             vertex_colls = vertex_colls & ONTOLOGY_VERTEX_COLLECTIONS
             edge_colls = edge_colls & ONTOLOGY_EDGE_COLLECTIONS
-        theme = prune_theme(raw, vertex_colls, edge_colls)
-        theme["graphId"] = graph_name
-        now = datetime.utcnow().isoformat() + "Z"
-        theme["updatedAt"] = now
-        theme["isDefault"] = True
-        ensure_visualizer_shape(theme)
 
-        existing = list(theme_col.find({"name": theme["name"], "graphId": graph_name}))
-        if existing:
-            theme["_key"] = existing[0]["_key"]
-            theme["_id"] = existing[0]["_id"]
-            theme["createdAt"] = existing[0].get("createdAt", now)
-            theme_col.replace(theme, check_rev=False)
-            print(f"[Updated Theme] {graph_name}::{theme['name']}")
-        else:
-            theme["createdAt"] = now
-            theme_col.insert(theme)
-            print(f"[Installed Theme] {graph_name}::{theme['name']}")
+        # Base theme (the only isDefault=True theme for this graph).
+        _install_one_theme(theme_col, theme_path, graph_name, vertex_colls, edge_colls, is_default=True)
+
+        # Opt-in additional themes (isDefault=False) — e.g. the risk heatmap.
+        for extra_path in ADDITIONAL_THEMES.get(graph_name, []):
+            _install_one_theme(theme_col, extra_path, graph_name, vertex_colls, edge_colls, is_default=False)
 
         install_canvas_actions(db, graph_name, vertex_colls, edge_colls)
 
